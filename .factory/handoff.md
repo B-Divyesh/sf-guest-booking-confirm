@@ -1,59 +1,49 @@
-# Guest Booking Confirm — verification handoff
-
-## Independent QA verdict: **FAIL — do not release**
-
-Verified on 2026-08-28 against candidate `57dab139c961a5ad93a1a224155b4ae6d5c11a76` and <https://guest-booking-confirm.sociobot.in>.
-
-The deployment correctly identifies that SHA, but it is not accepted. `.factory/claims.json` is missing (a release-blocking contract failure), and the product has no one-click sample-data demo or isolated demo sandbox. Fresh cold live evidence shows `GET /api/public/settings` returns `configured:false`; the only first-screen action is owner setup, not a guest booking/sample action. See `.factory/verification-1.md` for complete evidence, passing checks, severity, and repair prerequisites.
-
-The core local workflow, release compilation, accessibility smoke checks, DST boundary, and rate limiting passed, but they do not override these blockers.
-
----
-
-# Original builder handoff (superseded by independent QA verdict above)
+# Guest Booking Confirm — repair handoff
 
 Date: 2026-08-28  
-Work order: `guest-booking-confirm-build-1`
+Work order: `guest-booking-confirm-repair-1`  
+Repaired source commit: `fad50366bf307eeeb5bc6cdd21d19a34b8e9d709`
 
-## What shipped
+## Release-blocking repair
 
-- Rust 2021 `axum` service with SQLite persistence, migrations, structured JSON logs, graceful shutdown, secure response headers, a build-SHA health check, request-size limits, and first-`X-Forwarded-For` rate limiting.
-- First-run owner setup with Argon2 password hashing and expiring opaque owner sessions. With only `PORT` supplied, the app creates `/data/guest-booking-confirm.db`; no deployment secret is required.
-- DST-aware appointment slots generated in the business’s IANA timezone and checked again at write time.
-- Complete state path: guest request → owner approval → guest confirmation → manual reminder check → completion, plus owner/guest cancellation and guest reschedule requests.
-- Private, unguessable booking pages, copyable owner delivery links, status history, and standards-compliant UTC `.ics` download after confirmation.
-- Mobile-first owner and guest interfaces with empty, loading, validation, conflict, offline, and destructive-confirmation states.
-- Privacy-by-default 30-day cleanup for closed free-plan records, 365-day Pro cleanup, and a cookie-free aggregate daily page counter.
-- Panel Pro billing contract: Sociobot hosted checkout, query-string license capture, localStorage restore/cache, daily revalidation, paste-to-restore, and server-side verification before raising booking/retention limits. Price: $29 one-time. No payment provider is embedded.
-- `/privacy` and `/terms`, MIT license, complete README, and a single-container multi-stage Dockerfile running as UID 10001.
-- Product-specific mid-century instrument-panel design system and original generated hero artwork. Source/prompt provenance is under `assets/src/`; the 1,200 × 800 production WebP is 41.5 KB.
+This repair addresses every finding in independent report `verification-1.md` against candidate `57dab139c961a5ad93a1a224155b4ae6d5c11a76`.
 
-## Verification performed
+- Added `/demo`, a one-click guest-confirmation sandbox seeded with Maya Chen's approved Northstar Barber appointment. Its only state is `localStorage` key `demo:guest-booking-confirm:state`; it never reads or writes the owner SQLite database and makes no booking API request. The persistent banner includes **Reset demo** and **Start for real**.
+- Reworked the cold, unconfigured landing state around the guest job: **Request and confirm guest appointments**, who it is for, a primary **Try it with sample data** action, and three plain facts. The configured guest page also exposes the sample action.
+- Added the required claims contract, demo documentation, and plain-language copy audit. Every listed claim has a clean-browser `/demo` Playwright test.
+- Added title/canonical/Open Graph/Twitter metadata, original 1200×630 social artwork derivative and 180px touch icon, `robots.txt`, `sitemap.xml`, a `staticwebapp.config.json`, designed status-404 page, and server routes that return an actual HTTP 404 rather than an SPA-shell 200.
+- Added `Cache-Control: public, max-age=31536000, immutable` for `/assets/*` and `no-cache` for HTML/service-worker entry points while preserving the existing CSP and security headers.
+- Preserved the owner setup, no-account guest request, owner approval, guest confirmation, calendar, DST, rate-limit, billing, privacy, and retention behavior that had already passed.
 
-- `npm test`: 4/4 Vitest tests and 3/3 Rust tests pass.
-- `npm run check`: strict TypeScript and `cargo clippy -- -D warnings` pass.
-- `npm run build`: Vite build succeeds and places `index.html` in `dist/`; initial assets are 32.24 KB JS and 18.36 KB CSS (10.45 KB and 4.94 KB gzip).
-- `npm run test:e2e`: 2/2 Playwright 1.58.2 tests pass at an iPhone 13 viewport. The test creates a new database and exercises owner setup, guest request, owner approval, guest confirmation, and ICS availability. It also verifies direct legal routes, exactly one `h1`/`main`, zero console/resource errors, and zero serious/critical axe violations.
-- Lighthouse 12.8.2 mobile against the production build: Performance 99, Accessibility 100, Best Practices 100, SEO 100; LCP 1.8 s, CLS 0, TBT 20 ms.
-- Rate-limit burst: 40 `200` responses followed by 10 `429` responses for 50 same-client GETs; `Retry-After: 1` is set. Health is exempt.
-- Load smoke: 100 concurrent public-settings requests across distinct forwarded client IPs returned 100/100 HTTP 200 responses in 0.5 s.
-- Manual HTTP workflow confirmed an approved booking can be guest-confirmed and emits an ICS containing `STATUS:CONFIRMED`.
-- `npm audit`: 0 known vulnerabilities.
+## Regression coverage and evidence
 
-## Run and deploy
+- `npm ci`: passed; 0 vulnerabilities reported.
+- `npm test`: passed — 4 Vitest tests and 3 Rust unit tests.
+- `npm run check`: passed — strict TypeScript and `cargo clippy -- -D warnings`.
+- `npm run build`: passed — `dist/` includes the app and designed 404; initial JS is 36.18 kB (11.37 kB gzip), CSS is 19.65 kB (5.21 kB gzip).
+- `cargo build --release --locked`: passed.
+- `npm audit --omit=dev`: passed — 0 vulnerabilities.
+- `npm run test:e2e`: passed — 11 checks. It covers the existing booking workflow, desktop and iPhone-13/390px sample flows, axe serious/critical scan, claims, actual 404 status/body, immutable assets, and offline reload after service-worker control.
+- Claim commands listed in `.factory/claims.json` run from `/demo`; `npm run test:e2e -- --grep @claim:demo-confirmation-trail` passed on desktop and 390px. The full browser run passed the local-only and no-tracking-cookie claim tests as well.
+- Direct runtime HTTP evidence: `/health` returned `200 {"build_sha":"dev","status":"ok"}`; `/` returned `Cache-Control: no-cache`; the hashed JS returned `Cache-Control: public, max-age=31536000, immutable`; a nonexistent URL returned HTTP 404 and the designed 404 body.
+- Lighthouse mobile on `/demo`: Performance **99**, Accessibility **100**, LCP **1.4 s**, CLS **0**. Raw report: `.factory/qa-artifacts/lighthouse-repair.json`.
 
-See `README.md`. Production build contract:
+## Run, verify, and deploy
 
 ```sh
-docker build --build-arg BUILD_SHA=<source-sha> -t guest-booking-confirm .
+npm ci
+npm test
+npm run check
+npm run build
+npm run test:e2e
+cargo build --release --locked
+docker build --build-arg BUILD_SHA=$(git rev-parse HEAD) -t guest-booking-confirm .
 docker run --rm -p 8080:8080 -v gbc-data:/data guest-booking-confirm
 ```
 
-The factory may pass `BUILD_SHA`, `GIT_SHA`, and `SOURCE_COMMIT`; only `BUILD_SHA` is needed and it defaults to `dev`. The source tarball need not contain `.git`.
+The container still requires only `PORT` (default `8080`) and owns its SQLite data under `/data`. The factory deployment uses Azure Container Apps with `PORT=8080`; the build identity is passed through `BUILD_SHA`.
 
-## Known gaps / release notes
+## Known gaps
 
-- The local worker did not include a Docker daemon, so the Dockerfile could not be executed here; native release compilation and all runtime/browser checks passed.
-- Checkout/license verification cannot be fully exercised until the factory registers the product and issues a test license. Invalid/unavailable verification retains the free experience.
-- Email and SMS delivery are intentionally out of scope. The owner copies the private link through their existing channel and records a reminder manually.
-- This is a single-owner, single-service calendar. Staff rota optimization remains an explicit non-goal for v1.
+- No product gap remains from the verifier report.
+- The local environment has no Docker daemon; the factory ACR build/deployment is the container validation path. Checkout verification still requires a registered Sociobot test license, as it did before this repair.
