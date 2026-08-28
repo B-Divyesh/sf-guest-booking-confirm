@@ -1,0 +1,12 @@
+{
+  "slug": "guest-booking-confirm",
+  "title": "Guest Booking Confirm",
+  "territory": "utilities",
+  "user": "A microbusiness taking appointments from people who should not need to create an account, and who need a clear confirmation/reminder trail.",
+  "smallest_useful_product": "A mobile-first booking page with no account, owner-approved time requests, single-use confirm/reschedule/cancel links, ICS attachment, and a local reminder checklist.",
+  "success_measure": "At least 95% of accepted guest requests have an explicit confirmation status, and no-show follow-ups attributable to an unclear booking state fall by 30% in 60 days.",
+  "artifact_class": "web-with-backend",
+  "monetization": "freemium",
+  "constraints": "Collect only contact data necessary for booking; give a clear consent notice and deletion window; handle timezone/DST correctly; do not market it as medical-grade scheduling.",
+  "non_goals": ["payments", "staff rota optimization", "marketing CRM", "automated SMS sending"]
+}
