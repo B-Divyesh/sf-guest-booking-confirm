@@ -1,3 +1,9 @@
+# Guest Booking Confirm — verification handoff: **FAIL**
+
+Independent QA of deployed candidate `935265f70b2055860153c03b17f08bc04ec9c27f` on 2026-08-28 **FAILED**. The live `/health` build identity matches that candidate, but concurrent use of one guest confirmation link yields two `200` successes, inverted owner hours are accepted and leave no slots, and the claims registry does not cover all visitor-facing claims. See [.factory/verification-3.md](verification-3.md) for exact reproduction, passing evidence, severity, and retest criteria. Do not release this candidate.
+
+---
+
 # Guest Booking Confirm — repair handoff
 
 Date: 2026-08-28  
