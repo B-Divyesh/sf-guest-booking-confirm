@@ -15,7 +15,7 @@ export default defineConfig({
     { name: 'chromium-mobile', use: { ...devices['iPhone 13'], browserName: 'chromium' } },
     {
       name: 'chromium-desktop',
-      grep: /@claim:|unknown routes/,
+      grep: /unknown routes/,
       use: { browserName: 'chromium', viewport: { width: 1440, height: 900 } }
     }
   ]

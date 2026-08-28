@@ -1,7 +1,20 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
-test('guest request reaches owner approval and guest confirmation', async ({ page, request }) => {
+test('owner setup explains an inverted opening-hours range before saving', async ({ page }) => {
+  await page.goto('/manage');
+  await page.getByLabel('Business name').fill('Signal Studio');
+  await page.getByLabel('Service name').fill('Consultation');
+  await page.getByLabel('Business timezone').fill('UTC');
+  await page.getByLabel('Owner password').fill('correct-horse-battery');
+  await page.getByLabel('Monday opens').fill('17:00');
+  await page.getByLabel('Monday closes').fill('09:00');
+  await page.getByRole('button', { name: 'Open my booking desk' }).click();
+  await expect(page.getByRole('alert')).toHaveText('Monday closing time must be later than opening time.');
+  await expect(page.getByRole('heading', { name: 'Set up your booking desk' })).toBeVisible();
+});
+
+test('@claim:guest-no-account @claim:owner-approval-before-booking guest request reaches owner approval and guest confirmation', async ({ page, request }) => {
   const consoleErrors: string[] = [];
   const failedResponses: string[] = [];
   page.on('console', message => { if (message.type() === 'error') consoleErrors.push(message.text()); });
@@ -82,6 +95,16 @@ test('@claim:no-tracking-cookies demo sends no cross-origin request and writes n
   await page.getByRole('button', { name: 'Confirm this time' }).click();
   expect(await page.evaluate(() => document.cookie)).toBe('');
   expect(requests.every(url => new URL(url).origin === 'http://127.0.0.1:4173')).toBeTruthy();
+});
+
+test('@claim:api-rate-limit API responses enforce a per-client limit with Retry-After', async ({ page }) => {
+  await page.goto('/demo');
+  const responses = await page.evaluate(async () => Promise.all(
+    Array.from({ length: 41 }, () => fetch('/api/public/settings', { headers: { 'x-forwarded-for': 'claims-rate-limit' } })
+      .then(response => ({ status: response.status, retryAfter: response.headers.get('retry-after') })))
+  ));
+  expect(responses.filter(response => response.status === 429)).toHaveLength(1);
+  expect(responses.find(response => response.status === 429)?.retryAfter).toBe('1');
 });
 
 test('unknown routes return the designed 404 and hashed assets are immutable', async ({ page, request }) => {

@@ -1,6 +1,55 @@
-# Guest Booking Confirm — verification handoff: **FAIL**
+# Guest Booking Confirm — repair handoff: **READY FOR DEPLOYMENT**
 
-Independent QA of deployed candidate `935265f70b2055860153c03b17f08bc04ec9c27f` on 2026-08-28 **FAILED**. The live `/health` build identity matches that candidate, but concurrent use of one guest confirmation link yields two `200` successes, inverted owner hours are accepted and leave no slots, and the claims registry does not cover all visitor-facing claims. See [.factory/verification-3.md](verification-3.md) for exact reproduction, passing evidence, severity, and retest criteria. Do not release this candidate.
+Date: 2026-08-28
+Work order: `guest-booking-confirm-repair-2`
+Verifier report repaired: `.factory/verification-3.md` against candidate `935265f70b2055860153c03b17f08bc04ec9c27f`
+
+## Fixed release blockers
+
+- Guest confirmation now uses a conditional SQLite update. Concurrent uses of one private link yield exactly one `200` and one `409`; the row ends `confirmed`.
+- Guest cancellation and rescheduling also compare the state read from the private link when writing, so parallel use cannot silently overwrite a just-completed guest action.
+- Owner approval is now a single conditional update that checks for an existing accepted booking inside the write. Parallel owner approvals for the same slot leave exactly one held booking.
+- Setup and settings now reject malformed, out-of-range, inverted, and too-short weekly intervals with `422`. The owner form performs the same check before it sends, with the direct recovery message “Monday closing time must be later than opening time.”
+- Completed the claims registry for no-account guests, owner approval, free and paid capacity/retention, and rate limiting, with exact runnable regression commands.
+- Corrected the paid-plan mobile contrast failure and expanded practical navigation, owner-action, and footer tap targets to 44px.
+
+## Exact verification evidence
+
+Clean install: `npm ci` completed with 0 vulnerabilities.
+
+- `npm test` — PASS: 4 Vitest and 9 Rust tests.
+- `npm run check` — PASS: strict TypeScript and `cargo clippy -- -D warnings`.
+- `npm run build` — PASS: `dist/`; initial main JS 36.99 kB raw / 11.61 kB gzip, CSS 19.85 kB raw / 5.23 kB gzip.
+- `npm run test:e2e` — PASS: 10 Playwright checks, including desktop routing and 390px mobile guest workflow, invalid-hours recovery, demo/offline, privacy, claims, and axe serious/critical scan.
+- `cargo build --release --locked` — PASS.
+- `npm audit --omit=dev` — PASS: 0 vulnerabilities.
+- Every command recorded in `.factory/claims.json` was run from a clean Playwright/Rust test server and passed.
+
+Runtime evidence on a fresh SQLite desk at `http://127.0.0.1:4180` is retained in `.factory/qa-artifacts/`:
+
+- `backend-concurrency.json`: one accepted booking for 12 simultaneous owner approvals; guest confirm `200, 409`; guest cancel `200, 409`; confirmed ICS is downloadable.
+- `backend-state-flow.json`: reschedule `200, 409`, owner approval, confirmation, reminder, completion all succeed in order.
+- `axe-owner.json` and `local-browser-audit.json`: zero serious/critical axe findings on desktop and 390px owner views; no mobile horizontal overflow. `keyboard-resize-audit.json` records the designed 3px focus ring and no overflow at 200% text.
+- The full browser suite verifies service-worker-controlled offline `/demo` reload and no demo API request, cookies, or third-party request.
+
+## Run and deploy
+
+```sh
+npm ci
+npm test
+npm run check
+npm run build
+npm run test:e2e
+cargo build --release --locked
+docker build --build-arg BUILD_SHA=$(git rev-parse HEAD) -t guest-booking-confirm .
+docker run --rm -p 8080:8080 -v gbc-data:/data guest-booking-confirm
+```
+
+The container needs only `PORT` (default `8080`) and persists SQLite under `/data`. It runs as non-root. The factory deployment is an Azure Container Apps container build using `BUILD_SHA`; deployment identity must be verified at `/health` after rollout.
+
+## Known gaps
+
+The local worker image has no Docker executable, so the Docker build is delegated to the factory ACR build. All equivalent frontend production, locked Rust release, runtime, and browser checks passed locally.
 
 ---
 

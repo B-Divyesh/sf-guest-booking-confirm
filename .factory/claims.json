@@ -19,5 +19,40 @@
     "where": "site footer",
     "test": "npm run test:e2e -- --grep @claim:no-tracking-cookies",
     "sandbox": "fresh browser context through the demo confirmation flow; assert document.cookie is empty and every request stays same-origin"
+  },
+  {
+    "id": "guest-no-account",
+    "claim": "Guests need no account.",
+    "where": "landing page, README",
+    "test": "npm run test:e2e -- --grep @claim:guest-no-account",
+    "sandbox": "fresh browser context; use the guest request form without a sign-in, then complete the private-link confirmation trail"
+  },
+  {
+    "id": "owner-approval-before-booking",
+    "claim": "Owners approve requests before booking.",
+    "where": "landing page, guest request page, README",
+    "test": "npm run test:e2e -- --grep @claim:owner-approval-before-booking",
+    "sandbox": "fresh browser context; create a request, assert its pending state, approve it as the owner, then expose the guest confirmation state"
+  },
+  {
+    "id": "free-desk-capacity-and-retention",
+    "claim": "The free desk allows 30 active future bookings and deletes closed records after 30 days.",
+    "where": "owner panel, privacy page, README",
+    "test": "cargo test --locked claim_free_desk_capacity_and_retention",
+    "sandbox": "temporary SQLite desk; create 30 active requests, reject the 31st, then run cleanup over closed records aged 29 and 31 days"
+  },
+  {
+    "id": "panel-pro-capacity-and-retention",
+    "claim": "Panel Pro unlocks unlimited active bookings and 365-day closed-record retention.",
+    "where": "owner panel, privacy page, README",
+    "test": "cargo test --locked claim_panel_pro_capacity_and_retention",
+    "sandbox": "temporary paid SQLite desk; create 31 active requests, then run cleanup over closed records aged 364 and 366 days"
+  },
+  {
+    "id": "api-rate-limit",
+    "claim": "Every API endpoint except /health is rate-limited and returns 429 with Retry-After.",
+    "where": "README",
+    "test": "npm run test:e2e -- --grep @claim:api-rate-limit",
+    "sandbox": "fresh browser context; issue 41 same-client GET requests to a public API endpoint and assert the final response is 429 with Retry-After: 1"
   }
 ]

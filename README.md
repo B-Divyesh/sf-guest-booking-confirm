@@ -19,7 +19,7 @@ Sole traders and microbusinesses offering one appointment service from one calen
 Requirements: Node 22+, Rust 1.88+, and SQLite build support.
 
 ```sh
-npm install
+npm ci
 npm run dev
 ```
 

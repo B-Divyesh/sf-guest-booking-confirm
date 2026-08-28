@@ -33,12 +33,8 @@ use sqlx::{
     FromRow, SqlitePool,
 };
 use tokio::{net::TcpListener, signal, sync::Mutex};
-use tower_http::{
-    limit::RequestBodyLimitLayer,
-    services::ServeDir,
-    trace::TraceLayer,
-};
 use tower::ServiceExt;
+use tower_http::{limit::RequestBodyLimitLayer, services::ServeDir, trace::TraceLayer};
 use tracing::{info, warn};
 
 const BUILD_SHA: &str = match option_env!("BUILD_SHA") {
@@ -252,8 +248,17 @@ async fn security_headers(req: Request, next: Next) -> Response {
     );
     h.insert("content-security-policy", HeaderValue::from_static("default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'"));
     if path.starts_with("/assets/") {
-        h.insert(header::CACHE_CONTROL, HeaderValue::from_static("public, max-age=31536000, immutable"));
-    } else if path == "/sw.js" || path.ends_with(".html") || matches!(path.as_str(), "/" | "/demo" | "/manage" | "/privacy" | "/terms") {
+        h.insert(
+            header::CACHE_CONTROL,
+            HeaderValue::from_static("public, max-age=31536000, immutable"),
+        );
+    } else if path == "/sw.js"
+        || path.ends_with(".html")
+        || matches!(
+            path.as_str(),
+            "/" | "/demo" | "/manage" | "/privacy" | "/terms"
+        )
+    {
         h.insert(header::CACHE_CONTROL, HeaderValue::from_static("no-cache"));
     }
     response
@@ -272,7 +277,12 @@ async fn static_or_not_found(req: Request) -> Response {
 
 async fn html_file(path: &str, status: StatusCode) -> Response {
     match tokio::fs::read(path).await {
-        Ok(body) => (status, [(header::CONTENT_TYPE, "text/html; charset=utf-8")], body).into_response(),
+        Ok(body) => (
+            status,
+            [(header::CONTENT_TYPE, "text/html; charset=utf-8")],
+            body,
+        )
+            .into_response(),
         Err(_) => (status, "Not found").into_response(),
     }
 }
@@ -519,7 +529,12 @@ async fn guest_confirm(
             "This confirmation link has already been used or the request is not ready.".into(),
         ));
     }
-    set_status(&state.db, &b.id, "confirmed").await?;
+    if !transition_from_status(&state.db, &b.id, &b.status, "confirmed").await? {
+        return Err(ApiError(
+            StatusCode::CONFLICT,
+            "This confirmation link has already been used or the request is not ready.".into(),
+        ));
+    }
     Ok(Json(json!({"status":"confirmed"})))
 }
 
@@ -534,7 +549,13 @@ async fn guest_cancel(
             "This booking is already closed.".into(),
         ));
     }
-    set_status(&state.db, &b.id, "cancelled").await?;
+    if !transition_from_status(&state.db, &b.id, &b.status, "cancelled").await? {
+        return Err(ApiError(
+            StatusCode::CONFLICT,
+            "This booking was just changed. Refresh the private link to see its current state."
+                .into(),
+        ));
+    }
     Ok(Json(json!({"status":"cancelled"})))
 }
 
@@ -584,7 +605,20 @@ async fn guest_reschedule(
             "That time is no longer available. Choose another slot.".into(),
         ));
     }
-    sqlx::query("UPDATE bookings SET starts_at=?,status='reschedule_requested',reminder_done=0,reminder_done_at=NULL,updated_at=? WHERE id=?").bind(start.to_rfc3339()).bind(Utc::now().to_rfc3339()).bind(&b.id).execute(&state.db).await.map_err(db_error)?;
+    let result = sqlx::query("UPDATE bookings SET starts_at=?,status='reschedule_requested',reminder_done=0,reminder_done_at=NULL,updated_at=? WHERE id=? AND status=?")
+        .bind(start.to_rfc3339())
+        .bind(Utc::now().to_rfc3339())
+        .bind(&b.id)
+        .bind(&b.status)
+        .execute(&state.db)
+        .await
+        .map_err(db_error)?;
+    if result.rows_affected() != 1 {
+        return Err(ApiError(
+            StatusCode::CONFLICT,
+            "This reschedule link has already been used or the booking was just changed.".into(),
+        ));
+    }
     Ok(Json(json!({"status":"reschedule_requested"})))
 }
 
@@ -741,14 +775,12 @@ async fn owner_action(
     let b = b.ok_or_else(|| ApiError(StatusCode::NOT_FOUND, "Booking not found.".into()))?;
     match action.as_str() {
         "approve" if matches!(b.status.as_str(), "requested" | "reschedule_requested") => {
-            let conflict: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM bookings WHERE id != ? AND starts_at=? AND status IN ('awaiting_confirmation','confirmed')").bind(&id).bind(&b.starts_at).fetch_one(&state.db).await.map_err(db_error)?;
-            if conflict > 0 {
+            if !approve_booking(&state.db, &id).await? {
                 return Err(ApiError(
                     StatusCode::CONFLICT,
                     "Another accepted booking now uses this slot.".into(),
                 ));
             }
-            set_status(&state.db, &id, "awaiting_confirmation").await?;
         }
         "cancel" if !matches!(b.status.as_str(), "cancelled" | "completed") => {
             set_status(&state.db, &id, "cancelled").await?
@@ -864,6 +896,32 @@ async fn set_status(db: &SqlitePool, id: &str, status: &str) -> ApiResult<()> {
         .map_err(db_error)?;
     Ok(())
 }
+async fn transition_from_status(
+    db: &SqlitePool,
+    id: &str,
+    expected_status: &str,
+    next_status: &str,
+) -> ApiResult<bool> {
+    let result = sqlx::query("UPDATE bookings SET status=?,updated_at=? WHERE id=? AND status=?")
+        .bind(next_status)
+        .bind(Utc::now().to_rfc3339())
+        .bind(id)
+        .bind(expected_status)
+        .execute(db)
+        .await
+        .map_err(db_error)?;
+    Ok(result.rows_affected() == 1)
+}
+async fn approve_booking(db: &SqlitePool, id: &str) -> ApiResult<bool> {
+    let result = sqlx::query("UPDATE bookings SET status='awaiting_confirmation',updated_at=? WHERE id=? AND status IN ('requested','reschedule_requested') AND NOT EXISTS (SELECT 1 FROM bookings AS accepted WHERE accepted.id != ? AND accepted.starts_at = bookings.starts_at AND accepted.status IN ('awaiting_confirmation','confirmed'))")
+        .bind(Utc::now().to_rfc3339())
+        .bind(id)
+        .bind(id)
+        .execute(db)
+        .await
+        .map_err(db_error)?;
+    Ok(result.rows_affected() == 1)
+}
 fn validate_name_email(name: &str, email: &str) -> ApiResult<()> {
     if name.trim().len() < 2 || name.len() > 80 {
         return Err(ApiError(
@@ -905,6 +963,7 @@ fn validate_setup(i: &SetupInput, require_password: bool) -> ApiResult<()> {
             "Duration must be 15–480 minutes.".into(),
         ));
     }
+    validate_weekly_hours(&i.weekly_hours, i.duration_minutes)?;
     if require_password && i.password.len() < 10 {
         return Err(ApiError(
             StatusCode::UNPROCESSABLE_ENTITY,
@@ -912,6 +971,89 @@ fn validate_setup(i: &SetupInput, require_password: bool) -> ApiResult<()> {
         ));
     }
     Ok(())
+}
+fn validate_weekly_hours(hours: &Value, duration_minutes: i64) -> ApiResult<()> {
+    let object = hours.as_object().ok_or_else(|| {
+        ApiError(
+            StatusCode::UNPROCESSABLE_ENTITY,
+            "Hours must list each open day as a start and closing time.".into(),
+        )
+    })?;
+    let days = [
+        ("mon", "Monday"),
+        ("tue", "Tuesday"),
+        ("wed", "Wednesday"),
+        ("thu", "Thursday"),
+        ("fri", "Friday"),
+        ("sat", "Saturday"),
+        ("sun", "Sunday"),
+    ];
+    if object
+        .keys()
+        .any(|key| !days.iter().any(|(code, _)| key == code))
+    {
+        return Err(ApiError(
+            StatusCode::UNPROCESSABLE_ENTITY,
+            "Hours may use only Monday through Sunday.".into(),
+        ));
+    }
+    for (code, name) in days {
+        let Some(value) = object.get(code) else {
+            continue;
+        };
+        if value.is_null() {
+            continue;
+        }
+        let range = value
+            .as_array()
+            .filter(|range| range.len() == 2)
+            .ok_or_else(|| {
+                ApiError(
+                    StatusCode::UNPROCESSABLE_ENTITY,
+                    format!("{name} hours must include an opening and closing time."),
+                )
+            })?;
+        let open = range[0].as_str().and_then(parse_clock).ok_or_else(|| {
+            ApiError(
+                StatusCode::UNPROCESSABLE_ENTITY,
+                format!("{name} opening time must use 24-hour HH:MM time."),
+            )
+        })?;
+        let close = range[1].as_str().and_then(parse_clock).ok_or_else(|| {
+            ApiError(
+                StatusCode::UNPROCESSABLE_ENTITY,
+                format!("{name} closing time must use 24-hour HH:MM time."),
+            )
+        })?;
+        if close <= open {
+            return Err(ApiError(
+                StatusCode::UNPROCESSABLE_ENTITY,
+                format!("{name} closing time must be later than opening time."),
+            ));
+        }
+        if close - open < duration_minutes {
+            return Err(ApiError(
+                StatusCode::UNPROCESSABLE_ENTITY,
+                format!("{name} hours must fit at least one appointment."),
+            ));
+        }
+    }
+    Ok(())
+}
+fn parse_clock(value: &str) -> Option<i64> {
+    let bytes = value.as_bytes();
+    if bytes.len() != 5
+        || bytes[2] != b':'
+        || !bytes
+            .iter()
+            .enumerate()
+            .all(|(index, byte)| index == 2 || byte.is_ascii_digit())
+    {
+        return None;
+    }
+    let hour = value[0..2].parse::<i64>().ok()?;
+    let minute = value[3..5].parse::<i64>().ok()?;
+    (hour < 24 && minute < 60).then_some(hour * 60 + minute)
 }
 fn parse_future(v: &str) -> ApiResult<DateTime<Utc>> {
     let d = DateTime::parse_from_rfc3339(v)
@@ -1053,6 +1195,135 @@ async fn shutdown() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use axum::{body::Body, http::Request};
+
+    async fn test_state() -> (AppState, std::path::PathBuf) {
+        let path = std::env::temp_dir().join(format!(
+            "guest-booking-confirm-{}-{}.db",
+            std::process::id(),
+            random_token(12)
+        ));
+        let options = SqliteConnectOptions::from_str(&format!("sqlite:{}", path.display()))
+            .unwrap()
+            .create_if_missing(true)
+            .foreign_keys(true);
+        let db = SqlitePoolOptions::new()
+            .max_connections(4)
+            .connect_with(options)
+            .await
+            .unwrap();
+        sqlx::raw_sql(include_str!("../migrations/0001_init.sql"))
+            .execute(&db)
+            .await
+            .unwrap();
+        (
+            AppState {
+                db,
+                limiter: Arc::new(Mutex::new(HashMap::new())),
+                client: reqwest::Client::new(),
+            },
+            path,
+        )
+    }
+
+    async fn seed_test_settings(db: &SqlitePool, paid_until: Option<String>) {
+        sqlx::query("INSERT INTO settings(id,business_name,service_name,timezone,duration_minutes,weekly_hours,welcome_note,password_hash,paid_until,created_at) VALUES(1,?,?,?,?,?,?,?,?,?)")
+            .bind("Signal Studio")
+            .bind("Consultation")
+            .bind("UTC")
+            .bind(30_i64)
+            .bind(r#"{"mon":["09:00","17:00"],"tue":["09:00","17:00"],"wed":["09:00","17:00"],"thu":["09:00","17:00"],"fri":["09:00","17:00"],"sat":["09:00","17:00"],"sun":["09:00","17:00"]}"#)
+            .bind("")
+            .bind("test-password-hash")
+            .bind(paid_until)
+            .bind(Utc::now().to_rfc3339())
+            .execute(db)
+            .await
+            .unwrap();
+    }
+
+    async fn test_slot(state: &AppState) -> String {
+        public_slots(
+            State(state.clone()),
+            Query(SlotsQuery {
+                from: None,
+                days: Some(14),
+            }),
+        )
+        .await
+        .unwrap()
+        .0["slots"]
+            .as_array()
+            .unwrap()
+            .first()
+            .unwrap()["start"]
+            .as_str()
+            .unwrap()
+            .to_string()
+    }
+
+    async fn create_test_booking(
+        state: &AppState,
+        start: &str,
+        number: usize,
+    ) -> ApiResult<(StatusCode, Json<Value>)> {
+        create_booking(
+            State(state.clone()),
+            Json(BookingInput {
+                guest_name: format!("Guest {number}"),
+                email: format!("guest-{number}@example.test"),
+                phone: None,
+                starts_at: start.to_string(),
+                consent: true,
+            }),
+        )
+        .await
+    }
+
+    async fn seed_closed_booking(db: &SqlitePool, id: &str, age_days: i64) {
+        let date = (Utc::now() - ChronoDuration::days(age_days)).to_rfc3339();
+        let token = format!("{}{}", id, "x".repeat(40));
+        sqlx::query("INSERT INTO bookings(id,reference,guest_name,email,starts_at,timezone,duration_minutes,status,guest_token,guest_token_hash,consent_at,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)")
+            .bind(id)
+            .bind(format!("GBC-{id}"))
+            .bind("Closed guest")
+            .bind(format!("{id}@example.test"))
+            .bind(&date)
+            .bind("UTC")
+            .bind(30_i64)
+            .bind("completed")
+            .bind(&token)
+            .bind(hash(&token))
+            .bind(&date)
+            .bind(&date)
+            .bind(&date)
+            .execute(db)
+            .await
+            .unwrap();
+    }
+
+    async fn seed_requested_booking(db: &SqlitePool, id: &str, start: &str) {
+        let now = Utc::now().to_rfc3339();
+        let token = format!("{id}{}", "x".repeat(40));
+        sqlx::query("INSERT INTO bookings(id,reference,guest_name,email,starts_at,timezone,duration_minutes,status,guest_token,guest_token_hash,consent_at,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)")
+            .bind(id)
+            .bind(format!("GBC-{id}"))
+            .bind("Requested guest")
+            .bind(format!("{id}@example.test"))
+            .bind(start)
+            .bind("UTC")
+            .bind(30_i64)
+            .bind("requested")
+            .bind(&token)
+            .bind(hash(&token))
+            .bind(&now)
+            .bind(&now)
+            .bind(&now)
+            .execute(db)
+            .await
+            .unwrap();
+    }
+
     #[test]
     fn validates_email_and_name() {
         assert!(validate_name_email("Ada Lovelace", "ada@example.com").is_ok());
@@ -1073,5 +1344,186 @@ mod tests {
             ),
             "20260828T123000Z"
         );
+    }
+
+    #[test]
+    fn rejects_inverted_or_malformed_weekly_hours() {
+        let mut setup = SetupInput {
+            business_name: "Signal Studio".into(),
+            service_name: "Consultation".into(),
+            timezone: "UTC".into(),
+            duration_minutes: 30,
+            weekly_hours: json!({"mon":["17:00","09:00"]}),
+            welcome_note: String::new(),
+            password: "correct-horse-battery".into(),
+        };
+        let inverted = validate_setup(&setup, true).unwrap_err();
+        assert_eq!(inverted.0, StatusCode::UNPROCESSABLE_ENTITY);
+        assert_eq!(
+            inverted.1,
+            "Monday closing time must be later than opening time."
+        );
+
+        setup.weekly_hours = json!({"mon":["27:00","28:00"]});
+        assert!(validate_setup(&setup, true).is_err());
+        setup.weekly_hours = json!({"mon":["09:00"]});
+        assert!(validate_setup(&setup, true).is_err());
+    }
+
+    #[tokio::test]
+    async fn api_rejects_inverted_weekly_hours_with_a_recovery_message() {
+        let (state, path) = test_state().await;
+        let app = build_app(state.clone());
+        let request = Request::builder()
+            .method("POST")
+            .uri("/api/owner/setup")
+            .header(header::CONTENT_TYPE, "application/json")
+            .body(Body::from(r#"{"business_name":"Signal Studio","service_name":"Consultation","timezone":"UTC","duration_minutes":30,"weekly_hours":{"mon":["17:00","09:00"]},"password":"correct-horse-battery"}"#))
+            .unwrap();
+        let response = app.oneshot(request).await.unwrap();
+        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+        let bytes = http_body_util::BodyExt::collect(response.into_body())
+            .await
+            .unwrap()
+            .to_bytes();
+        assert!(std::str::from_utf8(&bytes)
+            .unwrap()
+            .contains("Monday closing time must be later than opening time."));
+        state.db.close().await;
+        std::fs::remove_file(path).unwrap();
+    }
+
+    #[tokio::test]
+    async fn concurrent_guest_confirmation_allows_exactly_one_success() {
+        let (state, path) = test_state().await;
+        let token = "a".repeat(40);
+        let now = Utc::now().to_rfc3339();
+        sqlx::query("INSERT INTO bookings(id,reference,guest_name,email,starts_at,timezone,duration_minutes,status,guest_token,guest_token_hash,consent_at,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)")
+            .bind("booking-1")
+            .bind("GBC-TEST")
+            .bind("Ada Guest")
+            .bind("ada@example.test")
+            .bind((Utc::now() + ChronoDuration::days(2)).to_rfc3339())
+            .bind("UTC")
+            .bind(30_i64)
+            .bind("awaiting_confirmation")
+            .bind(&token)
+            .bind(hash(&token))
+            .bind(&now)
+            .bind(&now)
+            .bind(&now)
+            .execute(&state.db)
+            .await
+            .unwrap();
+        let app = build_app(state.clone());
+        let first = app.clone().oneshot(
+            Request::builder()
+                .method("POST")
+                .uri(format!("/api/guest/{token}/confirm"))
+                .body(Body::empty())
+                .unwrap(),
+        );
+        let second = app.oneshot(
+            Request::builder()
+                .method("POST")
+                .uri(format!("/api/guest/{token}/confirm"))
+                .body(Body::empty())
+                .unwrap(),
+        );
+        let (first, second) = tokio::join!(first, second);
+        let mut statuses = [first.unwrap().status(), second.unwrap().status()];
+        statuses.sort();
+        assert_eq!(statuses, [StatusCode::OK, StatusCode::CONFLICT]);
+        let status: String = sqlx::query_scalar("SELECT status FROM bookings WHERE id='booking-1'")
+            .fetch_one(&state.db)
+            .await
+            .unwrap();
+        assert_eq!(status, "confirmed");
+        state.db.close().await;
+        std::fs::remove_file(path).unwrap();
+    }
+
+    #[tokio::test]
+    async fn concurrent_owner_approval_allows_one_slot_holder() {
+        let (state, path) = test_state().await;
+        let start = (Utc::now() + ChronoDuration::days(2)).to_rfc3339();
+        seed_requested_booking(&state.db, "approval-one", &start).await;
+        seed_requested_booking(&state.db, "approval-two", &start).await;
+        let (first, second) = tokio::join!(
+            approve_booking(&state.db, "approval-one"),
+            approve_booking(&state.db, "approval-two")
+        );
+        assert_eq!(
+            [first.unwrap(), second.unwrap()]
+                .into_iter()
+                .filter(|approved| *approved)
+                .count(),
+            1
+        );
+        let accepted: i64 = sqlx::query_scalar(
+            "SELECT COUNT(*) FROM bookings WHERE starts_at=? AND status='awaiting_confirmation'",
+        )
+        .bind(start)
+        .fetch_one(&state.db)
+        .await
+        .unwrap();
+        assert_eq!(accepted, 1);
+        state.db.close().await;
+        std::fs::remove_file(path).unwrap();
+    }
+
+    #[tokio::test]
+    async fn claim_free_desk_capacity_and_retention() {
+        let (state, path) = test_state().await;
+        seed_test_settings(&state.db, None).await;
+        let slot = test_slot(&state).await;
+        for number in 0..30 {
+            assert_eq!(
+                create_test_booking(&state, &slot, number).await.unwrap().0,
+                StatusCode::CREATED
+            );
+        }
+        let limit = create_test_booking(&state, &slot, 31).await.unwrap_err();
+        assert_eq!(limit.0, StatusCode::CONFLICT);
+
+        seed_closed_booking(&state.db, "closed-31-days", 31).await;
+        seed_closed_booking(&state.db, "closed-29-days", 29).await;
+        cleanup(&state.db).await.unwrap();
+        let remaining: Vec<String> =
+            sqlx::query_scalar("SELECT id FROM bookings WHERE id LIKE 'closed-%' ORDER BY id")
+                .fetch_all(&state.db)
+                .await
+                .unwrap();
+        assert_eq!(remaining, vec!["closed-29-days"]);
+        state.db.close().await;
+        std::fs::remove_file(path).unwrap();
+    }
+
+    #[tokio::test]
+    async fn claim_panel_pro_capacity_and_retention() {
+        let (state, path) = test_state().await;
+        seed_test_settings(
+            &state.db,
+            Some((Utc::now() + ChronoDuration::days(30)).to_rfc3339()),
+        )
+        .await;
+        let slot = test_slot(&state).await;
+        for number in 0..31 {
+            assert_eq!(
+                create_test_booking(&state, &slot, number).await.unwrap().0,
+                StatusCode::CREATED
+            );
+        }
+        seed_closed_booking(&state.db, "closed-364-days", 364).await;
+        seed_closed_booking(&state.db, "closed-366-days", 366).await;
+        cleanup(&state.db).await.unwrap();
+        let remaining: Vec<String> =
+            sqlx::query_scalar("SELECT id FROM bookings WHERE id LIKE 'closed-%' ORDER BY id")
+                .fetch_all(&state.db)
+                .await
+                .unwrap();
+        assert_eq!(remaining, vec!["closed-364-days"]);
+        state.db.close().await;
+        std::fs::remove_file(path).unwrap();
     }
 }
