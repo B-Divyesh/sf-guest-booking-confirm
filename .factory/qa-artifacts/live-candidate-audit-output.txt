@@ -1,0 +1,288 @@
+{
+  "desktop": {
+    "status": 200,
+    "responseHeaders": {
+      "cache-control": "no-cache",
+      "content-length": "1882",
+      "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+      "content-type": "text/html; charset=utf-8",
+      "date": "Fri, 28 Aug 2026 18:12:13 GMT",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "referrer-policy": "same-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "initial": {
+      "title": "Demo — Guest Booking Confirm",
+      "lang": "en",
+      "h1": [
+        "Ready to confirm"
+      ],
+      "mainCount": 1,
+      "banner": "Demo — sample data, nothing is savedTry the guest confirmation step safely.Reset demoStart for real",
+      "overflow": 0,
+      "cookies": "",
+      "storage": [
+        "demo:guest-booking-confirm:state"
+      ]
+    },
+    "axeSeriousCritical": [],
+    "focusTrail": [
+      {
+        "tag": "A",
+        "text": "Skip to main content",
+        "outline": "3px solid rgb(20, 109, 135)"
+      },
+      {
+        "tag": "A",
+        "text": "Guest Booking Confirm home",
+        "outline": "3px solid rgb(20, 109, 135)"
+      },
+      {
+        "tag": "A",
+        "text": "Try sample",
+        "outline": "3px solid rgb(20, 109, 135)"
+      },
+      {
+        "tag": "A",
+        "text": "Owner panel",
+        "outline": "3px solid rgb(20, 109, 135)"
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Reset demo",
+        "outline": "3px solid rgb(20, 109, 135)"
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Start for real",
+        "outline": "3px solid rgb(20, 109, 135)"
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Confirm this time",
+        "outline": "3px solid rgb(20, 109, 135)"
+      }
+    ],
+    "afterConfirm": {
+      "h1": "Confirmed",
+      "calendar": "Download sample calendar (.ics)",
+      "cookies": "",
+      "storage": [
+        [
+          "demo:guest-booking-confirm:state",
+          "confirmed"
+        ]
+      ]
+    },
+    "afterReset": "Ready to confirm",
+    "afterExit": {
+      "storage": []
+    },
+    "reducedMotion": {
+      "matches": true,
+      "transitionDuration": "1e-05s",
+      "scrollBehavior": "auto"
+    },
+    "targetSizes": [
+      {
+        "text": "Guest Booking Confirm home",
+        "width": 203.84375,
+        "height": 24.796875
+      },
+      {
+        "text": "Try sample",
+        "width": 75.203125,
+        "height": 22.328125
+      },
+      {
+        "text": "Owner panel",
+        "width": 86.375,
+        "height": 22.328125
+      },
+      {
+        "text": "Reset demo",
+        "width": 117.8125,
+        "height": 43.8125
+      },
+      {
+        "text": "Start for real",
+        "width": 109.71875,
+        "height": 36
+      },
+      {
+        "text": "build ID",
+        "width": 47.46875,
+        "height": 16
+      },
+      {
+        "text": "Privacy",
+        "width": 45.90625,
+        "height": 21.6875
+      },
+      {
+        "text": "Terms",
+        "width": 38.125,
+        "height": 21.6875
+      }
+    ],
+    "requestOrigins": [
+      "https://guest-booking-confirm.sociobot.in"
+    ],
+    "apiRequests": [
+      "https://guest-booking-confirm.sociobot.in/api/public/settings"
+    ],
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedResponses": []
+  },
+  "mobile-390": {
+    "status": 200,
+    "responseHeaders": {
+      "cache-control": "no-cache",
+      "content-length": "1882",
+      "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+      "content-type": "text/html; charset=utf-8",
+      "date": "Fri, 28 Aug 2026 18:12:17 GMT",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "referrer-policy": "same-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "initial": {
+      "title": "Demo — Guest Booking Confirm",
+      "lang": "en",
+      "h1": [
+        "Ready to confirm"
+      ],
+      "mainCount": 1,
+      "banner": "Demo — sample data, nothing is savedTry the guest confirmation step safely.Reset demoStart for real",
+      "overflow": 0,
+      "cookies": "",
+      "storage": [
+        "demo:guest-booking-confirm:state"
+      ]
+    },
+    "axeSeriousCritical": [],
+    "focusTrail": [
+      {
+        "tag": "A",
+        "text": "Skip to main content",
+        "outline": "3px solid rgb(20, 109, 135)"
+      },
+      {
+        "tag": "A",
+        "text": "Guest Booking Confirm home",
+        "outline": "3px solid rgb(20, 109, 135)"
+      },
+      {
+        "tag": "A",
+        "text": "Try sample",
+        "outline": "3px solid rgb(20, 109, 135)"
+      },
+      {
+        "tag": "A",
+        "text": "Owner panel",
+        "outline": "3px solid rgb(20, 109, 135)"
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Reset demo",
+        "outline": "3px solid rgb(20, 109, 135)"
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Start for real",
+        "outline": "3px solid rgb(20, 109, 135)"
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Confirm this time",
+        "outline": "3px solid rgb(20, 109, 135)"
+      }
+    ],
+    "afterConfirm": {
+      "h1": "Confirmed",
+      "calendar": "Download sample calendar (.ics)",
+      "cookies": "",
+      "storage": [
+        [
+          "demo:guest-booking-confirm:state",
+          "confirmed"
+        ]
+      ]
+    },
+    "afterReset": "Ready to confirm",
+    "afterExit": {
+      "storage": []
+    },
+    "reducedMotion": {
+      "matches": true,
+      "transitionDuration": "1e-05s",
+      "scrollBehavior": "auto"
+    },
+    "targetSizes": [
+      {
+        "text": "Guest Booking Confirm home",
+        "width": 156,
+        "height": 35.1875
+      },
+      {
+        "text": "Try sample",
+        "width": 62.703125,
+        "height": 18.59375
+      },
+      {
+        "text": "Owner panel",
+        "width": 72.03125,
+        "height": 18.59375
+      },
+      {
+        "text": "Reset demo",
+        "width": 117.8125,
+        "height": 43.8125
+      },
+      {
+        "text": "Start for real",
+        "width": 109.71875,
+        "height": 36
+      },
+      {
+        "text": "build ID",
+        "width": 47.46875,
+        "height": 16
+      },
+      {
+        "text": "Privacy",
+        "width": 45.90625,
+        "height": 21.6875
+      },
+      {
+        "text": "Terms",
+        "width": 38.125,
+        "height": 21.6875
+      }
+    ],
+    "requestOrigins": [
+      "https://guest-booking-confirm.sociobot.in"
+    ],
+    "apiRequests": [
+      "https://guest-booking-confirm.sociobot.in/api/public/settings"
+    ],
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedResponses": []
+  },
+  "serviceWorker": {
+    "before": {
+      "controlled": true,
+      "active": "activated",
+      "waiting": null
+    },
+    "offline": {
+      "url": "https://guest-booking-confirm.sociobot.in/demo",
+      "h1": "Ready to confirm",
+      "banner": "Demo — sample data, nothing is savedTry the guest confirmation step safely.Reset demoStart for real"
+    }
+  }
+}
