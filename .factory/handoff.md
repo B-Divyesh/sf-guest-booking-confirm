@@ -43,6 +43,13 @@ docker run --rm -p 8080:8080 -v gbc-data:/data guest-booking-confirm
 
 The container still requires only `PORT` (default `8080`) and owns its SQLite data under `/data`. The factory deployment uses Azure Container Apps with `PORT=8080`; the build identity is passed through `BUILD_SHA`.
 
+## Deployment evidence
+
+- ACR build run `chg0` succeeded on 2026-08-28. It built `sociobotregistry.azurecr.io/sf-guest-booking-confirm:808152f0c1e3` from the committed source archive with `.git` excluded.
+- Azure Container App revision `sf-guest-booking-confirm--0000001` is `Healthy`, `Provisioned`, and receives 100% traffic with that image.
+- Public `https://guest-booking-confirm.sociobot.in/health` returns `{"build_sha":"808152f0c1e32cb0624439cad5a5f591ec27d603","status":"ok"}`.
+- The public custom domain returns the designed 404 with HTTP 404 and immutable caching for its hashed JS. Live Chromium smoke checks at 1440×900 and 390×844 each opened `/demo`, found the persistent demo banner, confirmed the sample booking, and recorded zero console errors.
+
 ## Known gaps
 
 - No product gap remains from the verifier report.
