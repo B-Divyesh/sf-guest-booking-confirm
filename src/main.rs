@@ -1334,6 +1334,26 @@ mod tests {
         assert_eq!(hash("a").len(), 64);
         assert_ne!(hash("a"), "a");
     }
+
+    #[test]
+    fn dockerfile_uses_the_unpinned_current_stable_rust_builder() {
+        let dockerfile = include_str!("../Dockerfile");
+        let builder = dockerfile
+            .lines()
+            .find(|line| line.starts_with("FROM rust:"))
+            .expect("Dockerfile must declare a Rust builder stage");
+
+        assert_eq!(
+            builder,
+            "FROM rust:1-slim AS backend",
+            "the factory build must use the unpinned current-stable Rust slim image"
+        );
+        assert!(
+            !builder.contains("rust:1."),
+            "a minor-pinned Rust builder can fail when Cargo.lock needs newer rustc"
+        );
+    }
+
     #[test]
     fn calendar_date_is_utc() {
         assert_eq!(
