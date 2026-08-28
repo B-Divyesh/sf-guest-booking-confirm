@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 768 512" role="img" aria-labelledby="title desc">
+  <title id="title">Appointment confirmation instrument</title>
+  <desc id="desc">A dark green mid-century desk console with three signal windows and one coral lamp illuminated.</desc>
+  <defs>
+    <filter id="grain"><feTurbulence baseFrequency=".78" numOctaves="2" seed="7" type="fractalNoise"/><feColorMatrix values="0 0 0 0 .1 0 0 0 0 .1 0 0 0 0 .08 0 0 0 .11 0"/><feBlend in="SourceGraphic" mode="multiply"/></filter>
+    <filter id="shadow" x="-20%" y="-30%" width="150%" height="170%"><feDropShadow dx="5" dy="12" stdDeviation="8" flood-color="#17201e" flood-opacity=".24"/></filter>
+    <radialGradient id="lamp"><stop offset="0" stop-color="#fff1be"/><stop offset=".35" stop-color="#f98257"/><stop offset="1" stop-color="#a83422"/></radialGradient>
+  </defs>
+  <rect width="768" height="512" fill="#e9dfcd"/>
+  <path d="M0 417c168-34 304 4 464-20 125-19 201-55 304-41v156H0Z" fill="#d7c9b3" opacity=".55"/>
+  <g filter="url(#shadow)" transform="translate(206 90) rotate(-2 280 170)">
+    <path d="M65 35h464l34 45v272H28V80Z" fill="#263633" stroke="#17201e" stroke-width="7"/>
+    <path d="M65 35h464l34 45H28Z" fill="#52625c"/>
+    <rect x="69" y="93" width="453" height="110" rx="4" fill="#151f1d" stroke="#75847d" stroke-width="3"/>
+    <g transform="translate(104 122)">
+      <rect width="104" height="53" rx="3" fill="#eadfc9" stroke="#111a18" stroke-width="5"/><circle cx="52" cy="26" r="12" fill="#847e6d"/>
+      <rect x="134" width="104" height="53" rx="3" fill="#eadfc9" stroke="#111a18" stroke-width="5"/><circle cx="186" cy="26" r="17" fill="url(#lamp)" stroke="#ffb184" stroke-width="3"/>
+      <rect x="268" width="104" height="53" rx="3" fill="#eadfc9" stroke="#111a18" stroke-width="5"/><circle cx="320" cy="26" r="12" fill="#847e6d"/>
+    </g>
+    <rect x="88" y="236" width="317" height="9" rx="4" fill="#111a18"/>
+    <path d="M114 243h264v128H114Z" fill="#fff8e9" stroke="#b8a98f" stroke-width="3"/>
+    <path d="M139 274h182M139 301h214M139 328h156" stroke="#c3b59d" stroke-width="4"/>
+    <g transform="translate(453 268)"><ellipse cx="37" cy="62" rx="34" ry="12" fill="#111a18"/><rect x="32" y="9" width="10" height="56" rx="5" fill="#b98a3d" transform="rotate(13 37 37)"/><circle cx="37" cy="10" r="12" fill="#e2b659" stroke="#111a18" stroke-width="4"/></g>
+    <circle cx="55" cy="328" r="7" fill="#a89b81"/><circle cx="534" cy="328" r="7" fill="#a89b81"/>
+  </g>
+  <path d="M693 337c45 4 58 23 44 42-12 16-44 10-43 31 1 20 37 15 44 34" fill="none" stroke="#202a28" stroke-width="8" stroke-linecap="round"/>
+</svg>
