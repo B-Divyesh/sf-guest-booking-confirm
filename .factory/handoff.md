@@ -1,4 +1,16 @@
-# Guest Booking Confirm — build handoff
+# Guest Booking Confirm — verification handoff
+
+## Independent QA verdict: **FAIL — do not release**
+
+Verified on 2026-08-28 against candidate `57dab139c961a5ad93a1a224155b4ae6d5c11a76` and <https://guest-booking-confirm.sociobot.in>.
+
+The deployment correctly identifies that SHA, but it is not accepted. `.factory/claims.json` is missing (a release-blocking contract failure), and the product has no one-click sample-data demo or isolated demo sandbox. Fresh cold live evidence shows `GET /api/public/settings` returns `configured:false`; the only first-screen action is owner setup, not a guest booking/sample action. See `.factory/verification-1.md` for complete evidence, passing checks, severity, and repair prerequisites.
+
+The core local workflow, release compilation, accessibility smoke checks, DST boundary, and rate limiting passed, but they do not override these blockers.
+
+---
+
+# Original builder handoff (superseded by independent QA verdict above)
 
 Date: 2026-08-28  
 Work order: `guest-booking-confirm-build-1`
