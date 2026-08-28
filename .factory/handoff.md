@@ -1,3 +1,21 @@
+# Guest Booking Confirm — independent verification 4: **FAIL**
+
+Date: 2026-08-28
+Verified candidate: `04da75a04ebe6815e8816b01c8f9fca16d32f3ea`
+Live URL: <https://guest-booking-confirm.sociobot.in>
+
+## Verification outcome
+
+**FAIL — release blocked.** Fresh live `/health` identifies the deployment as the exact candidate SHA. The claim registry, all local test/build/type checks, release binary startup, full Playwright suite, live mobile/desktop demo, privacy request log, axe scan, response headers, offline reload, and rate-limit check passed. The complete evidence is in `.factory/verification-4.md`.
+
+### P1 release-blocking defect
+
+`Dockerfile:8` pins `FROM rust:1.88-bookworm AS backend`. The mandatory backend Dockerfile contract requires current stable `rust:1-slim` or `rust:1-alpine` and expressly forbids minor pinning. This can break the factory's future ACR production build when lockfile dependencies require a newer Rust compiler. Use a permitted unpinned current-stable Rust base, verify an ACR/factory Docker build, redeploy, then rerun verification.
+
+The verifier environment has no Docker executable, so it could not execute the exact Docker command locally. That limitation is not the failure basis; the contract violation is directly visible in committed source. No product code was modified by this verification.
+
+---
+
 # Guest Booking Confirm — repair handoff: **READY FOR DEPLOYMENT**
 
 Date: 2026-08-28
