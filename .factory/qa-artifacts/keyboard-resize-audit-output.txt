@@ -1,0 +1,86 @@
+{
+  "trail": [
+    {
+      "tag": "A",
+      "name": null,
+      "text": "Skip to main content",
+      "outline": "3px solid rgb(20, 109, 135)"
+    },
+    {
+      "tag": "A",
+      "name": null,
+      "text": "Guest Booking Confirm home",
+      "outline": "3px solid rgb(20, 109, 135)"
+    },
+    {
+      "tag": "A",
+      "name": null,
+      "text": "Owner panel",
+      "outline": "3px solid rgb(20, 109, 135)"
+    },
+    {
+      "tag": "INPUT",
+      "name": "starts_at",
+      "text": "",
+      "outline": "3px solid rgb(20, 109, 135)"
+    },
+    {
+      "tag": "INPUT",
+      "name": "guest_name",
+      "text": "",
+      "outline": "3px solid rgb(20, 109, 135)"
+    },
+    {
+      "tag": "INPUT",
+      "name": "email",
+      "text": "",
+      "outline": "3px solid rgb(20, 109, 135)"
+    },
+    {
+      "tag": "INPUT",
+      "name": "phone",
+      "text": "",
+      "outline": "3px solid rgb(20, 109, 135)"
+    },
+    {
+      "tag": "INPUT",
+      "name": "consent",
+      "text": "",
+      "outline": "3px solid rgb(20, 109, 135)"
+    },
+    {
+      "tag": "BUTTON",
+      "name": null,
+      "text": "Send time request →",
+      "outline": "3px solid rgb(20, 109, 135)"
+    },
+    {
+      "tag": "A",
+      "name": null,
+      "text": "Privacy",
+      "outline": "3px solid rgb(20, 109, 135)"
+    },
+    {
+      "tag": "A",
+      "name": null,
+      "text": "Terms",
+      "outline": "3px solid rgb(20, 109, 135)"
+    },
+    {
+      "tag": "BODY",
+      "name": null,
+      "text": "Skip to main content\n    \n    Guest Booking Confirm\n    Owner panel\n  \n      \n        Boundary Books · guest bookingAsk for a time.Know where it stands.Choose a time for a short book consultation.\n        1Request2Owner approves3You confirm\n        One visible signal for each booking state.\n      \n      \n        01Request Book consultationTimes appear in UTC. The owner must approve your request before it is booked.◉We keep only your booking contact details. Closed free-plan records are deleted after 30 days.\n        \n          Choose an available timeFriday, Aug 2811:00 AM11:30 AM12:00 PM12:30 PM1:00 PM1:30 PM2:00 PM2:30 PM3:00 PM3:30 PM4:00 PM4:30 PM5:00 PM5:30 PM6:00 PM6:30 PM7:00 PM7:30 PM8:00 PM8:30 PM9:00 PM9:30 PM10:00 PM10:30 PM11:00 PMSaturday, Aug 2912:00 AM12:30 AM1:00 AM1:30 AM2:00 AM2:30 AM3:00 AM3:30 AM4:00 AM4:30 AM5:00 AM5:30 AM6:00 AM6:30 AM7:00 AM7:30 AM8:00 AM8:30 AM9:00 AM9:30 AM10:00 AM10:30 AM11:00 AM11:30 AM12:00 PM12:30 PM1:00 PM1:30 PM2:00 PM2:30 PM3:00 PM3:30 PM4:00 PM4:30 PM5:00 PM5:30 PM6:00 PM6:30 PM7:00 PM7:30 PM8:00 PM8:30 PM9:00 PM9:30 PM10:00 PM10:30 PM11:00 PMSunday, Aug 3012:00 AM12:30 AM1:00 AM1:30 AM2:00 AM2:30 AM3:00 AM3:30 AM4:00 AM4:30 AM5:00 AM5:30 AM6:00 AM6:30 AM7:00 AM7:30 AM8:00 AM8:30 AM9:00 AM9:30 AM10:00 AM10:30 AM11:00 AM11:30 AM12:00 PM12:30 PM1:00 PM1:30 PM2:00 PM2:30 PM3:00 PM3:30 PM4:00 PM4:30 PM5:00 PM5:30 PM6:00 PM6:30 PM7:00 PM7:30 PM8:00 PM8:30 PM9:00 PM9:30 PM10:00 PM10:30 PM11:00 PMMonday, Aug 3112:00 AM12:30 AM1:00 AM1:30 AM2:00 AM2:30 AM3:00 AM3:30 AM4:00 AM4:30 AM5:00 AM5:30 AM6:00 AM6:30 AM7:00 AM7:30 AM8:00 AM8:30 AM9:00 AM9:30 AM10:00 AM10:30 AM11:00 AM11:30 AM12:00 PM12:30 PM1:00 PM1:30 PM2:00 PM2:30 PM3:00 PM3:30 PM4:00 PM4:30 PM5:00 PM5:30 PM6:00 PM6:30 PM7:00 PM7:30 PM8:00 PM8:30 PM9:00 PM9:30 PM10:00 PM10:30 PM11:00 PMTuesday, Sep 112:00 AM12:30 AM1:00 AM1:30 AM2:00 AM2:30 AM3:00 AM3:30 AM4:00 AM4:30 AM5:00 AM5:30 AM6:00 AM6:30 AM7:00 AM7:30 AM8:00 AM8:30 AM9:00 AM9:30 AM10:00 AM10:30 AM11:00 AM11:30 AM12:00 PM12:30 PM1:00 PM1:30 PM2:00 PM2:30 PM3:00 PM3:30 PM4:00 PM4:30 PM5:00 PM5:30 PM6:00 PM6:30 PM7:00 PM7:30 PM8:00 PM8:30 PM9:00 PM9:30 PM10:00 PM10:30 PM11:00 PMWednesday, Sep 212:00 AM12:30 AM1:00 AM1:30 AM2:00 AM2:30 AM3:00 AM3:30 AM4:00 AM4:30 AM5:00 AM5:30 AM6:00 AM6:30 AM7:00 AM7:30 AM8:00 AM8:30 AM9:00 AM9:30 AM10:00 AM10:30 AM11:00 AM11:30 AM12:00 PM12:30 PM1:00 PM1:30 PM2:00 PM2:30 PM3:00 PM3:30 PM4:00 PM4:30 PM5:00 PM5:30 PM6:00 PM6:30 PM7:00 PM7:30 PM8:00 PM8:30 PM9:00 PM9:30 PM10:00 PM10:30 PM11:00 PMThursday, Sep 312:00 AM12:30 AM1:00 AM1:30 AM2:00 AM2:30 AM3:00 AM3:30 AM4:00 AM4:30 AM5:00 AM5:30 AM6:00 AM6:30 AM7:00 AM7:30 AM8:00 AM8:30 AM9:00 AM9:30 AM10:00 AM10:30 AM11:00 AM11:30 AM12:00 PM12:30 PM1:00 PM1:30 PM2:00 PM2:30 PM3:00 PM3:30 PM4:00 PM4:30 PM5:00 PM5:30 PM6:00 PM6:30 PM7:00 PM7:30 PM8:00 PM8:30 PM9:00 PM9:30 PM10:00 PM10:30 PM11:00 PMFriday, Sep 412:00 AM12:30 AM1:00 AM1:30 AM2:00 AM2:30 AM3:00 AM3:30 AM4:00 AM4:30 AM5:00 AM5:30 AM6:00 AM6:30 AM7:00 AM7:30 AM8:00 AM8:30 AM9:00 AM9:30 AM10:00 AM10:30 AM11:00 AM11:30 AM12:00 PM12:30 PM1:00 PM1:30 PM2:00 PM2:30 PM3:00 PM3:30 PM4:00 PM4:30 PM5:00 PM5:30 PM6:00 PM6:30 PM7:00 PM7:30 PM8:00 PM8:30 PM9:00 PM9:30 PM10:00 PM10:30 PM11:00 PMSaturday, Sep 512:00 AM12:30 AM1:00 AM1:30 AM2:00 AM2:30 AM3:00 AM3:30 AM4:00 AM4:30 AM5:00 AM5:30 AM6:00 AM6:30 AM7:00 AM7:30 AM8:00 AM8:30 AM9:00 AM9:30 AM10:00 AM10:30 AM11:00 AM11:30 AM12:00 PM12:30 PM1:00 PM1:30 PM2:00 PM2:30 PM3:00 PM3:30 PM4:00 PM4:30 PM5:00 PM5:30 PM6:00 PM6:30 PM7:00 PM7:30 PM8:00 PM8:30 PM9:00 PM9:30 PM10:00 PM10:30 PM11:00 PMSunday, Sep 612:00 AM12:30 AM1:00 AM1:30 AM2:00 AM2:30 AM3:00 AM3:30 AM4:00 AM4:30 AM5:00 AM5:30 AM6:00 AM6:30 AM7:00 AM7:30 AM8:00 AM8:30 AM9:00 AM9:30 AM10:00 AM10:30 AM11:00 AM11:30 AM12:00 PM12:30 PM1:00 PM1:30 PM2:00 PM2:30 PM3:00 PM3:30 PM4:00 PM4:30 PM5:00 PM5:30 PM6:00 PM6:30 PM7:00 PM7:30 PM8:00 PM8:30 PM9:00 PM9:30 PM10:00 PM10:30 PM11:00 PM\n          Full name RequiredEmail Required\n          Phone Optional, for your owner’s manual reminder\n          I agree that Boundary Books may store these details to manage this booking. I can cancel with my private link.\n          Send time request →\n          This sends a request, not a confirmed appointment.\n        \n      \n    Clear appointment state, no guest account. Original generated artwork; no tracking cookies.PrivacyTerms",
+      "outline": "0px none rgb(23, 32, 30)"
+    }
+  ],
+  "resize": {
+    "clientWidth": 390,
+    "scrollWidth": 390,
+    "overflow": 0,
+    "h1Rect": {
+      "x": 20,
+      "width": 350,
+      "height": 551.171875
+    }
+  }
+}

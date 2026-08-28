@@ -1,0 +1,7 @@
+assets/confirmation-console-fallback.svg 2652 bytes
+assets/confirmation-console.webp 41526 bytes
+assets/favicon.svg 328 bytes
+assets/index-BT_5Rfqc.css 18358 bytes
+assets/index-ZnhYt0jq.js 32234 bytes
+index.html 770 bytes
+sw.js 800 bytes

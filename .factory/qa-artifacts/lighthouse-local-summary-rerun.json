@@ -1,0 +1,52 @@
+{
+  "categories": {
+    "performance": 0.96,
+    "accessibility": 1,
+    "best-practices": 1,
+    "seo": 0.92
+  },
+  "metrics": {
+    "FCP": 1097.3969,
+    "LCP": 1818.09535,
+    "TBT": 194.00000000000023,
+    "CLS": 0,
+    "SI": 1097.3969
+  },
+  "failures": [
+    {
+      "id": "first-contentful-paint",
+      "score": 0.99,
+      "title": "First Contentful Paint"
+    },
+    {
+      "id": "largest-contentful-paint",
+      "score": 0.98,
+      "title": "Largest Contentful Paint"
+    },
+    {
+      "id": "total-blocking-time",
+      "score": 0.9,
+      "title": "Total Blocking Time"
+    },
+    {
+      "id": "max-potential-fid",
+      "score": 0.51,
+      "title": "Max Potential First Input Delay"
+    },
+    {
+      "id": "robots-txt",
+      "score": 0,
+      "title": "robots.txt is not valid"
+    },
+    {
+      "id": "lcp-discovery-insight",
+      "score": 0,
+      "title": "LCP request discovery"
+    },
+    {
+      "id": "network-dependency-tree-insight",
+      "score": 0,
+      "title": "Network dependency tree"
+    }
+  ]
+}

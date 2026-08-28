@@ -1,0 +1,11 @@
+{
+  "rescheduleFirst": 200,
+  "rescheduleSecond": 409,
+  "stateAfterReschedule": "reschedule_requested",
+  "ownerApprove": 200,
+  "guestConfirm": 200,
+  "markReminder": 200,
+  "reminderDone": 1,
+  "complete": 200,
+  "finalState": "completed"
+}

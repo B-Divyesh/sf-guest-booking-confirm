@@ -1,0 +1,181 @@
+{
+  "ids": [
+    "AteVTpA5M1KvfxqlN2",
+    "BqEjfwVUC2dNAkz9Ix",
+    "5pzt0x2MJWN4JgBwin",
+    "ywRM3Ancd105IpCnc5",
+    "SV1canBW3tnf00ZJms",
+    "ZZu8dvVB99kQ5U6oIZ",
+    "1glZbo7rv1z6yPhNWg",
+    "FcpOoY08IOdjDMCOpe",
+    "G52Oms1ZNFRqAJLWdL",
+    "f6udvazD5hA3P6fea4",
+    "dsdxJp55J8mjGI2xBs",
+    "87JqTx1Cbz9cTBRwuL"
+  ],
+  "approvalStatuses": [
+    200,
+    200,
+    200,
+    200,
+    409,
+    409,
+    409,
+    409,
+    409,
+    409,
+    409,
+    409
+  ],
+  "accepted": [
+    {
+      "consent_at": "2026-08-28T09:52:05.172835500+00:00",
+      "created_at": "2026-08-28T09:52:05.172835500+00:00",
+      "duration_minutes": 30,
+      "email": "guest0@example.com",
+      "guest_name": "Guest 0",
+      "guest_token": "Cz7NJF9tfiJyh6DDNrBhzKO2ZfZtvq38UU7uxQoH",
+      "id": "AteVTpA5M1KvfxqlN2",
+      "phone": null,
+      "reference": "GBC-DVS876",
+      "reminder_done": 0,
+      "reminder_done_at": null,
+      "starts_at": "2026-08-28T10:30:00+00:00",
+      "status": "awaiting_confirmation",
+      "timezone": "UTC",
+      "updated_at": "2026-08-28T09:52:31.607119741+00:00"
+    },
+    {
+      "consent_at": "2026-08-28T09:52:05.176858494+00:00",
+      "created_at": "2026-08-28T09:52:05.176858494+00:00",
+      "duration_minutes": 30,
+      "email": "guest9@example.com",
+      "guest_name": "Guest 9",
+      "guest_token": "fRAUhr31CAHnMmZHA8cMC3VgXIeoMxLP2WTLOzGp",
+      "id": "BqEjfwVUC2dNAkz9Ix",
+      "phone": null,
+      "reference": "GBC-WY9H7V",
+      "reminder_done": 0,
+      "reminder_done_at": null,
+      "starts_at": "2026-08-28T10:30:00+00:00",
+      "status": "awaiting_confirmation",
+      "timezone": "UTC",
+      "updated_at": "2026-08-28T09:52:31.609548837+00:00"
+    },
+    {
+      "consent_at": "2026-08-28T09:52:05.177195993+00:00",
+      "created_at": "2026-08-28T09:52:05.177195993+00:00",
+      "duration_minutes": 30,
+      "email": "guest2@example.com",
+      "guest_name": "Guest 2",
+      "guest_token": "ZT1o4CagNNuktd1sxvmfTXheQHAXcosidcXs1wvg",
+      "id": "5pzt0x2MJWN4JgBwin",
+      "phone": null,
+      "reference": "GBC-PWB4RU",
+      "reminder_done": 0,
+      "reminder_done_at": null,
+      "starts_at": "2026-08-28T10:30:00+00:00",
+      "status": "awaiting_confirmation",
+      "timezone": "UTC",
+      "updated_at": "2026-08-28T09:52:31.610048636+00:00"
+    },
+    {
+      "consent_at": "2026-08-28T09:52:05.188492574+00:00",
+      "created_at": "2026-08-28T09:52:05.188492574+00:00",
+      "duration_minutes": 30,
+      "email": "guest10@example.com",
+      "guest_name": "Guest 10",
+      "guest_token": "CSOVyBugqkKP2kQD7fuZcPUN0w2Eev8JBo70X3fo",
+      "id": "ywRM3Ancd105IpCnc5",
+      "phone": null,
+      "reference": "GBC-9KTHSD",
+      "reminder_done": 0,
+      "reminder_done_at": null,
+      "starts_at": "2026-08-28T10:30:00+00:00",
+      "status": "awaiting_confirmation",
+      "timezone": "UTC",
+      "updated_at": "2026-08-28T09:52:31.609203738+00:00"
+    }
+  ],
+  "action": {
+    "confirmFirst": {
+      "status": 200,
+      "headers": {
+        "content-length": "22",
+        "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+        "content-type": "application/json",
+        "date": "Fri, 28 Aug 2026 09:52:31 GMT",
+        "permissions-policy": "camera=(), microphone=(), geolocation=()",
+        "referrer-policy": "same-origin",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "body": {
+        "status": "confirmed"
+      }
+    },
+    "confirmSecond": {
+      "status": 409,
+      "headers": {
+        "content-length": "85",
+        "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+        "content-type": "application/json",
+        "date": "Fri, 28 Aug 2026 09:52:31 GMT",
+        "permissions-policy": "camera=(), microphone=(), geolocation=()",
+        "referrer-policy": "same-origin",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "body": {
+        "error": "This confirmation link has already been used or the request is not ready."
+      }
+    },
+    "ics": {
+      "status": 200,
+      "headers": {
+        "content-disposition": "attachment; filename=booking.ics",
+        "content-length": "427",
+        "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+        "content-type": "text/calendar; charset=utf-8",
+        "date": "Fri, 28 Aug 2026 09:52:31 GMT",
+        "permissions-policy": "camera=(), microphone=(), geolocation=()",
+        "referrer-policy": "same-origin",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "body": "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Sociobot//Guest Booking Confirm//EN\r\nCALSCALE:GREGORIAN\r\nBEGIN:VEVENT\r\nUID:AteVTpA5M1KvfxqlN2@guest-booking-confirm.sociobot.in\r\nDTSTAMP:20260828T095231Z\r\nDTSTART:20260828T103000Z\r\nDTEND:20260828T110000Z\r\nSUMMARY:Book consultation — Boundary Books\r\nDESCRIPTION:Booking reference GBC-DVS876. Keep your private booking link to make changes.\r\nSTATUS:CONFIRMED\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n"
+    },
+    "cancelFirst": {
+      "status": 200,
+      "headers": {
+        "content-length": "22",
+        "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+        "content-type": "application/json",
+        "date": "Fri, 28 Aug 2026 09:52:31 GMT",
+        "permissions-policy": "camera=(), microphone=(), geolocation=()",
+        "referrer-policy": "same-origin",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "body": {
+        "status": "cancelled"
+      }
+    },
+    "cancelSecond": {
+      "status": 409,
+      "headers": {
+        "content-length": "43",
+        "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+        "content-type": "application/json",
+        "date": "Fri, 28 Aug 2026 09:52:31 GMT",
+        "permissions-policy": "camera=(), microphone=(), geolocation=()",
+        "referrer-policy": "same-origin",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "body": {
+        "error": "This booking is already closed."
+      }
+    }
+  }
+}

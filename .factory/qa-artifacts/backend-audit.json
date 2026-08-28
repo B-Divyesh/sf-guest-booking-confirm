@@ -1,0 +1,1644 @@
+{
+  "initialStatus": {
+    "status": 200,
+    "headers": {
+      "content-length": "20",
+      "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+      "content-type": "application/json",
+      "date": "Fri, 28 Aug 2026 09:52:03 GMT",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "referrer-policy": "same-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "configured": false
+    }
+  },
+  "invalidSetup": {
+    "shortBusiness": {
+      "status": 422,
+      "headers": {
+        "content-length": "52",
+        "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+        "content-type": "application/json",
+        "date": "Fri, 28 Aug 2026 09:52:03 GMT",
+        "permissions-policy": "camera=(), microphone=(), geolocation=()",
+        "referrer-policy": "same-origin",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "body": {
+        "error": "Business name must be 2–80 characters."
+      }
+    },
+    "shortService": {
+      "status": 422,
+      "headers": {
+        "content-length": "51",
+        "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+        "content-type": "application/json",
+        "date": "Fri, 28 Aug 2026 09:52:03 GMT",
+        "permissions-policy": "camera=(), microphone=(), geolocation=()",
+        "referrer-policy": "same-origin",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "body": {
+        "error": "Service name must be 2–80 characters."
+      }
+    },
+    "badTimezone": {
+      "status": 422,
+      "headers": {
+        "content-length": "41",
+        "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+        "content-type": "application/json",
+        "date": "Fri, 28 Aug 2026 09:52:03 GMT",
+        "permissions-policy": "camera=(), microphone=(), geolocation=()",
+        "referrer-policy": "same-origin",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "body": {
+        "error": "Choose a valid IANA timezone."
+      }
+    },
+    "durationLow": {
+      "status": 422,
+      "headers": {
+        "content-length": "46",
+        "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+        "content-type": "application/json",
+        "date": "Fri, 28 Aug 2026 09:52:03 GMT",
+        "permissions-policy": "camera=(), microphone=(), geolocation=()",
+        "referrer-policy": "same-origin",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "body": {
+        "error": "Duration must be 15–480 minutes."
+      }
+    },
+    "durationHigh": {
+      "status": 422,
+      "headers": {
+        "content-length": "46",
+        "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+        "content-type": "application/json",
+        "date": "Fri, 28 Aug 2026 09:52:03 GMT",
+        "permissions-policy": "camera=(), microphone=(), geolocation=()",
+        "referrer-policy": "same-origin",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "body": {
+        "error": "Duration must be 15–480 minutes."
+      }
+    },
+    "shortPassword": {
+      "status": 422,
+      "headers": {
+        "content-length": "62",
+        "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+        "content-type": "application/json",
+        "date": "Fri, 28 Aug 2026 09:52:03 GMT",
+        "permissions-policy": "camera=(), microphone=(), geolocation=()",
+        "referrer-policy": "same-origin",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "body": {
+        "error": "Use at least 10 characters for the owner password."
+      }
+    }
+  },
+  "setup": {
+    "status": 201,
+    "headers": {
+      "content-length": "60",
+      "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+      "content-type": "application/json",
+      "date": "Fri, 28 Aug 2026 09:52:04 GMT",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "referrer-policy": "same-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "token": "YzZ3ppoU8ltHgFYzJZH9uRlWZoVuPbp0fXH1gXLqiHfQ1bLo"
+    }
+  },
+  "secondSetup": {
+    "status": 409,
+    "headers": {
+      "content-length": "44",
+      "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+      "content-type": "application/json",
+      "date": "Fri, 28 Aug 2026 09:52:04 GMT",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "referrer-policy": "same-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "error": "Owner setup is already complete."
+    }
+  },
+  "ownerUnauthorized": {
+    "status": 401,
+    "headers": {
+      "content-length": "38",
+      "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+      "content-type": "application/json",
+      "date": "Fri, 28 Aug 2026 09:52:04 GMT",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "referrer-policy": "same-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "error": "Owner sign-in is required."
+    }
+  },
+  "ownerWrongPassword": {
+    "status": 401,
+    "headers": {
+      "content-length": "41",
+      "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+      "content-type": "application/json",
+      "date": "Fri, 28 Aug 2026 09:52:04 GMT",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "referrer-policy": "same-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "error": "That password is not correct."
+    }
+  },
+  "slots": {
+    "status": 200,
+    "headers": {
+      "content-length": "10708",
+      "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+      "content-type": "application/json",
+      "date": "Fri, 28 Aug 2026 09:52:05 GMT",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "referrer-policy": "same-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "slots": [
+        {
+          "date": "2026-08-28",
+          "local": "2026-08-28T10:30:00+00:00",
+          "start": "2026-08-28T10:30:00Z"
+        },
+        {
+          "date": "2026-08-28",
+          "local": "2026-08-28T11:00:00+00:00",
+          "start": "2026-08-28T11:00:00Z"
+        },
+        {
+          "date": "2026-08-28",
+          "local": "2026-08-28T11:30:00+00:00",
+          "start": "2026-08-28T11:30:00Z"
+        },
+        {
+          "date": "2026-08-28",
+          "local": "2026-08-28T12:00:00+00:00",
+          "start": "2026-08-28T12:00:00Z"
+        },
+        {
+          "date": "2026-08-28",
+          "local": "2026-08-28T12:30:00+00:00",
+          "start": "2026-08-28T12:30:00Z"
+        },
+        {
+          "date": "2026-08-28",
+          "local": "2026-08-28T13:00:00+00:00",
+          "start": "2026-08-28T13:00:00Z"
+        },
+        {
+          "date": "2026-08-28",
+          "local": "2026-08-28T13:30:00+00:00",
+          "start": "2026-08-28T13:30:00Z"
+        },
+        {
+          "date": "2026-08-28",
+          "local": "2026-08-28T14:00:00+00:00",
+          "start": "2026-08-28T14:00:00Z"
+        },
+        {
+          "date": "2026-08-28",
+          "local": "2026-08-28T14:30:00+00:00",
+          "start": "2026-08-28T14:30:00Z"
+        },
+        {
+          "date": "2026-08-28",
+          "local": "2026-08-28T15:00:00+00:00",
+          "start": "2026-08-28T15:00:00Z"
+        },
+        {
+          "date": "2026-08-28",
+          "local": "2026-08-28T15:30:00+00:00",
+          "start": "2026-08-28T15:30:00Z"
+        },
+        {
+          "date": "2026-08-28",
+          "local": "2026-08-28T16:00:00+00:00",
+          "start": "2026-08-28T16:00:00Z"
+        },
+        {
+          "date": "2026-08-28",
+          "local": "2026-08-28T16:30:00+00:00",
+          "start": "2026-08-28T16:30:00Z"
+        },
+        {
+          "date": "2026-08-28",
+          "local": "2026-08-28T17:00:00+00:00",
+          "start": "2026-08-28T17:00:00Z"
+        },
+        {
+          "date": "2026-08-28",
+          "local": "2026-08-28T17:30:00+00:00",
+          "start": "2026-08-28T17:30:00Z"
+        },
+        {
+          "date": "2026-08-28",
+          "local": "2026-08-28T18:00:00+00:00",
+          "start": "2026-08-28T18:00:00Z"
+        },
+        {
+          "date": "2026-08-28",
+          "local": "2026-08-28T18:30:00+00:00",
+          "start": "2026-08-28T18:30:00Z"
+        },
+        {
+          "date": "2026-08-28",
+          "local": "2026-08-28T19:00:00+00:00",
+          "start": "2026-08-28T19:00:00Z"
+        },
+        {
+          "date": "2026-08-28",
+          "local": "2026-08-28T19:30:00+00:00",
+          "start": "2026-08-28T19:30:00Z"
+        },
+        {
+          "date": "2026-08-28",
+          "local": "2026-08-28T20:00:00+00:00",
+          "start": "2026-08-28T20:00:00Z"
+        },
+        {
+          "date": "2026-08-28",
+          "local": "2026-08-28T20:30:00+00:00",
+          "start": "2026-08-28T20:30:00Z"
+        },
+        {
+          "date": "2026-08-28",
+          "local": "2026-08-28T21:00:00+00:00",
+          "start": "2026-08-28T21:00:00Z"
+        },
+        {
+          "date": "2026-08-28",
+          "local": "2026-08-28T21:30:00+00:00",
+          "start": "2026-08-28T21:30:00Z"
+        },
+        {
+          "date": "2026-08-28",
+          "local": "2026-08-28T22:00:00+00:00",
+          "start": "2026-08-28T22:00:00Z"
+        },
+        {
+          "date": "2026-08-28",
+          "local": "2026-08-28T22:30:00+00:00",
+          "start": "2026-08-28T22:30:00Z"
+        },
+        {
+          "date": "2026-08-28",
+          "local": "2026-08-28T23:00:00+00:00",
+          "start": "2026-08-28T23:00:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T00:00:00+00:00",
+          "start": "2026-08-29T00:00:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T00:30:00+00:00",
+          "start": "2026-08-29T00:30:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T01:00:00+00:00",
+          "start": "2026-08-29T01:00:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T01:30:00+00:00",
+          "start": "2026-08-29T01:30:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T02:00:00+00:00",
+          "start": "2026-08-29T02:00:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T02:30:00+00:00",
+          "start": "2026-08-29T02:30:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T03:00:00+00:00",
+          "start": "2026-08-29T03:00:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T03:30:00+00:00",
+          "start": "2026-08-29T03:30:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T04:00:00+00:00",
+          "start": "2026-08-29T04:00:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T04:30:00+00:00",
+          "start": "2026-08-29T04:30:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T05:00:00+00:00",
+          "start": "2026-08-29T05:00:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T05:30:00+00:00",
+          "start": "2026-08-29T05:30:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T06:00:00+00:00",
+          "start": "2026-08-29T06:00:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T06:30:00+00:00",
+          "start": "2026-08-29T06:30:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T07:00:00+00:00",
+          "start": "2026-08-29T07:00:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T07:30:00+00:00",
+          "start": "2026-08-29T07:30:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T08:00:00+00:00",
+          "start": "2026-08-29T08:00:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T08:30:00+00:00",
+          "start": "2026-08-29T08:30:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T09:00:00+00:00",
+          "start": "2026-08-29T09:00:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T09:30:00+00:00",
+          "start": "2026-08-29T09:30:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T10:00:00+00:00",
+          "start": "2026-08-29T10:00:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T10:30:00+00:00",
+          "start": "2026-08-29T10:30:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T11:00:00+00:00",
+          "start": "2026-08-29T11:00:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T11:30:00+00:00",
+          "start": "2026-08-29T11:30:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T12:00:00+00:00",
+          "start": "2026-08-29T12:00:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T12:30:00+00:00",
+          "start": "2026-08-29T12:30:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T13:00:00+00:00",
+          "start": "2026-08-29T13:00:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T13:30:00+00:00",
+          "start": "2026-08-29T13:30:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T14:00:00+00:00",
+          "start": "2026-08-29T14:00:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T14:30:00+00:00",
+          "start": "2026-08-29T14:30:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T15:00:00+00:00",
+          "start": "2026-08-29T15:00:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T15:30:00+00:00",
+          "start": "2026-08-29T15:30:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T16:00:00+00:00",
+          "start": "2026-08-29T16:00:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T16:30:00+00:00",
+          "start": "2026-08-29T16:30:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T17:00:00+00:00",
+          "start": "2026-08-29T17:00:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T17:30:00+00:00",
+          "start": "2026-08-29T17:30:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T18:00:00+00:00",
+          "start": "2026-08-29T18:00:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T18:30:00+00:00",
+          "start": "2026-08-29T18:30:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T19:00:00+00:00",
+          "start": "2026-08-29T19:00:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T19:30:00+00:00",
+          "start": "2026-08-29T19:30:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T20:00:00+00:00",
+          "start": "2026-08-29T20:00:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T20:30:00+00:00",
+          "start": "2026-08-29T20:30:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T21:00:00+00:00",
+          "start": "2026-08-29T21:00:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T21:30:00+00:00",
+          "start": "2026-08-29T21:30:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T22:00:00+00:00",
+          "start": "2026-08-29T22:00:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T22:30:00+00:00",
+          "start": "2026-08-29T22:30:00Z"
+        },
+        {
+          "date": "2026-08-29",
+          "local": "2026-08-29T23:00:00+00:00",
+          "start": "2026-08-29T23:00:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T00:00:00+00:00",
+          "start": "2026-08-30T00:00:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T00:30:00+00:00",
+          "start": "2026-08-30T00:30:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T01:00:00+00:00",
+          "start": "2026-08-30T01:00:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T01:30:00+00:00",
+          "start": "2026-08-30T01:30:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T02:00:00+00:00",
+          "start": "2026-08-30T02:00:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T02:30:00+00:00",
+          "start": "2026-08-30T02:30:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T03:00:00+00:00",
+          "start": "2026-08-30T03:00:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T03:30:00+00:00",
+          "start": "2026-08-30T03:30:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T04:00:00+00:00",
+          "start": "2026-08-30T04:00:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T04:30:00+00:00",
+          "start": "2026-08-30T04:30:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T05:00:00+00:00",
+          "start": "2026-08-30T05:00:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T05:30:00+00:00",
+          "start": "2026-08-30T05:30:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T06:00:00+00:00",
+          "start": "2026-08-30T06:00:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T06:30:00+00:00",
+          "start": "2026-08-30T06:30:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T07:00:00+00:00",
+          "start": "2026-08-30T07:00:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T07:30:00+00:00",
+          "start": "2026-08-30T07:30:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T08:00:00+00:00",
+          "start": "2026-08-30T08:00:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T08:30:00+00:00",
+          "start": "2026-08-30T08:30:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T09:00:00+00:00",
+          "start": "2026-08-30T09:00:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T09:30:00+00:00",
+          "start": "2026-08-30T09:30:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T10:00:00+00:00",
+          "start": "2026-08-30T10:00:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T10:30:00+00:00",
+          "start": "2026-08-30T10:30:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T11:00:00+00:00",
+          "start": "2026-08-30T11:00:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T11:30:00+00:00",
+          "start": "2026-08-30T11:30:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T12:00:00+00:00",
+          "start": "2026-08-30T12:00:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T12:30:00+00:00",
+          "start": "2026-08-30T12:30:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T13:00:00+00:00",
+          "start": "2026-08-30T13:00:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T13:30:00+00:00",
+          "start": "2026-08-30T13:30:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T14:00:00+00:00",
+          "start": "2026-08-30T14:00:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T14:30:00+00:00",
+          "start": "2026-08-30T14:30:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T15:00:00+00:00",
+          "start": "2026-08-30T15:00:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T15:30:00+00:00",
+          "start": "2026-08-30T15:30:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T16:00:00+00:00",
+          "start": "2026-08-30T16:00:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T16:30:00+00:00",
+          "start": "2026-08-30T16:30:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T17:00:00+00:00",
+          "start": "2026-08-30T17:00:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T17:30:00+00:00",
+          "start": "2026-08-30T17:30:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T18:00:00+00:00",
+          "start": "2026-08-30T18:00:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T18:30:00+00:00",
+          "start": "2026-08-30T18:30:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T19:00:00+00:00",
+          "start": "2026-08-30T19:00:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T19:30:00+00:00",
+          "start": "2026-08-30T19:30:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T20:00:00+00:00",
+          "start": "2026-08-30T20:00:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T20:30:00+00:00",
+          "start": "2026-08-30T20:30:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T21:00:00+00:00",
+          "start": "2026-08-30T21:00:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T21:30:00+00:00",
+          "start": "2026-08-30T21:30:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T22:00:00+00:00",
+          "start": "2026-08-30T22:00:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T22:30:00+00:00",
+          "start": "2026-08-30T22:30:00Z"
+        },
+        {
+          "date": "2026-08-30",
+          "local": "2026-08-30T23:00:00+00:00",
+          "start": "2026-08-30T23:00:00Z"
+        }
+      ],
+      "timezone": "UTC"
+    }
+  },
+  "invalidBookings": {
+    "shortName": {
+      "status": 422,
+      "headers": {
+        "content-length": "48",
+        "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+        "content-type": "application/json",
+        "date": "Fri, 28 Aug 2026 09:52:05 GMT",
+        "permissions-policy": "camera=(), microphone=(), geolocation=()",
+        "referrer-policy": "same-origin",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "body": {
+        "error": "Enter your name (2–80 characters)."
+      }
+    },
+    "longName": {
+      "status": 422,
+      "headers": {
+        "content-length": "48",
+        "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+        "content-type": "application/json",
+        "date": "Fri, 28 Aug 2026 09:52:05 GMT",
+        "permissions-policy": "camera=(), microphone=(), geolocation=()",
+        "referrer-policy": "same-origin",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "body": {
+        "error": "Enter your name (2–80 characters)."
+      }
+    },
+    "badEmail": {
+      "status": 422,
+      "headers": {
+        "content-length": "40",
+        "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+        "content-type": "application/json",
+        "date": "Fri, 28 Aug 2026 09:52:05 GMT",
+        "permissions-policy": "camera=(), microphone=(), geolocation=()",
+        "referrer-policy": "same-origin",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "body": {
+        "error": "Enter a valid email address."
+      }
+    },
+    "noConsent": {
+      "status": 422,
+      "headers": {
+        "content-length": "61",
+        "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+        "content-type": "application/json",
+        "date": "Fri, 28 Aug 2026 09:52:05 GMT",
+        "permissions-policy": "camera=(), microphone=(), geolocation=()",
+        "referrer-policy": "same-origin",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "body": {
+        "error": "Consent is required to keep your booking details."
+      }
+    },
+    "longPhone": {
+      "status": 422,
+      "headers": {
+        "content-length": "37",
+        "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+        "content-type": "application/json",
+        "date": "Fri, 28 Aug 2026 09:52:05 GMT",
+        "permissions-policy": "camera=(), microphone=(), geolocation=()",
+        "referrer-policy": "same-origin",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "body": {
+        "error": "Phone number is too long."
+      }
+    },
+    "badTime": {
+      "status": 422,
+      "headers": {
+        "content-length": "44",
+        "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+        "content-type": "application/json",
+        "date": "Fri, 28 Aug 2026 09:52:05 GMT",
+        "permissions-policy": "camera=(), microphone=(), geolocation=()",
+        "referrer-policy": "same-origin",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "body": {
+        "error": "Choose a valid appointment time."
+      }
+    },
+    "offGridTime": {
+      "status": 409,
+      "headers": {
+        "content-length": "66",
+        "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+        "content-type": "application/json",
+        "date": "Fri, 28 Aug 2026 09:52:05 GMT",
+        "permissions-policy": "camera=(), microphone=(), geolocation=()",
+        "referrer-policy": "same-origin",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "body": {
+        "error": "That time is no longer available. Choose another slot."
+      }
+    }
+  },
+  "boundaryBooking": {
+    "status": 201,
+    "headers": {
+      "content-length": "98",
+      "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+      "content-type": "application/json",
+      "date": "Fri, 28 Aug 2026 09:52:05 GMT",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "referrer-policy": "same-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "reference": "GBC-5C5RRP",
+      "status": "requested",
+      "token": "tQAKtqZKMGhIaGA56UKSAPJjWjuqSFjXq3YhgLTM"
+    }
+  },
+  "icsBeforeConfirm": {
+    "status": 409,
+    "headers": {
+      "content-length": "61",
+      "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+      "content-type": "application/json",
+      "date": "Fri, 28 Aug 2026 09:52:05 GMT",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "referrer-policy": "same-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "error": "The calendar file is available after you confirm."
+    }
+  },
+  "collisionCreateStatuses": {
+    "201": [
+      {
+        "status": 201,
+        "headers": {
+          "content-length": "98",
+          "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+          "content-type": "application/json",
+          "date": "Fri, 28 Aug 2026 09:52:05 GMT",
+          "permissions-policy": "camera=(), microphone=(), geolocation=()",
+          "referrer-policy": "same-origin",
+          "x-content-type-options": "nosniff",
+          "x-frame-options": "DENY"
+        },
+        "body": {
+          "reference": "GBC-DVS876",
+          "status": "requested",
+          "token": "Cz7NJF9tfiJyh6DDNrBhzKO2ZfZtvq38UU7uxQoH"
+        }
+      },
+      {
+        "status": 201,
+        "headers": {
+          "content-length": "98",
+          "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+          "content-type": "application/json",
+          "date": "Fri, 28 Aug 2026 09:52:05 GMT",
+          "permissions-policy": "camera=(), microphone=(), geolocation=()",
+          "referrer-policy": "same-origin",
+          "x-content-type-options": "nosniff",
+          "x-frame-options": "DENY"
+        },
+        "body": {
+          "reference": "GBC-W59WQE",
+          "status": "requested",
+          "token": "yGMgrKZilAHthjDxrzjpBhtRiUrbJPjEZ8s5nXhH"
+        }
+      },
+      {
+        "status": 201,
+        "headers": {
+          "content-length": "98",
+          "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+          "content-type": "application/json",
+          "date": "Fri, 28 Aug 2026 09:52:05 GMT",
+          "permissions-policy": "camera=(), microphone=(), geolocation=()",
+          "referrer-policy": "same-origin",
+          "x-content-type-options": "nosniff",
+          "x-frame-options": "DENY"
+        },
+        "body": {
+          "reference": "GBC-PWB4RU",
+          "status": "requested",
+          "token": "ZT1o4CagNNuktd1sxvmfTXheQHAXcosidcXs1wvg"
+        }
+      },
+      {
+        "status": 201,
+        "headers": {
+          "content-length": "98",
+          "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+          "content-type": "application/json",
+          "date": "Fri, 28 Aug 2026 09:52:05 GMT",
+          "permissions-policy": "camera=(), microphone=(), geolocation=()",
+          "referrer-policy": "same-origin",
+          "x-content-type-options": "nosniff",
+          "x-frame-options": "DENY"
+        },
+        "body": {
+          "reference": "GBC-T2QDJZ",
+          "status": "requested",
+          "token": "bPY7tCtClHpFwMu0btyICMnRVmNgIcffaCYiP9g5"
+        }
+      },
+      {
+        "status": 201,
+        "headers": {
+          "content-length": "98",
+          "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+          "content-type": "application/json",
+          "date": "Fri, 28 Aug 2026 09:52:05 GMT",
+          "permissions-policy": "camera=(), microphone=(), geolocation=()",
+          "referrer-policy": "same-origin",
+          "x-content-type-options": "nosniff",
+          "x-frame-options": "DENY"
+        },
+        "body": {
+          "reference": "GBC-S89CZT",
+          "status": "requested",
+          "token": "I6dxgixFE3wGeEvpa03xYTP1kQswKtiOKhmvkp3m"
+        }
+      },
+      {
+        "status": 201,
+        "headers": {
+          "content-length": "98",
+          "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+          "content-type": "application/json",
+          "date": "Fri, 28 Aug 2026 09:52:05 GMT",
+          "permissions-policy": "camera=(), microphone=(), geolocation=()",
+          "referrer-policy": "same-origin",
+          "x-content-type-options": "nosniff",
+          "x-frame-options": "DENY"
+        },
+        "body": {
+          "reference": "GBC-Y7GFU8",
+          "status": "requested",
+          "token": "PoXgzYU1iqthzDqmjf9I6uzsdRmIoDI08tRKPMjR"
+        }
+      },
+      {
+        "status": 201,
+        "headers": {
+          "content-length": "98",
+          "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+          "content-type": "application/json",
+          "date": "Fri, 28 Aug 2026 09:52:05 GMT",
+          "permissions-policy": "camera=(), microphone=(), geolocation=()",
+          "referrer-policy": "same-origin",
+          "x-content-type-options": "nosniff",
+          "x-frame-options": "DENY"
+        },
+        "body": {
+          "reference": "GBC-422TZ2",
+          "status": "requested",
+          "token": "Cn043sTEbJfsGpPksWPmLm29jUXLlUXpBJe9zdjV"
+        }
+      },
+      {
+        "status": 201,
+        "headers": {
+          "content-length": "98",
+          "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+          "content-type": "application/json",
+          "date": "Fri, 28 Aug 2026 09:52:05 GMT",
+          "permissions-policy": "camera=(), microphone=(), geolocation=()",
+          "referrer-policy": "same-origin",
+          "x-content-type-options": "nosniff",
+          "x-frame-options": "DENY"
+        },
+        "body": {
+          "reference": "GBC-6TD654",
+          "status": "requested",
+          "token": "mbXOTVx8fXaAFQPY6NpoKnSadUBlRL8teU0otT1k"
+        }
+      },
+      {
+        "status": 201,
+        "headers": {
+          "content-length": "98",
+          "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+          "content-type": "application/json",
+          "date": "Fri, 28 Aug 2026 09:52:05 GMT",
+          "permissions-policy": "camera=(), microphone=(), geolocation=()",
+          "referrer-policy": "same-origin",
+          "x-content-type-options": "nosniff",
+          "x-frame-options": "DENY"
+        },
+        "body": {
+          "reference": "GBC-ZLTDV9",
+          "status": "requested",
+          "token": "aZSLJHwCUTrfJi7EHn6y45EoBev7Im9kF8YfteBi"
+        }
+      },
+      {
+        "status": 201,
+        "headers": {
+          "content-length": "98",
+          "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+          "content-type": "application/json",
+          "date": "Fri, 28 Aug 2026 09:52:05 GMT",
+          "permissions-policy": "camera=(), microphone=(), geolocation=()",
+          "referrer-policy": "same-origin",
+          "x-content-type-options": "nosniff",
+          "x-frame-options": "DENY"
+        },
+        "body": {
+          "reference": "GBC-WY9H7V",
+          "status": "requested",
+          "token": "fRAUhr31CAHnMmZHA8cMC3VgXIeoMxLP2WTLOzGp"
+        }
+      },
+      {
+        "status": 201,
+        "headers": {
+          "content-length": "98",
+          "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+          "content-type": "application/json",
+          "date": "Fri, 28 Aug 2026 09:52:05 GMT",
+          "permissions-policy": "camera=(), microphone=(), geolocation=()",
+          "referrer-policy": "same-origin",
+          "x-content-type-options": "nosniff",
+          "x-frame-options": "DENY"
+        },
+        "body": {
+          "reference": "GBC-9KTHSD",
+          "status": "requested",
+          "token": "CSOVyBugqkKP2kQD7fuZcPUN0w2Eev8JBo70X3fo"
+        }
+      },
+      {
+        "status": 201,
+        "headers": {
+          "content-length": "98",
+          "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+          "content-type": "application/json",
+          "date": "Fri, 28 Aug 2026 09:52:05 GMT",
+          "permissions-policy": "camera=(), microphone=(), geolocation=()",
+          "referrer-policy": "same-origin",
+          "x-content-type-options": "nosniff",
+          "x-frame-options": "DENY"
+        },
+        "body": {
+          "reference": "GBC-BFZ297",
+          "status": "requested",
+          "token": "xSMLFH9UfmpjP0QQArsDRTWFrHaNltakpIKN7HNl"
+        }
+      }
+    ]
+  },
+  "ownerListBeforeApproval": {
+    "status": 200,
+    "headers": {
+      "content-length": "6108",
+      "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+      "content-type": "application/json",
+      "date": "Fri, 28 Aug 2026 09:52:05 GMT",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "referrer-policy": "same-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "bookings": [
+        {
+          "consent_at": "2026-08-28T09:52:05.172835500+00:00",
+          "created_at": "2026-08-28T09:52:05.172835500+00:00",
+          "duration_minutes": 30,
+          "email": "guest0@example.com",
+          "guest_name": "Guest 0",
+          "guest_token": "Cz7NJF9tfiJyh6DDNrBhzKO2ZfZtvq38UU7uxQoH",
+          "id": "AteVTpA5M1KvfxqlN2",
+          "phone": null,
+          "reference": "GBC-DVS876",
+          "reminder_done": 0,
+          "reminder_done_at": null,
+          "starts_at": "2026-08-28T10:30:00+00:00",
+          "status": "requested",
+          "timezone": "UTC",
+          "updated_at": "2026-08-28T09:52:05.172835500+00:00"
+        },
+        {
+          "consent_at": "2026-08-28T09:52:05.176858494+00:00",
+          "created_at": "2026-08-28T09:52:05.176858494+00:00",
+          "duration_minutes": 30,
+          "email": "guest9@example.com",
+          "guest_name": "Guest 9",
+          "guest_token": "fRAUhr31CAHnMmZHA8cMC3VgXIeoMxLP2WTLOzGp",
+          "id": "BqEjfwVUC2dNAkz9Ix",
+          "phone": null,
+          "reference": "GBC-WY9H7V",
+          "reminder_done": 0,
+          "reminder_done_at": null,
+          "starts_at": "2026-08-28T10:30:00+00:00",
+          "status": "requested",
+          "timezone": "UTC",
+          "updated_at": "2026-08-28T09:52:05.176858494+00:00"
+        },
+        {
+          "consent_at": "2026-08-28T09:52:05.177195993+00:00",
+          "created_at": "2026-08-28T09:52:05.177195993+00:00",
+          "duration_minutes": 30,
+          "email": "guest2@example.com",
+          "guest_name": "Guest 2",
+          "guest_token": "ZT1o4CagNNuktd1sxvmfTXheQHAXcosidcXs1wvg",
+          "id": "5pzt0x2MJWN4JgBwin",
+          "phone": null,
+          "reference": "GBC-PWB4RU",
+          "reminder_done": 0,
+          "reminder_done_at": null,
+          "starts_at": "2026-08-28T10:30:00+00:00",
+          "status": "requested",
+          "timezone": "UTC",
+          "updated_at": "2026-08-28T09:52:05.177195993+00:00"
+        },
+        {
+          "consent_at": "2026-08-28T09:52:05.188492574+00:00",
+          "created_at": "2026-08-28T09:52:05.188492574+00:00",
+          "duration_minutes": 30,
+          "email": "guest10@example.com",
+          "guest_name": "Guest 10",
+          "guest_token": "CSOVyBugqkKP2kQD7fuZcPUN0w2Eev8JBo70X3fo",
+          "id": "ywRM3Ancd105IpCnc5",
+          "phone": null,
+          "reference": "GBC-9KTHSD",
+          "reminder_done": 0,
+          "reminder_done_at": null,
+          "starts_at": "2026-08-28T10:30:00+00:00",
+          "status": "requested",
+          "timezone": "UTC",
+          "updated_at": "2026-08-28T09:52:05.188492574+00:00"
+        },
+        {
+          "consent_at": "2026-08-28T09:52:05.189246973+00:00",
+          "created_at": "2026-08-28T09:52:05.189246973+00:00",
+          "duration_minutes": 30,
+          "email": "guest3@example.com",
+          "guest_name": "Guest 3",
+          "guest_token": "bPY7tCtClHpFwMu0btyICMnRVmNgIcffaCYiP9g5",
+          "id": "SV1canBW3tnf00ZJms",
+          "phone": null,
+          "reference": "GBC-T2QDJZ",
+          "reminder_done": 0,
+          "reminder_done_at": null,
+          "starts_at": "2026-08-28T10:30:00+00:00",
+          "status": "requested",
+          "timezone": "UTC",
+          "updated_at": "2026-08-28T09:52:05.189246973+00:00"
+        },
+        {
+          "consent_at": "2026-08-28T09:52:05.174419598+00:00",
+          "created_at": "2026-08-28T09:52:05.174419598+00:00",
+          "duration_minutes": 30,
+          "email": "guest5@example.com",
+          "guest_name": "Guest 5",
+          "guest_token": "PoXgzYU1iqthzDqmjf9I6uzsdRmIoDI08tRKPMjR",
+          "id": "ZZu8dvVB99kQ5U6oIZ",
+          "phone": null,
+          "reference": "GBC-Y7GFU8",
+          "reminder_done": 0,
+          "reminder_done_at": null,
+          "starts_at": "2026-08-28T10:30:00+00:00",
+          "status": "requested",
+          "timezone": "UTC",
+          "updated_at": "2026-08-28T09:52:05.174419598+00:00"
+        },
+        {
+          "consent_at": "2026-08-28T09:52:05.231933103+00:00",
+          "created_at": "2026-08-28T09:52:05.231933103+00:00",
+          "duration_minutes": 30,
+          "email": "guest6@example.com",
+          "guest_name": "Guest 6",
+          "guest_token": "Cn043sTEbJfsGpPksWPmLm29jUXLlUXpBJe9zdjV",
+          "id": "1glZbo7rv1z6yPhNWg",
+          "phone": null,
+          "reference": "GBC-422TZ2",
+          "reminder_done": 0,
+          "reminder_done_at": null,
+          "starts_at": "2026-08-28T10:30:00+00:00",
+          "status": "requested",
+          "timezone": "UTC",
+          "updated_at": "2026-08-28T09:52:05.231933103+00:00"
+        },
+        {
+          "consent_at": "2026-08-28T09:52:05.242766785+00:00",
+          "created_at": "2026-08-28T09:52:05.242766785+00:00",
+          "duration_minutes": 30,
+          "email": "guest11@example.com",
+          "guest_name": "Guest 11",
+          "guest_token": "xSMLFH9UfmpjP0QQArsDRTWFrHaNltakpIKN7HNl",
+          "id": "FcpOoY08IOdjDMCOpe",
+          "phone": null,
+          "reference": "GBC-BFZ297",
+          "reminder_done": 0,
+          "reminder_done_at": null,
+          "starts_at": "2026-08-28T10:30:00+00:00",
+          "status": "requested",
+          "timezone": "UTC",
+          "updated_at": "2026-08-28T09:52:05.242766785+00:00"
+        },
+        {
+          "consent_at": "2026-08-28T09:52:05.175534496+00:00",
+          "created_at": "2026-08-28T09:52:05.175534496+00:00",
+          "duration_minutes": 30,
+          "email": "guest1@example.com",
+          "guest_name": "Guest 1",
+          "guest_token": "yGMgrKZilAHthjDxrzjpBhtRiUrbJPjEZ8s5nXhH",
+          "id": "G52Oms1ZNFRqAJLWdL",
+          "phone": null,
+          "reference": "GBC-W59WQE",
+          "reminder_done": 0,
+          "reminder_done_at": null,
+          "starts_at": "2026-08-28T10:30:00+00:00",
+          "status": "requested",
+          "timezone": "UTC",
+          "updated_at": "2026-08-28T09:52:05.175534496+00:00"
+        },
+        {
+          "consent_at": "2026-08-28T09:52:05.232734202+00:00",
+          "created_at": "2026-08-28T09:52:05.232734202+00:00",
+          "duration_minutes": 30,
+          "email": "guest7@example.com",
+          "guest_name": "Guest 7",
+          "guest_token": "mbXOTVx8fXaAFQPY6NpoKnSadUBlRL8teU0otT1k",
+          "id": "f6udvazD5hA3P6fea4",
+          "phone": null,
+          "reference": "GBC-6TD654",
+          "reminder_done": 0,
+          "reminder_done_at": null,
+          "starts_at": "2026-08-28T10:30:00+00:00",
+          "status": "requested",
+          "timezone": "UTC",
+          "updated_at": "2026-08-28T09:52:05.232734202+00:00"
+        },
+        {
+          "consent_at": "2026-08-28T09:52:05.174996297+00:00",
+          "created_at": "2026-08-28T09:52:05.174996297+00:00",
+          "duration_minutes": 30,
+          "email": "guest8@example.com",
+          "guest_name": "Guest 8",
+          "guest_token": "aZSLJHwCUTrfJi7EHn6y45EoBev7Im9kF8YfteBi",
+          "id": "dsdxJp55J8mjGI2xBs",
+          "phone": null,
+          "reference": "GBC-ZLTDV9",
+          "reminder_done": 0,
+          "reminder_done_at": null,
+          "starts_at": "2026-08-28T10:30:00+00:00",
+          "status": "requested",
+          "timezone": "UTC",
+          "updated_at": "2026-08-28T09:52:05.174996297+00:00"
+        },
+        {
+          "consent_at": "2026-08-28T09:52:05.233535400+00:00",
+          "created_at": "2026-08-28T09:52:05.233535400+00:00",
+          "duration_minutes": 30,
+          "email": "guest4@example.com",
+          "guest_name": "Guest 4",
+          "guest_token": "I6dxgixFE3wGeEvpa03xYTP1kQswKtiOKhmvkp3m",
+          "id": "87JqTx1Cbz9cTBRwuL",
+          "phone": null,
+          "reference": "GBC-S89CZT",
+          "reminder_done": 0,
+          "reminder_done_at": null,
+          "starts_at": "2026-08-28T10:30:00+00:00",
+          "status": "requested",
+          "timezone": "UTC",
+          "updated_at": "2026-08-28T09:52:05.233535400+00:00"
+        },
+        {
+          "consent_at": "2026-08-28T09:52:05.101568717+00:00",
+          "created_at": "2026-08-28T09:52:05.101568717+00:00",
+          "duration_minutes": 30,
+          "email": "a@b",
+          "guest_name": "AB",
+          "guest_token": "tQAKtqZKMGhIaGA56UKSAPJjWjuqSFjXq3YhgLTM",
+          "id": "66WCUe3mtGJCXnLr3S",
+          "phone": null,
+          "reference": "GBC-5C5RRP",
+          "reminder_done": 0,
+          "reminder_done_at": null,
+          "starts_at": "2026-08-28T11:00:00+00:00",
+          "status": "requested",
+          "timezone": "UTC",
+          "updated_at": "2026-08-28T09:52:05.101568717+00:00"
+        }
+      ]
+    }
+  },
+  "concurrentApprovalStatuses": [],
+  "ownerListAfterApproval": {
+    "status": 200,
+    "headers": {
+      "content-length": "6108",
+      "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'",
+      "content-type": "application/json",
+      "date": "Fri, 28 Aug 2026 09:52:05 GMT",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "referrer-policy": "same-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "bookings": [
+        {
+          "consent_at": "2026-08-28T09:52:05.172835500+00:00",
+          "created_at": "2026-08-28T09:52:05.172835500+00:00",
+          "duration_minutes": 30,
+          "email": "guest0@example.com",
+          "guest_name": "Guest 0",
+          "guest_token": "Cz7NJF9tfiJyh6DDNrBhzKO2ZfZtvq38UU7uxQoH",
+          "id": "AteVTpA5M1KvfxqlN2",
+          "phone": null,
+          "reference": "GBC-DVS876",
+          "reminder_done": 0,
+          "reminder_done_at": null,
+          "starts_at": "2026-08-28T10:30:00+00:00",
+          "status": "requested",
+          "timezone": "UTC",
+          "updated_at": "2026-08-28T09:52:05.172835500+00:00"
+        },
+        {
+          "consent_at": "2026-08-28T09:52:05.176858494+00:00",
+          "created_at": "2026-08-28T09:52:05.176858494+00:00",
+          "duration_minutes": 30,
+          "email": "guest9@example.com",
+          "guest_name": "Guest 9",
+          "guest_token": "fRAUhr31CAHnMmZHA8cMC3VgXIeoMxLP2WTLOzGp",
+          "id": "BqEjfwVUC2dNAkz9Ix",
+          "phone": null,
+          "reference": "GBC-WY9H7V",
+          "reminder_done": 0,
+          "reminder_done_at": null,
+          "starts_at": "2026-08-28T10:30:00+00:00",
+          "status": "requested",
+          "timezone": "UTC",
+          "updated_at": "2026-08-28T09:52:05.176858494+00:00"
+        },
+        {
+          "consent_at": "2026-08-28T09:52:05.177195993+00:00",
+          "created_at": "2026-08-28T09:52:05.177195993+00:00",
+          "duration_minutes": 30,
+          "email": "guest2@example.com",
+          "guest_name": "Guest 2",
+          "guest_token": "ZT1o4CagNNuktd1sxvmfTXheQHAXcosidcXs1wvg",
+          "id": "5pzt0x2MJWN4JgBwin",
+          "phone": null,
+          "reference": "GBC-PWB4RU",
+          "reminder_done": 0,
+          "reminder_done_at": null,
+          "starts_at": "2026-08-28T10:30:00+00:00",
+          "status": "requested",
+          "timezone": "UTC",
+          "updated_at": "2026-08-28T09:52:05.177195993+00:00"
+        },
+        {
+          "consent_at": "2026-08-28T09:52:05.188492574+00:00",
+          "created_at": "2026-08-28T09:52:05.188492574+00:00",
+          "duration_minutes": 30,
+          "email": "guest10@example.com",
+          "guest_name": "Guest 10",
+          "guest_token": "CSOVyBugqkKP2kQD7fuZcPUN0w2Eev8JBo70X3fo",
+          "id": "ywRM3Ancd105IpCnc5",
+          "phone": null,
+          "reference": "GBC-9KTHSD",
+          "reminder_done": 0,
+          "reminder_done_at": null,
+          "starts_at": "2026-08-28T10:30:00+00:00",
+          "status": "requested",
+          "timezone": "UTC",
+          "updated_at": "2026-08-28T09:52:05.188492574+00:00"
+        },
+        {
+          "consent_at": "2026-08-28T09:52:05.189246973+00:00",
+          "created_at": "2026-08-28T09:52:05.189246973+00:00",
+          "duration_minutes": 30,
+          "email": "guest3@example.com",
+          "guest_name": "Guest 3",
+          "guest_token": "bPY7tCtClHpFwMu0btyICMnRVmNgIcffaCYiP9g5",
+          "id": "SV1canBW3tnf00ZJms",
+          "phone": null,
+          "reference": "GBC-T2QDJZ",
+          "reminder_done": 0,
+          "reminder_done_at": null,
+          "starts_at": "2026-08-28T10:30:00+00:00",
+          "status": "requested",
+          "timezone": "UTC",
+          "updated_at": "2026-08-28T09:52:05.189246973+00:00"
+        },
+        {
+          "consent_at": "2026-08-28T09:52:05.174419598+00:00",
+          "created_at": "2026-08-28T09:52:05.174419598+00:00",
+          "duration_minutes": 30,
+          "email": "guest5@example.com",
+          "guest_name": "Guest 5",
+          "guest_token": "PoXgzYU1iqthzDqmjf9I6uzsdRmIoDI08tRKPMjR",
+          "id": "ZZu8dvVB99kQ5U6oIZ",
+          "phone": null,
+          "reference": "GBC-Y7GFU8",
+          "reminder_done": 0,
+          "reminder_done_at": null,
+          "starts_at": "2026-08-28T10:30:00+00:00",
+          "status": "requested",
+          "timezone": "UTC",
+          "updated_at": "2026-08-28T09:52:05.174419598+00:00"
+        },
+        {
+          "consent_at": "2026-08-28T09:52:05.231933103+00:00",
+          "created_at": "2026-08-28T09:52:05.231933103+00:00",
+          "duration_minutes": 30,
+          "email": "guest6@example.com",
+          "guest_name": "Guest 6",
+          "guest_token": "Cn043sTEbJfsGpPksWPmLm29jUXLlUXpBJe9zdjV",
+          "id": "1glZbo7rv1z6yPhNWg",
+          "phone": null,
+          "reference": "GBC-422TZ2",
+          "reminder_done": 0,
+          "reminder_done_at": null,
+          "starts_at": "2026-08-28T10:30:00+00:00",
+          "status": "requested",
+          "timezone": "UTC",
+          "updated_at": "2026-08-28T09:52:05.231933103+00:00"
+        },
+        {
+          "consent_at": "2026-08-28T09:52:05.242766785+00:00",
+          "created_at": "2026-08-28T09:52:05.242766785+00:00",
+          "duration_minutes": 30,
+          "email": "guest11@example.com",
+          "guest_name": "Guest 11",
+          "guest_token": "xSMLFH9UfmpjP0QQArsDRTWFrHaNltakpIKN7HNl",
+          "id": "FcpOoY08IOdjDMCOpe",
+          "phone": null,
+          "reference": "GBC-BFZ297",
+          "reminder_done": 0,
+          "reminder_done_at": null,
+          "starts_at": "2026-08-28T10:30:00+00:00",
+          "status": "requested",
+          "timezone": "UTC",
+          "updated_at": "2026-08-28T09:52:05.242766785+00:00"
+        },
+        {
+          "consent_at": "2026-08-28T09:52:05.175534496+00:00",
+          "created_at": "2026-08-28T09:52:05.175534496+00:00",
+          "duration_minutes": 30,
+          "email": "guest1@example.com",
+          "guest_name": "Guest 1",
+          "guest_token": "yGMgrKZilAHthjDxrzjpBhtRiUrbJPjEZ8s5nXhH",
+          "id": "G52Oms1ZNFRqAJLWdL",
+          "phone": null,
+          "reference": "GBC-W59WQE",
+          "reminder_done": 0,
+          "reminder_done_at": null,
+          "starts_at": "2026-08-28T10:30:00+00:00",
+          "status": "requested",
+          "timezone": "UTC",
+          "updated_at": "2026-08-28T09:52:05.175534496+00:00"
+        },
+        {
+          "consent_at": "2026-08-28T09:52:05.232734202+00:00",
+          "created_at": "2026-08-28T09:52:05.232734202+00:00",
+          "duration_minutes": 30,
+          "email": "guest7@example.com",
+          "guest_name": "Guest 7",
+          "guest_token": "mbXOTVx8fXaAFQPY6NpoKnSadUBlRL8teU0otT1k",
+          "id": "f6udvazD5hA3P6fea4",
+          "phone": null,
+          "reference": "GBC-6TD654",
+          "reminder_done": 0,
+          "reminder_done_at": null,
+          "starts_at": "2026-08-28T10:30:00+00:00",
+          "status": "requested",
+          "timezone": "UTC",
+          "updated_at": "2026-08-28T09:52:05.232734202+00:00"
+        },
+        {
+          "consent_at": "2026-08-28T09:52:05.174996297+00:00",
+          "created_at": "2026-08-28T09:52:05.174996297+00:00",
+          "duration_minutes": 30,
+          "email": "guest8@example.com",
+          "guest_name": "Guest 8",
+          "guest_token": "aZSLJHwCUTrfJi7EHn6y45EoBev7Im9kF8YfteBi",
+          "id": "dsdxJp55J8mjGI2xBs",
+          "phone": null,
+          "reference": "GBC-ZLTDV9",
+          "reminder_done": 0,
+          "reminder_done_at": null,
+          "starts_at": "2026-08-28T10:30:00+00:00",
+          "status": "requested",
+          "timezone": "UTC",
+          "updated_at": "2026-08-28T09:52:05.174996297+00:00"
+        },
+        {
+          "consent_at": "2026-08-28T09:52:05.233535400+00:00",
+          "created_at": "2026-08-28T09:52:05.233535400+00:00",
+          "duration_minutes": 30,
+          "email": "guest4@example.com",
+          "guest_name": "Guest 4",
+          "guest_token": "I6dxgixFE3wGeEvpa03xYTP1kQswKtiOKhmvkp3m",
+          "id": "87JqTx1Cbz9cTBRwuL",
+          "phone": null,
+          "reference": "GBC-S89CZT",
+          "reminder_done": 0,
+          "reminder_done_at": null,
+          "starts_at": "2026-08-28T10:30:00+00:00",
+          "status": "requested",
+          "timezone": "UTC",
+          "updated_at": "2026-08-28T09:52:05.233535400+00:00"
+        },
+        {
+          "consent_at": "2026-08-28T09:52:05.101568717+00:00",
+          "created_at": "2026-08-28T09:52:05.101568717+00:00",
+          "duration_minutes": 30,
+          "email": "a@b",
+          "guest_name": "AB",
+          "guest_token": "tQAKtqZKMGhIaGA56UKSAPJjWjuqSFjXq3YhgLTM",
+          "id": "66WCUe3mtGJCXnLr3S",
+          "phone": null,
+          "reference": "GBC-5C5RRP",
+          "reminder_done": 0,
+          "reminder_done_at": null,
+          "starts_at": "2026-08-28T11:00:00+00:00",
+          "status": "requested",
+          "timezone": "UTC",
+          "updated_at": "2026-08-28T09:52:05.101568717+00:00"
+        }
+      ]
+    }
+  },
+  "acceptedAtSameTime": 0
+}

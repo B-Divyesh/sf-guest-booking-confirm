@@ -1,0 +1,138 @@
+HEALTH
+HTTP/2 200 
+content-type: application/json
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: same-origin
+permissions-policy: camera=(), microphone=(), geolocation=()
+content-security-policy: default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'
+content-length: 70
+date: Fri, 28 Aug 2026 09:46:45 GMT
+
+{"build_sha":"57dab139c961a5ad93a1a224155b4ae6d5c11a76","status":"ok"}PUBLIC SETTINGS
+HTTP/2 200 
+content-type: application/json
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: same-origin
+permissions-policy: camera=(), microphone=(), geolocation=()
+content-security-policy: default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'
+content-length: 20
+date: Fri, 28 Aug 2026 09:46:45 GMT
+
+{"configured":false}DEMO
+HTTP/2 200 
+content-type: text/html
+accept-ranges: bytes
+last-modified: Fri, 28 Aug 2026 08:38:58 GMT
+content-length: 770
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: same-origin
+permissions-policy: camera=(), microphone=(), geolocation=()
+content-security-policy: default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'
+date: Fri, 28 Aug 2026 09:46:45 GMT
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#202a28" />
+    <meta name="description" content="Request, confirm, reschedule, and remember guest appointments without creating an account." />
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <title>Guest Booking Confirm — clear appointment status</title>
+    <script type="module" crossorigin src="/assets/index-ZnhYt0jq.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BT_5Rfqc.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <div id="app"></div>
+  </body>
+</html>
+ROBOTS
+HTTP/2 200 
+content-type: text/html
+accept-ranges: bytes
+last-modified: Fri, 28 Aug 2026 08:38:58 GMT
+content-length: 770
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: same-origin
+permissions-policy: camera=(), microphone=(), geolocation=()
+content-security-policy: default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'
+date: Fri, 28 Aug 2026 09:46:45 GMT
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#202a28" />
+    <meta name="description" content="Request, confirm, reschedule, and remember guest appointments without creating an account." />
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <title>Guest Booking Confirm — clear appointment status</title>
+    <script type="module" crossorigin src="/assets/index-ZnhYt0jq.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BT_5Rfqc.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <div id="app"></div>
+  </body>
+</html>
+SITEMAP
+HTTP/2 200 
+content-type: text/html
+accept-ranges: bytes
+last-modified: Fri, 28 Aug 2026 08:38:58 GMT
+content-length: 770
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: same-origin
+permissions-policy: camera=(), microphone=(), geolocation=()
+content-security-policy: default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'
+date: Fri, 28 Aug 2026 09:46:45 GMT
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#202a28" />
+    <meta name="description" content="Request, confirm, reschedule, and remember guest appointments without creating an account." />
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <title>Guest Booking Confirm — clear appointment status</title>
+    <script type="module" crossorigin src="/assets/index-ZnhYt0jq.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BT_5Rfqc.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <div id="app"></div>
+  </body>
+</html>
+HASHED JS
+HTTP/2 200 
+content-type: text/javascript
+accept-ranges: bytes
+last-modified: Fri, 28 Aug 2026 08:38:58 GMT
+content-length: 32234
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: same-origin
+permissions-policy: camera=(), microphone=(), geolocation=()
+content-security-policy: default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'
+date: Fri, 28 Aug 2026 09:46:46 GMT
+
+SERVICE WORKER
+HTTP/2 200 
+content-type: text/javascript
+accept-ranges: bytes
+last-modified: Fri, 28 Aug 2026 08:38:58 GMT
+content-length: 800
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: same-origin
+permissions-policy: camera=(), microphone=(), geolocation=()
+content-security-policy: default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'
+date: Fri, 28 Aug 2026 09:46:46 GMT
+

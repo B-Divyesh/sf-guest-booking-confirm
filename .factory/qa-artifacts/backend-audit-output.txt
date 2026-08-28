@@ -1,0 +1,45 @@
+{
+  "invalidSetup": {
+    "shortBusiness": 422,
+    "shortService": 422,
+    "badTimezone": 422,
+    "durationLow": 422,
+    "durationHigh": 422,
+    "shortPassword": 422
+  },
+  "setup": 201,
+  "secondSetup": 409,
+  "ownerUnauthorized": 401,
+  "ownerWrongPassword": 401,
+  "slotCount": 120,
+  "invalidBookings": {
+    "shortName": 422,
+    "longName": 422,
+    "badEmail": 422,
+    "noConsent": 422,
+    "longPhone": 422,
+    "badTime": 422,
+    "offGridTime": 409
+  },
+  "boundaryBooking": 201,
+  "icsBeforeConfirm": 409,
+  "collisionCreates": [
+    201,
+    201,
+    201,
+    201,
+    201,
+    201,
+    201,
+    201,
+    201,
+    201,
+    201,
+    201
+  ],
+  "concurrentApprovals": [],
+  "acceptedAtSameTime": 0,
+  "icsAfterConfirm": {
+    "hasConfirmed": false
+  }
+}

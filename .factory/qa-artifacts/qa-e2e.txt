@@ -1,0 +1,20 @@
+
+> guest-booking-confirm@1.0.0 test:e2e
+> playwright test
+
+[2m[WebServer] [22m(node:6483) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m   Compiling guest-booking-confirm v0.1.0 (/work/repo)
+[2m[WebServer] [22m    Finished `dev` profile [unoptimized + debuginfo] target(s) in 12.79s
+[2m[WebServer] [22m     Running `target/debug/guest-booking-confirm`
+
+Running 2 tests using 1 worker
+
+(node:6790) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6790) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium-mobile] › tests/booking-flow.spec.ts:4:1 › guest request reaches owner approval and guest confirmation (7.7s)
+  ✓  2 [chromium-mobile] › tests/booking-flow.spec.ts:48:1 › legal pages expose one h1 and a main landmark (615ms)
+
+  2 passed (26.3s)

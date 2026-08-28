@@ -1,0 +1,2 @@
+setup 201 {"token":"RSTc7otKOZZDVFdYc5zDdHpLfWM4E5qIqToyjkXNJmnlIn83"}
+slots 200 {"slots":[],"timezone":"UTC"}

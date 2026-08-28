@@ -1,0 +1,227 @@
+{
+  "desktop": {
+    "semantics": {
+      "lang": "en",
+      "title": "Guest Booking Confirm — clear appointment status",
+      "h1": [
+        "This booking page is nearly ready"
+      ],
+      "mainCount": 1,
+      "headerCount": 1,
+      "footerCount": 1,
+      "skipHref": "#main",
+      "horizontalOverflow": 0,
+      "metadata": {
+        "canonical": null,
+        "appleTouch": null,
+        "ogTitle": null,
+        "twitterCard": null
+      },
+      "undersizedTargets": [
+        {
+          "text": "Guest Booking Confirm home",
+          "width": 203.84375,
+          "height": 24.796875
+        },
+        {
+          "text": "Owner panel",
+          "width": 86.375,
+          "height": 16
+        },
+        {
+          "text": "Privacy",
+          "width": 45.90625,
+          "height": 21.6875
+        },
+        {
+          "text": "Terms",
+          "width": 38.125,
+          "height": 21.6875
+        }
+      ]
+    },
+    "axeSeriousCritical": [],
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedResponses": [],
+    "requestOrigins": [
+      "https://guest-booking-confirm.sociobot.in"
+    ],
+    "focusTrail": [
+      {
+        "tag": "A",
+        "text": "Skip to main content",
+        "outline": "3px solid rgb(20, 109, 135)"
+      },
+      {
+        "tag": "A",
+        "text": "Guest Booking Confirm home",
+        "outline": "3px solid rgb(20, 109, 135)"
+      },
+      {
+        "tag": "A",
+        "text": "Owner panel",
+        "outline": "3px solid rgb(20, 109, 135)"
+      },
+      {
+        "tag": "A",
+        "text": "Set up the owner panel",
+        "outline": "3px solid rgb(20, 109, 135)"
+      },
+      {
+        "tag": "A",
+        "text": "Privacy",
+        "outline": "3px solid rgb(20, 109, 135)"
+      },
+      {
+        "tag": "A",
+        "text": "Terms",
+        "outline": "3px solid rgb(20, 109, 135)"
+      },
+      {
+        "tag": "BODY",
+        "text": "Skip to main content\n    \n    Guest Booking Confirm\n    Owner panel\n  Desk not yet calibratedThis booking page is nearly readyThe owner still needs to set service hours. If that’s you, open the owner panel to finish setup.Set up the owner panelClear appointment state, no guest account. Original generated artwork; no tracking cookies.PrivacyTerms",
+        "outline": "0px none rgb(23, 32, 30)"
+      }
+    ]
+  },
+  "mobile-390": {
+    "semantics": {
+      "lang": "en",
+      "title": "Guest Booking Confirm — clear appointment status",
+      "h1": [
+        "This booking page is nearly ready"
+      ],
+      "mainCount": 1,
+      "headerCount": 1,
+      "footerCount": 1,
+      "skipHref": "#main",
+      "horizontalOverflow": 0,
+      "metadata": {
+        "canonical": null,
+        "appleTouch": null,
+        "ogTitle": null,
+        "twitterCard": null
+      },
+      "undersizedTargets": [
+        {
+          "text": "Guest Booking Confirm home",
+          "width": 176,
+          "height": 35.1875
+        },
+        {
+          "text": "Owner panel",
+          "width": 76.8125,
+          "height": 15
+        },
+        {
+          "text": "Privacy",
+          "width": 45.90625,
+          "height": 21.6875
+        },
+        {
+          "text": "Terms",
+          "width": 38.125,
+          "height": 21.6875
+        }
+      ]
+    },
+    "axeSeriousCritical": [],
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedResponses": [],
+    "requestOrigins": [
+      "https://guest-booking-confirm.sociobot.in"
+    ],
+    "focusTrail": [
+      {
+        "tag": "A",
+        "text": "Skip to main content",
+        "outline": "3px solid rgb(20, 109, 135)"
+      },
+      {
+        "tag": "A",
+        "text": "Guest Booking Confirm home",
+        "outline": "3px solid rgb(20, 109, 135)"
+      },
+      {
+        "tag": "A",
+        "text": "Owner panel",
+        "outline": "3px solid rgb(20, 109, 135)"
+      },
+      {
+        "tag": "A",
+        "text": "Set up the owner panel",
+        "outline": "3px solid rgb(20, 109, 135)"
+      },
+      {
+        "tag": "A",
+        "text": "Privacy",
+        "outline": "3px solid rgb(20, 109, 135)"
+      },
+      {
+        "tag": "A",
+        "text": "Terms",
+        "outline": "3px solid rgb(20, 109, 135)"
+      },
+      {
+        "tag": "BODY",
+        "text": "Skip to main content\n    \n    Guest Booking Confirm\n    Owner panel\n  Desk not yet calibratedThis booking page is nearly readyThe owner still needs to set service hours. If that’s you, open the owner panel to finish setup.Set up the owner panelClear appointment state, no guest account. Original generated artwork; no tracking cookies.PrivacyTerms",
+        "outline": "0px none rgb(23, 32, 30)"
+      }
+    ]
+  },
+  "reducedMotion": {
+    "mediaMatches": true,
+    "transitionDuration": "1e-05s",
+    "scrollBehavior": "auto"
+  },
+  "route:/demo": {
+    "finalUrl": "https://guest-booking-confirm.sociobot.in/",
+    "title": "Guest Booking Confirm — clear appointment status",
+    "h1": [
+      "This booking page is nearly ready"
+    ],
+    "mainCount": 1,
+    "axeSeriousCritical": []
+  },
+  "route:/not-a-real-route": {
+    "finalUrl": "https://guest-booking-confirm.sociobot.in/",
+    "title": "Guest Booking Confirm — clear appointment status",
+    "h1": [
+      "This booking page is nearly ready"
+    ],
+    "mainCount": 1,
+    "axeSeriousCritical": []
+  },
+  "route:/privacy": {
+    "finalUrl": "https://guest-booking-confirm.sociobot.in/privacy",
+    "title": "Privacy — Guest Booking Confirm",
+    "h1": [
+      "Privacy"
+    ],
+    "mainCount": 1,
+    "axeSeriousCritical": []
+  },
+  "route:/terms": {
+    "finalUrl": "https://guest-booking-confirm.sociobot.in/terms",
+    "title": "Terms — Guest Booking Confirm",
+    "h1": [
+      "Terms"
+    ],
+    "mainCount": 1,
+    "axeSeriousCritical": []
+  },
+  "offlineReload": {
+    "before": {
+      "controller": true,
+      "active": "activated",
+      "waiting": null
+    },
+    "url": "https://guest-booking-confirm.sociobot.in/",
+    "h1": [
+      "We couldn’t open the booking desk"
+    ],
+    "body": "Skip to main content\nGuest Booking Confirm\nOwner panel\n\nSIGNAL INTERRUPTED\n\nWe couldn’t open the booking desk\n\nThe booking desk is offline. Check your connection and try again.\n\nTry again\n\nClear appointment state, no guest account. Original generated artwork; no tracking cookies.\n\nPrivacy\nTerms"
+  }
+}

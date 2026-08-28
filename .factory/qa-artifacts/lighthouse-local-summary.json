@@ -1,0 +1,62 @@
+{
+  "categories": {
+    "performance": 0.89,
+    "accessibility": 1,
+    "best-practices": 1,
+    "seo": 0.92
+  },
+  "metrics": {
+    "FCP": 1224.707,
+    "LCP": 2054.0605,
+    "TBT": 396,
+    "CLS": 0,
+    "SI": 1224.707
+  },
+  "failures": [
+    {
+      "id": "first-contentful-paint",
+      "score": 0.99,
+      "title": "First Contentful Paint"
+    },
+    {
+      "id": "largest-contentful-paint",
+      "score": 0.96,
+      "title": "Largest Contentful Paint"
+    },
+    {
+      "id": "total-blocking-time",
+      "score": 0.68,
+      "title": "Total Blocking Time"
+    },
+    {
+      "id": "max-potential-fid",
+      "score": 0.4,
+      "title": "Max Potential First Input Delay"
+    },
+    {
+      "id": "interactive",
+      "score": 0.99,
+      "title": "Time to Interactive"
+    },
+    {
+      "id": "robots-txt",
+      "score": 0,
+      "title": "robots.txt is not valid"
+    },
+    {
+      "id": "forced-reflow-insight",
+      "score": 0,
+      "title": "Forced reflow"
+    },
+    {
+      "id": "lcp-discovery-insight",
+      "score": 0,
+      "title": "LCP request discovery"
+    },
+    {
+      "id": "network-dependency-tree-insight",
+      "score": 0,
+      "title": "Network dependency tree"
+    }
+  ]
+}

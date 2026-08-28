@@ -1,0 +1,15 @@
+import { chromium } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+import { writeFile } from 'node:fs/promises';
+const browser = await chromium.launch();
+const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true });
+const page = await context.newPage();
+await page.goto('http://127.0.0.1:4180/manage', { waitUntil: 'networkidle' });
+await page.getByLabel('Owner password').fill('correct-horse-battery');
+await page.getByRole('button', { name: 'Sign in' }).click();
+await page.getByRole('heading', { name: 'Booking signals', exact: true }).waitFor();
+const results = await new AxeBuilder({ page }).analyze();
+const relevant = results.violations.filter(v => ['serious','critical'].includes(v.impact));
+await writeFile('.factory/qa-artifacts/axe-owner.json', JSON.stringify(relevant, null, 2));
+console.log(JSON.stringify(relevant, null, 2));
+await browser.close();

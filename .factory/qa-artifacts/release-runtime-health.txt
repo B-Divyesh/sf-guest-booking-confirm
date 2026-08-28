@@ -1,0 +1,11 @@
+HTTP/1.1 200 OK
+content-type: application/json
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: same-origin
+permissions-policy: camera=(), microphone=(), geolocation=()
+content-security-policy: default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'
+content-length: 70
+date: Fri, 28 Aug 2026 10:03:19 GMT
+
+{"build_sha":"57dab139c961a5ad93a1a224155b4ae6d5c11a76","status":"ok"}

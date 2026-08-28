@@ -1,0 +1,13 @@
+
+> guest-booking-confirm@1.0.0 build
+> vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 5 modules transformed.
+rendering chunks...
+computing gzip size...
+../dist/index.html                  0.77 kB │ gzip:  0.44 kB
+../dist/assets/index-BT_5Rfqc.css  18.36 kB │ gzip:  4.94 kB
+../dist/assets/index-ZnhYt0jq.js   32.23 kB │ gzip: 10.45 kB
+✓ built in 1.64s
