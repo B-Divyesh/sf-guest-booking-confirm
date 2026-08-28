@@ -1,4 +1,62 @@
-# Guest Booking Confirm — independent verification 4: **FAIL**
+# Guest Booking Confirm — repair 3: **DEPLOYED**
+
+Date: 2026-08-28
+Work order: `guest-booking-confirm-repair-3`
+Verifier report repaired: `.factory/verification-4.md` against candidate `04da75a04ebe6815e8816b01c8f9fca16d32f3ea`
+Repaired source commit: `e3da7718d143fa163dee368d2e897c188b4a0c87`
+
+## Release-blocking repair
+
+- Reproduced the verifier failure before changing source: `Dockerfile:8` declared `FROM rust:1.88-bookworm AS backend`, a prohibited minor-pinned Rust builder.
+- Replaced it with the mandated unpinned current-stable builder: `FROM rust:1-slim AS backend`. The existing multi-stage build, default `ARG BUILD_SHA=dev`, non-root Debian runtime, `PORT=8080`, and `/health` build identity are unchanged.
+- Added `tests::dockerfile_uses_the_unpinned_current_stable_rust_builder` to the Rust unit suite. It requires the builder line to be exactly `FROM rust:1-slim AS backend` and rejects a `rust:1.<minor>` tag, so this exact release blocker cannot regress unnoticed.
+
+## Verification evidence
+
+Clean install and local quality gates:
+
+- `npm ci` — PASS; 84 packages audited, 0 vulnerabilities.
+- `cargo test --locked dockerfile_uses_the_unpinned_current_stable_rust_builder` — PASS (the new targeted regression).
+- `npm test` — PASS; 4 Vitest + 10 Rust tests, including both booking concurrency tests, capacity/retention claims, invalid-hours recovery, and the Dockerfile regression.
+- `npm run check` — PASS; strict TypeScript plus `cargo clippy -- -D warnings`.
+- `npm run build` — PASS; `dist/` produced. Initial JavaScript is 36.99 kB raw / 11.61 kB gzip; CSS is 19.92 kB raw / 5.23 kB gzip.
+- `cargo build --release --locked` — PASS.
+- `npm run test:e2e` — PASS; 10 Playwright tests covering 390px booking flow, desktop 404/immutable asset check, keyboard-accessible error recovery, axe, privacy, claim flows, and service-worker-controlled offline demo reload.
+- `npm audit --omit=dev` — PASS; 0 vulnerabilities. This is a web-with-backend product, not a distributable library; no package-consumer check applies.
+
+Release-binary and live checks:
+
+- A fresh local release binary on a temporary SQLite desk passed desktop and 390px smoke checks: zero serious/critical axe findings, no horizontal overflow at 200% text, and the keyboard trail had a designed `3px solid rgb(20, 109, 135)` focus ring on every reached control.
+- Live desktop and 390px Chromium checks at `https://guest-booking-confirm.sociobot.in` passed: landing h1 is **Request and confirm guest appointments**, no console/page errors, no horizontal overflow, zero serious/critical axe findings, and all recorded requests were same-origin. Reduced-motion reported `scroll-behavior: auto` and `transition-duration: 0.01ms`.
+- Live demo privacy/offline/update check passed: after confirming sample data, cookies were empty, localStorage contained only `demo:guest-booking-confirm:state`, and requests stayed same-origin. With service-worker control, `registration.update()` reported active `activated` and no waiting worker; `/demo` reloaded offline with **Ready to confirm**.
+- Live response policy passed: HTML served `nosniff`, `DENY` framing, `same-origin` referrer policy, the restrictive CSP, and `Cache-Control: no-cache`; hashed `main-aAVthVdE.js` served `public, max-age=31536000, immutable`.
+- Live rate-limit check passed: 41 concurrent `GET /api/public/settings` requests from one fresh forwarded IP returned 40 × `200` and 1 × `429` with `Retry-After: 1`.
+- Live identity passed: `GET /health` returned `{"build_sha":"e3da7718d143fa163dee368d2e897c188b4a0c87","status":"ok"}`.
+
+## Factory build and deployment
+
+- Factory ACR run `chme` passed in 5m08s. The upload log confirms `.git` was excluded. It built `sociobotregistry.azurecr.io/sf-guest-booking-confirm:e3da7718d143` with image digest `sha256:279f5f0ab6ce4a3d2f4ab700f1a282c7f127c6b614d549c502b7f37b186fb48f`.
+- The ACR dependency record explicitly reports build-time dependency `library/rust:1-slim` (digest `sha256:17d1ba895198f9934c6314ec5346a0d5115372f3243390c3d731e242f35c2f27`), proving the required unpinned base image was used.
+- Deployed to Azure Container Apps revision `sf-guest-booking-confirm--repair3`, single-revision mode, 100% latest traffic, with the verified image and only `PORT=8080` configured.
+
+## Run and verify
+
+```sh
+npm ci
+npm test
+npm run check
+npm run build
+npm run test:e2e
+cargo build --release --locked
+docker build --build-arg BUILD_SHA=$(git rev-parse HEAD) -t guest-booking-confirm .
+docker run --rm -p 8080:8080 -v gbc-data:/data guest-booking-confirm
+```
+
+The worker environment has no local Docker daemon; the exact container verification was therefore performed by the successful factory ACR build above. No known product gaps remain from verification 4.
+
+---
+
+# Guest Booking Confirm — independent verification 4: **FAIL (historical; repaired above)**
 
 Date: 2026-08-28
 Verified candidate: `04da75a04ebe6815e8816b01c8f9fca16d32f3ea`
