@@ -47,6 +47,13 @@ docker run --rm -p 8080:8080 -v gbc-data:/data guest-booking-confirm
 
 The container needs only `PORT` (default `8080`) and persists SQLite under `/data`. It runs as non-root. The factory deployment is an Azure Container Apps container build using `BUILD_SHA`; deployment identity must be verified at `/health` after rollout.
 
+## Deployment evidence
+
+- ACR run `chkb` succeeded from the final runtime source commit `07b9d31a44b71c47ff4a1b35d56e290d64784be3`; the upload log confirms `.git` was excluded.
+- Azure Container App revision `sf-guest-booking-confirm--0000004` is provisioned with `sociobotregistry.azurecr.io/sf-guest-booking-confirm:07b9d31a44b7` and retains only `PORT=8080`.
+- Live `https://guest-booking-confirm.sociobot.in/health` returns `{"build_sha":"07b9d31a44b71c47ff4a1b35d56e290d64784be3","status":"ok"}`.
+- Live Chromium smoke at 1440px and 390px found the correct landing h1, no console errors, no horizontal overflow, and a 44px-high owner-setup link. The public response still carries the expected CSP, nosniff, frame denial, and same-origin referrer policy headers.
+
 ## Known gaps
 
 The local worker image has no Docker executable, so the Docker build is delegated to the factory ACR build. All equivalent frontend production, locked Rust release, runtime, and browser checks passed locally.
