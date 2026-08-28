@@ -52,3 +52,56 @@ test('legal pages expose one h1 and a main landmark', async ({ page }) => {
     await expect(page.locator('h1')).toHaveCount(1);
   }
 });
+
+test('@claim:demo-confirmation-trail demo starts approved and reaches guest confirmation', async ({ page }) => {
+  await page.goto('/demo');
+  await expect(page.getByRole('complementary', { name: 'Demo controls' })).toContainText('Demo — sample data, nothing is saved');
+  await expect(page.getByRole('heading', { name: 'Ready to confirm' })).toBeVisible();
+  await expect(page.getByText('Maya Chen')).toBeVisible();
+  await page.getByRole('button', { name: 'Confirm this time' }).click();
+  await expect(page.getByRole('heading', { name: 'Confirmed', exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Download sample calendar/ })).toBeVisible();
+  const results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations.filter(v => ['serious', 'critical'].includes(v.impact || ''))).toEqual([]);
+});
+
+test('@claim:demo-local-only demo does not call booking APIs and uses only its demo storage namespace', async ({ page }) => {
+  const requests: string[] = [];
+  page.on('request', request => requests.push(request.url()));
+  await page.goto('/demo');
+  await page.getByRole('button', { name: 'Confirm this time' }).click();
+  await expect(page.getByRole('heading', { name: 'Confirmed', exact: true })).toBeVisible();
+  expect(requests.some(url => new URL(url).pathname.startsWith('/api/'))).toBeFalsy();
+  expect(await page.evaluate(() => Object.keys(localStorage))).toEqual(['demo:guest-booking-confirm:state']);
+});
+
+test('@claim:no-tracking-cookies demo sends no cross-origin request and writes no cookie', async ({ page }) => {
+  const requests: string[] = [];
+  page.on('request', request => requests.push(request.url()));
+  await page.goto('/demo');
+  await page.getByRole('button', { name: 'Confirm this time' }).click();
+  expect(await page.evaluate(() => document.cookie)).toBe('');
+  expect(requests.every(url => new URL(url).origin === 'http://127.0.0.1:4173')).toBeTruthy();
+});
+
+test('unknown routes return the designed 404 and hashed assets are immutable', async ({ page, request }) => {
+  const missing = await request.get('/this-route-does-not-exist');
+  expect(missing.status()).toBe(404);
+  await expect(page.goto('/this-route-does-not-exist')).resolves.toBeTruthy();
+  await expect(page.getByRole('heading', { name: 'That page is not on this desk' })).toBeVisible();
+  await page.goto('/demo');
+  const asset = await page.locator('script[type="module"]').getAttribute('src');
+  const assetResponse = await request.get(asset!);
+  expect(assetResponse.headers()['cache-control']).toContain('immutable');
+});
+
+test('demo shell reloads offline after its first controlled visit', async ({ page, context }) => {
+  await page.goto('/demo');
+  await page.evaluate(() => navigator.serviceWorker.ready);
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Ready to confirm' })).toBeVisible();
+  await context.setOffline(true);
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Ready to confirm' })).toBeVisible();
+  await context.setOffline(false);
+});

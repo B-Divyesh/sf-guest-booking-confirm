@@ -41,6 +41,7 @@ h3 { font-size: 1.25rem; }
 .wordmark { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; text-decoration: none; letter-spacing: -.02em; }
 .brand-lamp { width: 21px; height: 21px; border-radius: 50%; display: inline-block; background: var(--signal); border: 4px solid var(--panel); box-shadow: inset 2px 2px 0 #ffb19b; }
 .topbar nav a { font-weight: 700; font-size: .9rem; }
+.topbar nav { display:flex; align-items:center; gap:16px; }
 main { min-height: calc(100vh - 190px); }
 footer { padding: 32px clamp(20px, 5vw, 72px); border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 24px; color: var(--muted); font-size: .875rem; }
 footer p { margin: 0; }
@@ -60,6 +61,10 @@ footer nav { display: flex; gap: 20px; }
 .mini-rail li { position: relative; flex: 1; color: #d6d2c8; font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; }
 .mini-rail li::after { content: ""; position: absolute; top: 12px; left: 29px; right: 8px; height: 1px; background: #84908b; }
 .mini-rail span { width: 25px; height: 25px; margin-bottom: 8px; display: grid; place-items: center; border: 1px solid #aeb6b1; border-radius: 50%; color: var(--paper-light); font-size: .75rem; }
+.hero-demo { margin-top: 24px; color: var(--paper-light); background: transparent; border-color: #c8c7bb; }
+.hero-demo:hover { color: var(--ink); background: var(--paper-light); }
+.demo-banner { min-height: 52px; padding: 8px clamp(16px, 5vw, 72px); display:flex; flex-wrap:wrap; align-items:center; gap:12px 18px; color:var(--paper-light); background:#31584c; border-bottom:3px solid var(--green); font-size:.88rem; }
+.demo-banner span { flex:1; color:#e0eee5; }.demo-banner .quiet { min-height:36px; color:var(--paper-light); }.demo-banner .secondary { min-height:36px; padding:6px 12px; }
 
 .request-layout { max-width: 1240px; margin: 0 auto; padding: clamp(64px, 9vw, 128px) clamp(20px, 5vw, 72px); display: grid; grid-template-columns: 1fr 1.5fr; gap: clamp(40px, 8vw, 112px); }
 .request-intro { align-self: start; position: sticky; top: 28px; }
@@ -114,6 +119,12 @@ button:disabled { opacity: .58; cursor: wait; }
 .instrument-icon { width: 128px; padding: 13px; margin-bottom: 28px; display: flex; gap: 10px; background: var(--panel); border: 5px solid #52615d; box-shadow: 5px 6px 0 #a89d8b; }
 .instrument-icon i { width: 25px; height: 25px; border: 4px solid #efe2cc; border-radius: 50%; background: #746f64; }
 .instrument-icon i.on { background: var(--signal); box-shadow: 0 0 0 4px #f8af8f; }
+.plain-facts { padding:0; margin:28px 0 18px; list-style:none; border-top:1px solid var(--line); }
+.plain-facts li { padding:9px 0; border-bottom:1px solid var(--line); font-weight:700; }
+.plain-facts li::before { content:'✓'; margin-right:9px; color:var(--green); }
+.owner-start { margin-bottom:0; color:var(--muted); }
+.demo-explain { max-width:570px; margin:24px 0 0; padding:14px 16px; color:var(--paper-light); background:#ffffff1c; border-left:3px solid #f59a77; }
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 .signal-lamp { width: 18px; height: 18px; flex: none; display: inline-block; border: 3px solid var(--panel); border-radius: 50%; }
 .signal-lamp.amber { background: var(--amber); }.signal-lamp.green { background: #4a9c77; }.signal-lamp.red { background: #cf554b; }.signal-lamp.off { background: #8c897e; }
 
@@ -184,7 +195,8 @@ body.offline::before { content:"Offline — saved pages remain readable; updates
 }
 
 @media (max-width: 560px) {
-  .topbar { min-height:64px; padding:10px 16px; }.wordmark span:last-child { max-width:145px; line-height:1.1; }.topbar nav a { font-size:.8rem; }
+  .topbar { min-height:64px; padding:10px 16px; }.wordmark span:last-child { max-width:125px; line-height:1.1; }.topbar nav { gap:10px; }.topbar nav a { font-size:.75rem; }
+  .demo-banner { align-items:start; padding:12px 16px; }.demo-banner strong { width:100%; }.demo-banner span { flex-basis:100%; }
   footer { flex-direction:column; padding:28px 20px; }
   .booking-hero { padding:48px 20px 0; }.hero-copy h1 { font-size:3.25rem; }.hero-art { margin:-5px -80px -16px -65px; }.mini-rail { margin-top:28px; }.mini-rail li { font-size:.61rem; }.mini-rail li::after { display:none; }
   .request-layout { padding:56px 20px; gap:32px; }.field-grid { grid-template-columns:1fr; }.slot-day { grid-template-columns:1fr; gap:6px; }.slot-day h3 { margin:0; }

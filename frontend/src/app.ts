@@ -9,7 +9,14 @@ type Booking = { id: string; reference: string; guest_name: string; email?: stri
 const app = document.querySelector<HTMLDivElement>('#app')!;
 const OWNER_TOKEN = 'gbc_owner_session';
 const LICENSE_KEY = 'sb_license:guest-booking-confirm';
+const DEMO_KEY = 'demo:guest-booking-confirm:state';
 let ownerToken = sessionStorage.getItem(OWNER_TOKEN) || '';
+let moveFocusOnRoute = false;
+
+type DemoState = 'awaiting_confirmation' | 'confirmed';
+const demoSettings: Required<Pick<Settings, 'business_name' | 'service_name' | 'timezone' | 'duration_minutes'>> = {
+  business_name: 'Northstar Barber', service_name: 'Precision cut', timezone: 'America/New_York', duration_minutes: 45
+};
 
 class HttpError extends Error { constructor(message: string, public status: number) { super(message); } }
 async function api<T>(url: string, options: RequestInit = {}): Promise<T> {
@@ -28,9 +35,12 @@ async function api<T>(url: string, options: RequestInit = {}): Promise<T> {
 function shell(content: string, owner = false): void {
   app.innerHTML = `<header class="topbar">
     <a class="wordmark" href="/" data-nav aria-label="Guest Booking Confirm home"><span class="brand-lamp" aria-hidden="true"></span><span>Guest Booking Confirm</span></a>
-    <nav aria-label="Main navigation"><a href="${owner ? '/' : '/manage'}" data-nav>${owner ? 'Guest page' : 'Owner panel'}</a></nav>
-  </header>${content}<footer><p>Clear appointment state, no guest account. Original generated artwork; no tracking cookies.</p><nav aria-label="Legal"><a href="/privacy" data-nav>Privacy</a><a href="/terms" data-nav>Terms</a></nav></footer>`;
-  document.querySelectorAll<HTMLAnchorElement>('[data-nav]').forEach(link => link.addEventListener('click', event => { if (link.origin === location.origin) { event.preventDefault(); history.pushState({}, '', link.href); route(); } }));
+    <nav aria-label="Main navigation"><a href="/demo" data-nav>Try sample</a><a href="${owner ? '/' : '/manage'}" data-nav>${owner ? 'Guest page' : 'Owner panel'}</a></nav>
+  </header>${location.pathname === '/demo' ? demoBanner() : ''}${content}<footer><p>Clear appointment state, no guest account. Original generated artwork. No tracking cookies. Built by Param Factory · <a href="/health">build ID</a></p><nav aria-label="Legal"><a href="/privacy" data-nav>Privacy</a><a href="/terms" data-nav>Terms</a></nav></footer><p id="route-status" class="sr-only" aria-live="polite"></p>`;
+  document.querySelectorAll<HTMLAnchorElement>('[data-nav]').forEach(link => link.addEventListener('click', event => { if (link.origin === location.origin) { event.preventDefault(); moveFocusOnRoute = true; history.pushState({}, '', link.href); route(); } }));
+  document.querySelector('#reset-demo')?.addEventListener('click', resetDemo);
+  document.querySelector('#start-real')?.addEventListener('click', startForReal);
+  requestAnimationFrame(() => { const heading = document.querySelector<HTMLElement>('main h1'); if (heading) { document.querySelector('#route-status')!.textContent = `${heading.textContent || 'Page'} loaded`; if (moveFocusOnRoute) { heading.tabIndex = -1; heading.focus({ preventScroll: true }); moveFocusOnRoute = false; } } });
 }
 
 function loading(label = 'Checking the signal…'): void { shell(`<main id="main" class="center-page"><div class="loading-panel"><span class="signal-lamp amber" aria-hidden="true"></span><p role="status">${e(label)}</p></div></main>`); }
@@ -42,13 +52,15 @@ function localBookingUrl(token: string): string { return `${location.origin}/b/$
 async function route(): Promise<void> {
   scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
   const path = location.pathname;
-  document.title = path === '/manage' ? 'Owner panel — Guest Booking Confirm' : path === '/privacy' ? 'Privacy — Guest Booking Confirm' : path === '/terms' ? 'Terms — Guest Booking Confirm' : 'Guest Booking Confirm — clear appointment status';
+  document.title = path === '/manage' ? 'Owner panel — Guest Booking Confirm' : path === '/demo' ? 'Demo — Guest Booking Confirm' : path === '/privacy' ? 'Privacy — Guest Booking Confirm' : path === '/terms' ? 'Terms — Guest Booking Confirm' : path === '/404' ? 'Page not found — Guest Booking Confirm' : 'Guest Booking Confirm — clear appointment status';
   if (path === '/manage') return ownerPage();
+  if (path === '/demo') return demoPage();
   if (path === '/privacy') return privacyPage();
   if (path === '/terms') return termsPage();
+  if (path === '/404') return notFoundPage();
   const guest = path.match(/^\/b\/([^/]+)$/);
   if (guest) return guestPage(decodeURIComponent(guest[1]));
-  if (path !== '/') { history.replaceState({}, '', '/'); }
+  if (path !== '/') return notFoundPage();
   return bookingPage();
 }
 
@@ -57,14 +69,14 @@ async function bookingPage(): Promise<void> {
   try {
     const settings = await api<Settings>('/public/settings');
     if (!settings.configured) {
-      shell(`<main id="main" class="center-page"><section class="not-ready"><div class="instrument-icon" aria-hidden="true"><i></i><i></i><i></i></div><p class="eyebrow">Desk not yet calibrated</p><h1>This booking page is nearly ready</h1><p>The owner still needs to set service hours. If that’s you, open the owner panel to finish setup.</p><a class="button primary" href="/manage" data-nav>Set up the owner panel</a></section></main>`);
+      shell(`<main id="main" class="center-page"><section class="not-ready"><div class="instrument-icon" aria-hidden="true"><i class="on"></i><i></i><i></i></div><p class="eyebrow">Guest appointment desk</p><h1>Request and confirm guest appointments</h1><p>For small businesses that approve times before guests book.</p><a class="button primary" href="/demo" data-nav>Try it with sample data</a><p class="button-note">See a guest request, owner approval, and confirmation without saving anything.</p><ul class="plain-facts"><li>Guests need no account.</li><li>Demo data stays in this browser.</li><li>Owners approve requests before booking.</li></ul><p class="owner-start">Owners can <a href="/manage" data-nav>set up the booking desk</a> when ready.</p></section></main>`);
       return;
     }
     let slots: Slot[] = [];
     try { slots = (await api<{ slots: Slot[] }>('/public/slots?days=14')).slots; } catch { /* rendered as recoverable empty state */ }
     shell(`<main id="main">
       <section class="booking-hero">
-        <div class="hero-copy"><p class="eyebrow">${e(settings.business_name)} · guest booking</p><h1>Ask for a time.<br><em>Know where it stands.</em></h1><p class="lede">${e(settings.welcome_note || `Request ${settings.service_name}. No account, no unclear maybes—just one private link from request to confirmation.`)}</p>
+        <div class="hero-copy"><p class="eyebrow">${e(settings.business_name)} · guest booking</p><h1>Ask for a time.<br><em>Know where it stands.</em></h1><p class="lede">${e(settings.welcome_note || `Request ${settings.service_name}. No account, no unclear maybes—just one private link from request to confirmation.`)}</p><a class="button secondary hero-demo" href="/demo" data-nav>Try it with sample data</a>
         <ol class="mini-rail" aria-label="How booking works"><li><span>1</span>Request</li><li><span>2</span>Owner approves</li><li><span>3</span>You confirm</li></ol></div>
         <figure class="hero-art"><picture><source type="image/webp" srcset="/assets/confirmation-console.webp"><img src="/assets/confirmation-console-fallback.svg" width="768" height="512" alt="Illustrated mid-century appointment console with one coral confirmation lamp glowing" fetchpriority="high" decoding="async"></picture><figcaption>One visible signal for each booking state.</figcaption></figure>
       </section>
@@ -84,6 +96,28 @@ async function bookingPage(): Promise<void> {
     fetch('/api/page-view', { method: 'POST', keepalive: true }).catch(() => {});
   } catch (error) { errorPage(error instanceof Error ? error.message : 'Unknown error'); }
 }
+
+function demoBanner(): string {
+  return `<aside class="demo-banner" aria-label="Demo controls"><strong>Demo — sample data, nothing is saved</strong><span>Try the guest confirmation step safely.</span><button class="quiet" id="reset-demo">Reset demo</button><button class="secondary" id="start-real">Start for real</button></aside>`;
+}
+function demoState(): DemoState { return localStorage.getItem(DEMO_KEY) === 'confirmed' ? 'confirmed' : 'awaiting_confirmation'; }
+function resetDemo(): void { localStorage.setItem(DEMO_KEY, 'awaiting_confirmation'); route(); }
+function startForReal(): void { localStorage.removeItem(DEMO_KEY); history.pushState({}, '', '/'); route(); }
+function sampleStart(): string { const date = new Date(); date.setUTCDate(date.getUTCDate() + 5); date.setUTCHours(19, 0, 0, 0); return date.toISOString(); }
+function demoBooking(): Booking {
+  const status = demoState();
+  return { id: 'demo-booking', reference: 'DEMO-482', guest_name: 'Maya Chen', email: 'maya@example.test', starts_at: sampleStart(), timezone: demoSettings.timezone, duration_minutes: demoSettings.duration_minutes, status, updated_at: new Date().toISOString() };
+}
+function demoPage(): void {
+  if (!localStorage.getItem(DEMO_KEY)) localStorage.setItem(DEMO_KEY, 'awaiting_confirmation');
+  const b = demoBooking(); const meta = statusMeta[b.status];
+  const action = b.status === 'awaiting_confirmation' ? '<button class="primary" id="demo-confirm">Confirm this time</button>' : '<a class="button primary" id="demo-calendar" download="demo-booking.ics">Download sample calendar (.ics)</a>';
+  shell(`<main id="main" class="guest-page"><section class="state-console state-${b.status}"><div class="state-heading"><p class="eyebrow">Sample private booking signal · ${b.reference}</p><h1>${e(meta.label)}</h1><p>${e(meta.note)}</p><p class="demo-explain">This sample has already been approved by the owner. Confirm it to see the final guest state.</p></div><div class="big-lamp amber" aria-hidden="true"><i></i></div></section><section class="booking-ticket" aria-labelledby="details-title"><div><p class="ticket-label">Sample appointment card</p><h2 id="details-title">${e(demoSettings.service_name)}</h2><dl><div><dt>Guest</dt><dd>${e(b.guest_name)}</dd></div><div><dt>Time</dt><dd>${e(formatDate(b.starts_at, b.timezone))}</dd></div><div><dt>Duration</dt><dd>${e(b.duration_minutes)} minutes</dd></div><div><dt>With</dt><dd>${e(demoSettings.business_name)}</dd></div></dl></div><div class="ticket-ref"><span>Reference</span><strong>${b.reference}</strong></div></section><section class="signal-rail" aria-labelledby="trail-title"><div class="section-heading"><p class="dial-number">02</p><h2 id="trail-title">Confirmation trail</h2></div><ol>${trail(b)}</ol></section><section class="guest-actions" aria-labelledby="actions-title"><h2 id="actions-title">Try the guest step</h2><p>Demo actions change only this browser’s sample state.</p><div class="action-row">${action}</div></section></main>`);
+  document.querySelector<HTMLButtonElement>('#demo-confirm')?.addEventListener('click', () => { localStorage.setItem(DEMO_KEY, 'confirmed'); demoPage(); });
+  const calendar = document.querySelector<HTMLAnchorElement>('#demo-calendar');
+  if (calendar) calendar.href = `data:text/calendar;charset=utf-8,${encodeURIComponent('BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nSUMMARY:Precision cut — Northstar Barber\r\nSTATUS:CONFIRMED\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n')}`;
+}
+function notFoundPage(): void { shell(`<main id="main" class="center-page"><section class="not-ready"><p class="eyebrow">Signal not found</p><h1>That page is not on this desk</h1><p>Try the sample booking trail or return to the guest page.</p><div class="action-row"><a class="button primary" href="/demo" data-nav>Try sample data</a><a class="button secondary" href="/" data-nav>Return home</a></div></section></main>`); }
 
 function renderSlots(slots: Slot[], timezone: string): string {
   if (!slots.length) return `<div class="empty-slots"><span class="signal-lamp off" aria-hidden="true"></span><p><strong>No open signals in the next 14 days.</strong><br>Contact the business directly or check again later.</p><button type="button" class="secondary" id="reload-slots">Check again</button></div>`;
@@ -200,7 +234,7 @@ async function submitLicense(license:string,quiet=false):Promise<void>{const pan
 function privacyPage():void { shell(`<main id="main" class="legal"><p class="eyebrow">Plain-language policy · updated 28 August 2026</p><h1>Privacy</h1><p class="lede">This service stores only what a small business needs to manage an appointment.</p><h2>What is stored</h2><p>Your name, email, optional phone number, requested time, consent timestamp, booking state, and reminder checklist state. The service also stores a daily page-view count with no cookie, fingerprint, or IP address attached.</p><h2>Why and for how long</h2><p>The data exists to request, approve, confirm, change, and remember an appointment. On the free plan, closed booking records are deleted 30 days after the appointment. Panel Pro retains closed records for up to 365 days. Active future bookings remain until closed.</p><h2>Who can see it</h2><p>The business owner can see booking details. Anyone who has your unguessable private booking link can view and change that booking, so keep it private. We do not sell data or use it for advertising.</p><h2>Deletion and correction</h2><p>Use the private link to cancel, or contact the business shown on your booking page to request early deletion or correction. Hosting and checkout infrastructure may process network and transaction data under Sociobot/Dodo policies.</p><h2>Local storage</h2><p>The owner session is kept only for the browser tab session. A purchased license and its last verification result are stored locally in the owner’s browser so the free experience never waits on billing.</p></main>`); }
 function termsPage():void { shell(`<main id="main" class="legal"><p class="eyebrow">Service terms · updated 28 August 2026</p><h1>Terms</h1><p class="lede">Guest Booking Confirm records appointment intent and state. It is not a payment, emergency, or medical scheduling service.</p><h2>Booking status</h2><p>A request is not booked until the owner approves it and the guest confirms it. The current wording on the private booking page is the authoritative state. Businesses remain responsible for delivering their service and contacting guests.</p><h2>Acceptable use</h2><p>Do not use the service for unlawful activity, emergencies, sensitive medical records, or unsolicited marketing. Enter only contact details needed for the appointment.</p><h2>Availability</h2><p>The software is provided as-is without a guarantee of uninterrupted availability. Export confirmed appointments to your own calendar and keep an appropriate operational backup.</p><h2>Panel Pro purchase</h2><p>Panel Pro is a $29 one-time license unlock sold through Sociobot, with Dodo acting in the merchant-of-record flow. The checkout confirms the price before purchase. Refunds are handled by the merchant; a refunded or revoked license returns the calendar to free limits without deleting active accessibility or export features.</p><h2>Liability</h2><p>To the extent allowed by law, the operator is not liable for missed appointments, lost business, or indirect damages. These terms do not remove rights that cannot legally be waived.</p></main>`); }
 
-addEventListener('popstate', route);
+addEventListener('popstate', () => { moveFocusOnRoute = true; void route(); });
 addEventListener('online', () => document.body.classList.remove('offline'));
 addEventListener('offline', () => document.body.classList.add('offline'));
 if ('serviceWorker' in navigator && import.meta.env.PROD) addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));

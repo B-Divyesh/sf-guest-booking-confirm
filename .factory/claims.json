@@ -1,0 +1,23 @@
+[
+  {
+    "id": "demo-confirmation-trail",
+    "claim": "Try a guest request, owner approval, and confirmation without saving anything.",
+    "where": "cold landing page, README",
+    "test": "npm run test:e2e -- --grep @claim:demo-confirmation-trail",
+    "sandbox": "fresh browser context at /demo; sample booking is owner-approved, guest confirms it, and the confirmed state is visible"
+  },
+  {
+    "id": "demo-local-only",
+    "claim": "Demo data stays in this browser.",
+    "where": "cold landing page, demo banner, README",
+    "test": "npm run test:e2e -- --grep @claim:demo-local-only",
+    "sandbox": "fresh browser context at /demo; confirm sample booking; assert no API request and only a demo: localStorage key is written"
+  },
+  {
+    "id": "no-tracking-cookies",
+    "claim": "No tracking cookies.",
+    "where": "site footer",
+    "test": "npm run test:e2e -- --grep @claim:no-tracking-cookies",
+    "sandbox": "fresh browser context through the demo confirmation flow; assert document.cookie is empty and every request stays same-origin"
+  }
+]

@@ -35,9 +35,10 @@ use sqlx::{
 use tokio::{net::TcpListener, signal, sync::Mutex};
 use tower_http::{
     limit::RequestBodyLimitLayer,
-    services::{ServeDir, ServeFile},
+    services::ServeDir,
     trace::TraceLayer,
 };
+use tower::ServiceExt;
 use tracing::{info, warn};
 
 const BUILD_SHA: &str = match option_env!("BUILD_SHA") {
@@ -216,20 +217,27 @@ fn build_app(state: AppState) -> Router {
         .layer(DefaultBodyLimit::disable())
         .layer(RequestBodyLimitLayer::new(32 * 1024));
 
-    let static_service = ServeDir::new("dist").fallback(ServeFile::new("dist/index.html"));
     Router::new()
         .route(
             "/health",
             get(|| async { Json(json!({"status":"ok","build_sha":BUILD_SHA})) }),
         )
         .nest("/api", api)
-        .fallback_service(static_service)
+        .route("/", get(app_shell))
+        .route("/demo", get(app_shell))
+        .route("/manage", get(app_shell))
+        .route("/privacy", get(app_shell))
+        .route("/terms", get(app_shell))
+        .route("/404", get(app_shell))
+        .route("/b/{token}", get(app_shell))
+        .fallback(static_or_not_found)
         .layer(middleware::from_fn(security_headers))
         .layer(TraceLayer::new_for_http())
         .with_state(state)
 }
 
 async fn security_headers(req: Request, next: Next) -> Response {
+    let path = req.uri().path().to_string();
     let mut response = next.run(req).await;
     let h = response.headers_mut();
     h.insert(
@@ -243,7 +251,30 @@ async fn security_headers(req: Request, next: Next) -> Response {
         HeaderValue::from_static("camera=(), microphone=(), geolocation=()"),
     );
     h.insert("content-security-policy", HeaderValue::from_static("default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'"));
+    if path.starts_with("/assets/") {
+        h.insert(header::CACHE_CONTROL, HeaderValue::from_static("public, max-age=31536000, immutable"));
+    } else if path == "/sw.js" || path.ends_with(".html") || matches!(path.as_str(), "/" | "/demo" | "/manage" | "/privacy" | "/terms") {
+        h.insert(header::CACHE_CONTROL, HeaderValue::from_static("no-cache"));
+    }
     response
+}
+
+async fn app_shell() -> Response {
+    html_file("dist/index.html", StatusCode::OK).await
+}
+
+async fn static_or_not_found(req: Request) -> Response {
+    match ServeDir::new("dist").oneshot(req).await {
+        Ok(response) if response.status() != StatusCode::NOT_FOUND => response.into_response(),
+        _ => html_file("dist/404.html", StatusCode::NOT_FOUND).await,
+    }
+}
+
+async fn html_file(path: &str, status: StatusCode) -> Response {
+    match tokio::fs::read(path).await {
+        Ok(body) => (status, [(header::CONTENT_TYPE, "text/html; charset=utf-8")], body).into_response(),
+        Err(_) => (status, "Not found").into_response(),
+    }
 }
 
 async fn rate_limit(State(state): State<AppState>, req: Request, next: Next) -> Response {

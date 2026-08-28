@@ -1,0 +1,5 @@
+# Demo sandbox
+
+Open `/demo` or use **Try it with sample data** on the first screen. The demo starts with Maya Chen's realistic Northstar Barber appointment already approved, so the guest confirmation step is ready to try immediately. Confirming changes only the sample state and exposes a sample calendar download.
+
+The demo stores its state only in `localStorage` under `demo:guest-booking-confirm:state`. It does not call a booking API, read an owner desk, or write to the SQLite database. **Reset demo** restores the approved sample. **Start for real** removes the demo key and returns to the real desk.

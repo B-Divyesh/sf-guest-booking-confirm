@@ -12,6 +12,11 @@ export default defineConfig({
     timeout: 120_000
   },
   projects: [
-    { name: 'chromium-mobile', use: { ...devices['iPhone 13'], browserName: 'chromium' } }
+    { name: 'chromium-mobile', use: { ...devices['iPhone 13'], browserName: 'chromium' } },
+    {
+      name: 'chromium-desktop',
+      grep: /@claim:|unknown routes/,
+      use: { browserName: 'chromium', viewport: { width: 1440, height: 900 } }
+    }
   ]
 });

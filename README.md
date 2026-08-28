@@ -6,6 +6,10 @@ It is deliberately not a staff rota, payment system, CRM, or automatic email/SMS
 
 Live: <https://guest-booking-confirm.sociobot.in>
 
+## Try the sample desk
+
+Open <https://guest-booking-confirm.sociobot.in/demo> or select **Try it with sample data** on the first screen. It opens Maya Chen’s already-approved sample appointment, ready for the guest confirmation step. The demo is isolated in a `demo:` localStorage key; it never calls the booking API or writes to a real owner desk. Reset it from the persistent demo banner, or choose **Start for real** to discard the sample.
+
 ## Who it is for
 
 Sole traders and microbusinesses offering one appointment service from one calendar. The free desk allows 30 active future bookings and deletes closed records after 30 days. The optional $29 one-time Panel Pro license unlocks unlimited active bookings and 365-day closed-record retention through the Sociobot billing API.
@@ -43,6 +47,6 @@ Every API endpoint except `/health` is rate-limited by the first `X-Forwarded-Fo
 
 ## Privacy and billing
 
-No third-party scripts, fonts, advertising trackers, or analytics identifiers are loaded. The only metric is an aggregate daily page count. `/privacy` and `/terms` describe retention and use. Panel Pro checkout and verification use `https://api.sociobot.in/api/v1/products/guest-booking-confirm/...`; no payment provider is embedded and no product identifier beyond the deployment slug is required.
+`/privacy` and `/terms` describe retention and use. Panel Pro checkout and verification use `https://api.sociobot.in/api/v1/products/guest-booking-confirm/...`; no payment provider is embedded.
 
 The researched scope is in [.factory/brief.json](.factory/brief.json), the product-specific visual system and generated-asset provenance are in [.factory/design.md](.factory/design.md), and release verification is in [.factory/handoff.md](.factory/handoff.md).
