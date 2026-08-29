@@ -12,11 +12,14 @@
     "preview": "DATABASE_URL=sqlite:./data/preview.db cargo run"
   },
   "devDependencies": {
-    "@playwright/test": "1.58.2",
     "@axe-core/playwright": "4.10.2",
+    "@playwright/test": "1.58.2",
     "concurrently": "9.2.4",
     "typescript": "5.9.2",
     "vite": "7.3.6",
     "vitest": "3.2.7"
+  },
+  "dependencies": {
+    "@azure/msal-browser": "4.18.0"
   }
 }

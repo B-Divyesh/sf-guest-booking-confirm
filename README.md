@@ -1,6 +1,6 @@
 # Guest Booking Confirm
 
-Guest Booking Confirm is a small, self-hosted appointment desk for businesses whose guests should not need accounts. A guest requests an available time, the owner approves it, and a private link carries an explicit status through guest confirmation, rescheduling, cancellation, an ICS calendar file, and the owner’s manual reminder checklist.
+Guest Booking Confirm is a self-hosted appointment desk for businesses whose guests should not need accounts. A guest requests a time and the owner approves it. A private link then supports confirmation, rescheduling, cancellation, calendar download, and the owner’s manual reminder checklist.
 
 It is deliberately not a staff rota, payment system, CRM, or automatic email/SMS sender. Owners copy the private booking link into the channel they already use.
 
@@ -30,7 +30,7 @@ npm run build
 DATABASE_URL=sqlite:./data/local.db cargo run
 ```
 
-The first visit to `/manage` creates the owner’s settings and Argon2 password. Guest action links are unguessable bearer links and should be shared privately.
+Owners sign in at `/manage` through Sociobot Microsoft Entra External ID. The first signed-in owner creates the desk settings. Guest action links are bearer links and should be shared privately.
 
 ## Test and build
 
@@ -43,7 +43,9 @@ docker build --build-arg BUILD_SHA=$(git rev-parse HEAD) -t guest-booking-confir
 docker run --rm -p 8080:8080 -v gbc-data:/data guest-booking-confirm
 ```
 
-Every API endpoint except `/health` is rate-limited by the first `X-Forwarded-For` hop (or the direct client bucket) and returns `429` with `Retry-After`. `/health` returns the compiled build SHA. The container runs as UID 10001, persists SQLite at `/data`, and shuts down gracefully.
+Read API calls allow 40 requests per client in each one-second window. Later calls return `429` with `Retry-After: 1`. Write limits are stricter. `/health` is exempt and returns the compiled build SHA.
+
+The container contract sets UID 10001, `PORT=8080`, and SQLite under `/data`. It handles `SIGTERM` for a graceful shutdown. Mount persistent storage at `/data` outside the factory’s single-replica deployment.
 
 ## Privacy and billing
 

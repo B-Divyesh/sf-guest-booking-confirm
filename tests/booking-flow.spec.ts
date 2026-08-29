@@ -1,12 +1,91 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
+const TEST_OWNER = 'playwright-sociobot-entra-user';
+
+async function useTestOwner(page: import('@playwright/test').Page): Promise<void> {
+  await page.addInitScript(owner => sessionStorage.setItem('gbc_test_owner_oid', owner), TEST_OWNER);
+}
+
+test('@desktop-only desktop landing, demo, and owner entry stay accessible', async ({ page }) => {
+  const consoleErrors: string[] = [];
+  page.on('console', message => { if (message.type() === 'error') consoleErrors.push(message.text()); });
+  expect(page.viewportSize()).toEqual({ width: 1440, height: 900 });
+  await page.goto('/');
+  await expect(page).toHaveTitle('Guest Booking Confirm — clear appointment status');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await expect(page.locator('main')).toHaveCount(1);
+  await expect(page.locator('h1')).toHaveCount(1);
+  const landingAxe = await new AxeBuilder({ page }).analyze();
+  expect(landingAxe.violations.filter(violation => ['serious', 'critical'].includes(violation.impact || ''))).toEqual([]);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  expect(await page.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior)).toBe('auto');
+  await page.keyboard.press('Tab');
+  await expect(page.locator('.skip-link')).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('main')).toBeFocused();
+  await page.getByRole('link', { name: 'Try it with sample data' }).click();
+  await expect(page).toHaveURL(/\/demo$/);
+  const demoAxe = await new AxeBuilder({ page }).analyze();
+  expect(demoAxe.violations.filter(violation => ['serious', 'critical'].includes(violation.impact || ''))).toEqual([]);
+  await page.goto('/manage');
+  await expect(page.getByRole('button', { name: 'Sign in with Sociobot' })).toBeVisible();
+  expect(consoleErrors).toEqual([]);
+});
+
+test('@claim:owner-entra-identity owner access uses Sociobot Entra and mobile hours remain usable', async ({ page, request }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/manage');
+  await expect(page.getByRole('heading', { name: 'Sign in to manage appointments' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Sign in with Sociobot' })).toBeVisible();
+  await expect(page.getByText('Sociobot Microsoft Entra External ID')).toBeVisible();
+  await expect(page.getByLabel('Owner password')).toHaveCount(0);
+  await page.route('https://sociobotcustomers.ciamlogin.com/**', route => route.abort());
+  const providerRequest = page.waitForRequest(request => request.url().startsWith('https://sociobotcustomers.ciamlogin.com/'));
+  await page.getByRole('button', { name: 'Sign in with Sociobot' }).click();
+  expect((await providerRequest).url()).toContain('35c6fe40-0ec0-46b6-98c6-213ad4de6650');
+
+  const unauthenticated = await request.get('/api/owner/status', {
+    headers: { 'x-forwarded-for': 'identity-regression-unauthenticated' }
+  });
+  expect(unauthenticated.status()).toBe(401);
+
+  await page.evaluate(owner => sessionStorage.setItem('gbc_test_owner_oid', owner), TEST_OWNER);
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Set up your booking desk' })).toBeVisible();
+  const timeInputs = await page.locator('.hours input[type=time]').evaluateAll(nodes => nodes.map(node => {
+    const bounds = node.getBoundingClientRect();
+    return { label: node.getAttribute('aria-label'), value: (node as HTMLInputElement).value, width: bounds.width, height: bounds.height };
+  }));
+  expect(timeInputs).toHaveLength(14);
+  for (const input of timeInputs) {
+    expect(input.value, `${input.label} value`).toMatch(/^\d{2}:\d{2}$/);
+    expect(input.width, `${input.label} width`).toBeGreaterThanOrEqual(44);
+    expect(input.height, `${input.label} height`).toBeGreaterThanOrEqual(44);
+  }
+});
+
+test('cold landing action does not overlap and reflows at 200% text on 390px', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Request and confirm guest appointments' })).toBeVisible();
+  const spacing = await page.evaluate(() => {
+    const action = document.querySelector('.not-ready .button')!.getBoundingClientRect();
+    const note = document.querySelector('.not-ready .button-note')!.getBoundingClientRect();
+    return note.top - action.bottom;
+  });
+  expect(spacing).toBeGreaterThanOrEqual(8);
+  await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
+  await expect.poll(() => page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, client: document.documentElement.clientWidth })))
+    .toEqual({ scroll: 390, client: 390 });
+});
+
 test('owner setup explains an inverted opening-hours range before saving', async ({ page }) => {
+  await useTestOwner(page);
   await page.goto('/manage');
   await page.getByLabel('Business name').fill('Signal Studio');
   await page.getByLabel('Service name').fill('Consultation');
   await page.getByLabel('Business timezone').fill('UTC');
-  await page.getByLabel('Owner password').fill('correct-horse-battery');
   await page.getByLabel('Monday opens').fill('17:00');
   await page.getByLabel('Monday closes').fill('09:00');
   await page.getByRole('button', { name: 'Open my booking desk' }).click();
@@ -15,6 +94,7 @@ test('owner setup explains an inverted opening-hours range before saving', async
 });
 
 test('@claim:guest-no-account @claim:owner-approval-before-booking guest request reaches owner approval and guest confirmation', async ({ page, request }) => {
+  await useTestOwner(page);
   const consoleErrors: string[] = [];
   const failedResponses: string[] = [];
   page.on('console', message => { if (message.type() === 'error') consoleErrors.push(message.text()); });
@@ -25,12 +105,9 @@ test('@claim:guest-no-account @claim:owner-approval-before-booking guest request
   await page.getByLabel('Business name').fill('Signal Studio');
   await page.getByLabel('Service name').fill('Consultation');
   await page.getByLabel('Business timezone').fill('UTC');
-  await page.getByLabel('Owner password').fill('correct-horse-battery');
   await page.getByRole('button', { name: 'Open my booking desk' }).click();
   await expect(page.getByRole('heading', { name: 'Booking signals', exact: true })).toBeVisible();
 
-  const ownerToken = await page.evaluate(() => sessionStorage.getItem('gbc_owner_session'));
-  expect(ownerToken).toBeTruthy();
   await page.goto('/');
   await expect(page.getByRole('heading', { name: /Ask for a time/ })).toBeVisible();
   const firstSlot = page.locator('input[name="starts_at"]').first();
@@ -42,9 +119,10 @@ test('@claim:guest-no-account @claim:owner-approval-before-booking guest request
   await expect(page.getByRole('heading', { name: 'Request received' })).toBeVisible();
   const guestUrl = page.url();
 
-  const list = await request.get('/api/owner/bookings', { headers: { authorization: `Bearer ${ownerToken}` } });
+  const ownerHeaders = { 'x-test-oid': TEST_OWNER, 'x-forwarded-for': 'owner-flow-regression' };
+  const list = await request.get('/api/owner/bookings', { headers: ownerHeaders });
   const booking = (await list.json()).bookings[0];
-  const approved = await request.patch(`/api/owner/bookings/${booking.id}/approve`, { headers: { authorization: `Bearer ${ownerToken}` } });
+  const approved = await request.patch(`/api/owner/bookings/${booking.id}/approve`, { headers: ownerHeaders });
   expect(approved.ok()).toBeTruthy();
 
   await page.goto(guestUrl);
@@ -115,10 +193,14 @@ test('@claim:confirmed-calendar-ics demo downloads a confirmed calendar file wit
 
 test('@claim:manual-reminder-checklist demo records an owner manual reminder without sending a message', async ({ page }) => {
   await page.goto('/demo');
+  const actionRequests: Array<{ method: string; url: string }> = [];
+  page.on('request', request => actionRequests.push({ method: request.method(), url: request.url() }));
   await page.getByRole('button', { name: 'Mark sample reminder sent' }).click();
   await expect(page.locator('.demo-owner-checklist [role="status"]')).toHaveText('Sample reminder recorded.');
+  expect(actionRequests).toEqual([]);
   await page.reload();
   await expect(page.locator('.demo-owner-checklist [role="status"]')).toHaveText('Sample reminder recorded.');
+  expect(actionRequests.every(request => request.method === 'GET' && new URL(request.url).origin === 'http://127.0.0.1:4173')).toBeTruthy();
 });
 
 test('persistent demo controls meet the 44px target at a 390px viewport', async ({ page }) => {
@@ -188,6 +270,11 @@ test('@claim:api-rate-limit API responses enforce a per-client limit with Retry-
 });
 
 test('unknown routes return the designed 404 and hashed assets are immutable', async ({ page, request }) => {
+  const ownerShell = await request.get('/manage');
+  expect(ownerShell.headers()['content-security-policy']).toContain('connect-src \'self\' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com');
+  expect(ownerShell.headers()['content-security-policy']).toContain('frame-src https://sociobotcustomers.ciamlogin.com');
+  const callbackShell = await request.get('/auth/callback');
+  expect(callbackShell.headers()['cache-control']).toBe('no-cache');
   const missing = await request.get('/this-route-does-not-exist');
   expect(missing.status()).toBe(404);
   await expect(page.goto('/this-route-does-not-exist')).resolves.toBeTruthy();
@@ -198,9 +285,19 @@ test('unknown routes return the designed 404 and hashed assets are immutable', a
   expect(assetResponse.headers()['cache-control']).toContain('immutable');
 });
 
-test('demo shell reloads offline after its first controlled visit', async ({ page, context }) => {
-  await page.goto('/demo');
+test('service worker leaves identity callbacks uncached and reloads the demo offline', async ({ page, context }) => {
+  await page.goto('/');
   await page.evaluate(() => navigator.serviceWorker.ready);
+  await page.reload();
+  await expect.poll(() => page.evaluate(() => Boolean(navigator.serviceWorker.controller))).toBe(true);
+  await page.goto('/auth/callback');
+  const cachedUrls = await page.evaluate(async () => {
+    const cacheNames = await caches.keys();
+    const requests = (await Promise.all(cacheNames.map(async name => (await caches.open(name)).keys()))).flat();
+    return requests.map(request => request.url);
+  });
+  expect(cachedUrls.some(url => new URL(url).pathname === '/auth/callback')).toBe(false);
+  await page.goto('/demo');
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Ready to confirm' })).toBeVisible();
   await context.setOffline(true);

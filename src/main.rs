@@ -1,19 +1,10 @@
-use std::{
-    collections::HashMap,
-    net::SocketAddr,
-    path::Path,
-    str::FromStr,
-    sync::Arc,
-    time::{Duration, Instant},
-};
+mod auth;
+
+use std::{net::SocketAddr, path::Path, str::FromStr, time::Duration};
 
 use anyhow::Context;
-use argon2::{
-    password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
-    Argon2,
-};
 use axum::{
-    extract::{DefaultBodyLimit, Path as AxumPath, Query, Request, State},
+    extract::{ConnectInfo, DefaultBodyLimit, Path as AxumPath, Query, Request, State},
     http::{header, HeaderMap, HeaderValue, Method, StatusCode},
     middleware::{self, Next},
     response::{IntoResponse, Response},
@@ -32,7 +23,7 @@ use sqlx::{
     sqlite::{SqliteConnectOptions, SqlitePoolOptions},
     FromRow, SqlitePool,
 };
-use tokio::{net::TcpListener, signal, sync::Mutex};
+use tokio::{net::TcpListener, signal};
 use tower::ServiceExt;
 use tower_http::{limit::RequestBodyLimitLayer, services::ServeDir, trace::TraceLayer};
 use tracing::{info, warn};
@@ -46,13 +37,8 @@ const PRODUCT_SLUG: &str = "guest-booking-confirm";
 #[derive(Clone)]
 struct AppState {
     db: SqlitePool,
-    limiter: Arc<Mutex<HashMap<String, Window>>>,
     client: reqwest::Client,
-}
-
-struct Window {
-    started: Instant,
-    count: u32,
+    entra: auth::EntraValidator,
 }
 
 #[derive(Debug)]
@@ -106,13 +92,6 @@ struct SetupInput {
     weekly_hours: Value,
     #[serde(default)]
     welcome_note: String,
-    #[serde(default)]
-    password: String,
-}
-
-#[derive(Deserialize)]
-struct LoginInput {
-    password: String,
 }
 #[derive(Deserialize)]
 struct BookingInput {
@@ -158,25 +137,27 @@ async fn main() -> anyhow::Result<()> {
     }
     let opts = SqliteConnectOptions::from_str(&database_url)?
         .create_if_missing(true)
-        .foreign_keys(true);
+        .foreign_keys(true)
+        .busy_timeout(Duration::from_secs(5));
     let db = SqlitePoolOptions::new()
         .max_connections(8)
         .connect_with(opts)
         .await
         .context("connect sqlite")?;
-    sqlx::raw_sql(include_str!("../migrations/0001_init.sql"))
-        .execute(&db)
+    sqlx::migrate!("./migrations")
+        .run(&db)
         .await
         .context("migrate sqlite")?;
+    let client = reqwest::Client::builder()
+        .timeout(Duration::from_secs(6))
+        .build()?;
     let state = AppState {
         db,
-        limiter: Arc::new(Mutex::new(HashMap::new())),
-        client: reqwest::Client::builder()
-            .timeout(Duration::from_secs(6))
-            .build()?,
+        entra: auth::EntraValidator::from_environment(client.clone()),
+        client,
     };
     cleanup(&state.db).await.ok();
-    info!(port, database = %database_url, build_sha = BUILD_SHA, config = "database defaulted when DATABASE_URL absent; owner secret created during setup", "service starting");
+    info!(port, database = %database_url, build_sha = BUILD_SHA, identity_authority = %state.entra.authority(), config = "database and Sociobot Entra defaults used when overrides are absent", "service starting");
     let app = build_app(state);
     let listener = TcpListener::bind(("0.0.0.0", port)).await?;
     axum::serve(
@@ -201,7 +182,7 @@ fn build_app(state: AppState) -> Router {
         .route("/guest/{token}/calendar.ics", get(guest_ics))
         .route("/owner/status", get(owner_status))
         .route("/owner/setup", post(owner_setup))
-        .route("/owner/login", post(owner_login))
+        .route("/owner/claim", post(owner_claim))
         .route(
             "/owner/settings",
             get(owner_settings).patch(update_settings),
@@ -222,6 +203,7 @@ fn build_app(state: AppState) -> Router {
         .route("/", get(app_shell))
         .route("/demo", get(app_shell))
         .route("/manage", get(app_shell))
+        .route("/auth/callback", get(app_shell))
         .route("/privacy", get(app_shell))
         .route("/terms", get(app_shell))
         .route("/404", get(app_shell))
@@ -246,7 +228,7 @@ async fn security_headers(req: Request, next: Next) -> Response {
         "permissions-policy",
         HeaderValue::from_static("camera=(), microphone=(), geolocation=()"),
     );
-    h.insert("content-security-policy", HeaderValue::from_static("default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in; base-uri 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'"));
+    h.insert("content-security-policy", HeaderValue::from_static("default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-src https://sociobotcustomers.ciamlogin.com; base-uri 'self'; form-action 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-ancestors 'none'"));
     if path.starts_with("/assets/") {
         h.insert(
             header::CACHE_CONTROL,
@@ -256,7 +238,7 @@ async fn security_headers(req: Request, next: Next) -> Response {
         || path.ends_with(".html")
         || matches!(
             path.as_str(),
-            "/" | "/demo" | "/manage" | "/privacy" | "/terms"
+            "/" | "/demo" | "/manage" | "/auth/callback" | "/privacy" | "/terms"
         )
     {
         h.insert(header::CACHE_CONTROL, HeaderValue::from_static("no-cache"));
@@ -288,32 +270,41 @@ async fn html_file(path: &str, status: StatusCode) -> Response {
 }
 
 async fn rate_limit(State(state): State<AppState>, req: Request, next: Next) -> Response {
-    let key = req
+    let forwarded = req
         .headers()
         .get("x-forwarded-for")
         .and_then(|v| v.to_str().ok())
         .and_then(|v| v.split(',').next())
-        .map(str::trim)
-        .unwrap_or("unknown")
-        .to_string();
+        .map(str::trim);
+    let direct = req
+        .extensions()
+        .get::<ConnectInfo<SocketAddr>>()
+        .map(|ConnectInfo(address)| address.ip().to_string());
+    let client = forwarded
+        .map(str::to_owned)
+        .or(direct)
+        .unwrap_or_else(|| "unknown".into());
+    let class = if req.method() == Method::GET {
+        "read"
+    } else {
+        "write"
+    };
+    let key = format!("{class}:{client}");
     let max = if req.method() == Method::GET { 40 } else { 12 };
-    let now = Instant::now();
-    let mut buckets = state.limiter.lock().await;
-    let bucket = buckets.entry(key).or_insert(Window {
-        started: now,
-        count: 0,
-    });
-    if now.duration_since(bucket.started) >= Duration::from_secs(1) {
-        bucket.started = now;
-        bucket.count = 0;
-    }
-    bucket.count += 1;
-    let blocked = bucket.count > max;
-    if buckets.len() > 10_000 {
-        buckets.retain(|_, v| now.duration_since(v.started) < Duration::from_secs(60));
-    }
-    drop(buckets);
-    if blocked {
+    let window = Utc::now().timestamp();
+    let count = record_rate_limit(&state.db, &key, window).await;
+    let count = match count {
+        Ok(value) => value,
+        Err(error) => {
+            warn!(%error, "rate limit state unavailable");
+            return (
+                StatusCode::SERVICE_UNAVAILABLE,
+                Json(json!({"error":"The booking desk is busy. Try again in a moment."})),
+            )
+                .into_response();
+        }
+    };
+    if count > max {
         let mut res = (
             StatusCode::TOO_MANY_REQUESTS,
             Json(json!({"error":"Too many requests. Try again in a moment."})),
@@ -323,7 +314,23 @@ async fn rate_limit(State(state): State<AppState>, req: Request, next: Next) -> 
             .insert(header::RETRY_AFTER, HeaderValue::from_static("1"));
         return res;
     }
+    if count == 1 && window.rem_euclid(60) == 0 {
+        let _ = sqlx::query("DELETE FROM rate_limits WHERE window_start < ?")
+            .bind(window - 60)
+            .execute(&state.db)
+            .await;
+    }
     next.run(req).await
+}
+
+async fn record_rate_limit(db: &SqlitePool, key: &str, window: i64) -> Result<i64, sqlx::Error> {
+    sqlx::query_scalar::<_, i64>(
+        "INSERT INTO rate_limits(client_key,window_start,count) VALUES(?,?,1) ON CONFLICT(client_key) DO UPDATE SET window_start=excluded.window_start,count=CASE WHEN rate_limits.window_start=excluded.window_start THEN rate_limits.count+1 ELSE 1 END RETURNING count",
+    )
+    .bind(key)
+    .bind(window)
+    .fetch_one(db)
+    .await
 }
 
 async fn public_settings(State(state): State<AppState>) -> ApiResult<Json<Value>> {
@@ -449,16 +456,12 @@ async fn create_booking(
         ));
     }
     let start = parse_future(&input.starts_at)?;
-    let active: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM bookings WHERE status NOT IN ('cancelled','completed') AND starts_at > ?").bind(Utc::now().to_rfc3339()).fetch_one(&state.db).await.map_err(db_error)?;
     let paid = s
         .paid_until
         .as_deref()
         .and_then(|v| DateTime::parse_from_rfc3339(v).ok())
         .map(|v| v > Utc::now())
         .unwrap_or(false);
-    if !paid && active >= 30 {
-        return Err(ApiError(StatusCode::CONFLICT, "This calendar has reached its free 30-booking limit. Please contact the business directly.".into()));
-    }
     let valid_slots = public_slots(
         State(state.clone()),
         Query(SlotsQuery {
@@ -496,9 +499,35 @@ async fn create_booking(
     let id = random_token(18);
     let reference = format!("GBC-{}", random_code(6));
     let now = Utc::now().to_rfc3339();
-    sqlx::query("INSERT INTO bookings(id,reference,guest_name,email,phone,starts_at,timezone,duration_minutes,status,guest_token,guest_token_hash,consent_at,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
-        .bind(&id).bind(&reference).bind(input.guest_name.trim()).bind(input.email.trim().to_lowercase()).bind(input.phone.as_deref().map(str::trim)).bind(start.to_rfc3339()).bind(&s.timezone).bind(s.duration_minutes).bind("requested").bind(&token).bind(token_hash).bind(&now).bind(&now).bind(&now)
-        .execute(&state.db).await.map_err(|_| ApiError(StatusCode::CONFLICT, "That slot was just requested. Choose another time.".into()))?;
+    let inserted = sqlx::query("INSERT INTO bookings(id,reference,guest_name,email,phone,starts_at,timezone,duration_minutes,status,guest_token,guest_token_hash,consent_at,created_at,updated_at) SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,? WHERE ?=1 OR (SELECT COUNT(*) FROM bookings WHERE status NOT IN ('cancelled','completed') AND starts_at > ?)<30")
+        .bind(&id)
+        .bind(&reference)
+        .bind(input.guest_name.trim())
+        .bind(input.email.trim().to_lowercase())
+        .bind(input.phone.as_deref().map(str::trim))
+        .bind(start.to_rfc3339())
+        .bind(&s.timezone)
+        .bind(s.duration_minutes)
+        .bind("requested")
+        .bind(&token)
+        .bind(token_hash)
+        .bind(&now)
+        .bind(&now)
+        .bind(&now)
+        .bind(i64::from(paid))
+        .bind(&now)
+        .execute(&state.db)
+        .await
+        .map_err(|error| {
+            warn!(%error, "booking insert rejected");
+            ApiError(
+                StatusCode::CONFLICT,
+                "That request collided with another update. Choose the time again.".into(),
+            )
+        })?;
+    if inserted.rows_affected() != 1 {
+        return Err(ApiError(StatusCode::CONFLICT, "This calendar has reached its free 30-booking limit. Please contact the business directly.".into()));
+    }
     Ok((
         StatusCode::CREATED,
         Json(json!({"token":token,"reference":reference,"status":"requested"})),
@@ -663,79 +692,77 @@ async fn guest_ics(
         .into_response())
 }
 
-async fn owner_status(State(state): State<AppState>) -> ApiResult<Json<Value>> {
-    Ok(Json(
-        json!({"configured":get_settings(&state.db).await?.is_some()}),
-    ))
+async fn owner_status(State(state): State<AppState>, headers: HeaderMap) -> ApiResult<Json<Value>> {
+    let oid = authenticated_owner_oid(&state, &headers).await?;
+    let owner: Option<Option<String>> =
+        sqlx::query_scalar("SELECT owner_oid FROM settings WHERE id=1")
+            .fetch_optional(&state.db)
+            .await
+            .map_err(db_error)?;
+    match owner {
+        None => Ok(Json(json!({"configured":false,"legacy_owner":false}))),
+        Some(None) => Ok(Json(json!({"configured":true,"legacy_owner":true}))),
+        Some(Some(owner_oid)) if owner_oid == oid => {
+            Ok(Json(json!({"configured":true,"legacy_owner":false})))
+        }
+        Some(Some(_)) => Err(ApiError(
+            StatusCode::FORBIDDEN,
+            "This booking desk belongs to another Sociobot account.".into(),
+        )),
+    }
 }
 
 async fn owner_setup(
     State(state): State<AppState>,
+    headers: HeaderMap,
     Json(input): Json<SetupInput>,
 ) -> ApiResult<(StatusCode, Json<Value>)> {
+    let owner_oid = authenticated_owner_oid(&state, &headers).await?;
     if get_settings(&state.db).await?.is_some() {
         return Err(ApiError(
             StatusCode::CONFLICT,
             "Owner setup is already complete.".into(),
         ));
     }
-    validate_setup(&input, true)?;
-    let salt = SaltString::generate(&mut OsRng);
-    let password_hash = Argon2::default()
-        .hash_password(input.password.as_bytes(), &salt)
-        .map_err(|_| {
-            ApiError(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "Could not secure password.".into(),
-            )
-        })?
-        .to_string();
+    validate_setup(&input)?;
     let weekly = serde_json::to_string(&input.weekly_hours)
         .map_err(|_| ApiError(StatusCode::BAD_REQUEST, "Hours are invalid.".into()))?;
-    sqlx::query("INSERT INTO settings(id,business_name,service_name,timezone,duration_minutes,weekly_hours,welcome_note,password_hash,created_at) VALUES(1,?,?,?,?,?,?,?,?)")
-        .bind(input.business_name.trim()).bind(input.service_name.trim()).bind(input.timezone).bind(input.duration_minutes).bind(weekly).bind(input.welcome_note.trim()).bind(password_hash).bind(Utc::now().to_rfc3339()).execute(&state.db).await.map_err(db_error)?;
-    let token = create_session(&state.db).await?;
-    Ok((StatusCode::CREATED, Json(json!({"token":token}))))
+    sqlx::query("INSERT INTO settings(id,business_name,service_name,timezone,duration_minutes,weekly_hours,welcome_note,owner_oid,created_at) VALUES(1,?,?,?,?,?,?,?,?)")
+        .bind(input.business_name.trim())
+        .bind(input.service_name.trim())
+        .bind(input.timezone)
+        .bind(input.duration_minutes)
+        .bind(weekly)
+        .bind(input.welcome_note.trim())
+        .bind(owner_oid)
+        .bind(Utc::now().to_rfc3339())
+        .execute(&state.db)
+        .await
+        .map_err(db_error)?;
+    Ok((StatusCode::CREATED, Json(json!({"saved":true}))))
 }
 
-async fn owner_login(
-    State(state): State<AppState>,
-    Json(input): Json<LoginInput>,
-) -> ApiResult<Json<Value>> {
-    let hash_value: Option<String> =
-        sqlx::query_scalar("SELECT password_hash FROM settings WHERE id=1")
-            .fetch_optional(&state.db)
-            .await
-            .map_err(db_error)?;
-    let Some(hash_value) = hash_value else {
+async fn owner_claim(State(state): State<AppState>, headers: HeaderMap) -> ApiResult<Json<Value>> {
+    let owner_oid = authenticated_owner_oid(&state, &headers).await?;
+    let updated = sqlx::query("UPDATE settings SET owner_oid=? WHERE id=1 AND owner_oid IS NULL")
+        .bind(owner_oid)
+        .execute(&state.db)
+        .await
+        .map_err(db_error)?;
+    if updated.rows_affected() != 1 {
         return Err(ApiError(
             StatusCode::CONFLICT,
-            "Complete owner setup first.".into(),
-        ));
-    };
-    let parsed = PasswordHash::new(&hash_value).map_err(|_| {
-        ApiError(
-            StatusCode::INTERNAL_SERVER_ERROR,
-            "Stored owner access is invalid.".into(),
-        )
-    })?;
-    if Argon2::default()
-        .verify_password(input.password.as_bytes(), &parsed)
-        .is_err()
-    {
-        return Err(ApiError(
-            StatusCode::UNAUTHORIZED,
-            "That password is not correct.".into(),
+            "This booking desk has already been connected to an owner.".into(),
         ));
     }
-    Ok(Json(json!({"token":create_session(&state.db).await?})))
+    Ok(Json(json!({"saved":true})))
 }
 
 async fn owner_settings(
     State(state): State<AppState>,
     headers: HeaderMap,
 ) -> ApiResult<Json<Value>> {
-    authorize(&state.db, &headers).await?;
+    authorize(&state, &headers).await?;
     let s = get_settings(&state.db)
         .await?
         .ok_or_else(|| ApiError(StatusCode::NOT_FOUND, "Setup is incomplete.".into()))?;
@@ -749,8 +776,8 @@ async fn update_settings(
     headers: HeaderMap,
     Json(input): Json<SetupInput>,
 ) -> ApiResult<Json<Value>> {
-    authorize(&state.db, &headers).await?;
-    validate_setup(&input, false)?;
+    authorize(&state, &headers).await?;
+    validate_setup(&input)?;
     sqlx::query("UPDATE settings SET business_name=?,service_name=?,timezone=?,duration_minutes=?,weekly_hours=?,welcome_note=? WHERE id=1").bind(input.business_name.trim()).bind(input.service_name.trim()).bind(input.timezone).bind(input.duration_minutes).bind(input.weekly_hours.to_string()).bind(input.welcome_note.trim()).execute(&state.db).await.map_err(db_error)?;
     Ok(Json(json!({"saved":true})))
 }
@@ -759,7 +786,7 @@ async fn owner_bookings(
     State(state): State<AppState>,
     headers: HeaderMap,
 ) -> ApiResult<Json<Value>> {
-    authorize(&state.db, &headers).await?;
+    authorize(&state, &headers).await?;
     cleanup(&state.db).await.ok();
     let bookings: Vec<Booking> = sqlx::query_as("SELECT id,reference,guest_name,email,phone,starts_at,timezone,duration_minutes,status,guest_token,consent_at,reminder_done,reminder_done_at,created_at,updated_at FROM bookings ORDER BY starts_at ASC").fetch_all(&state.db).await.map_err(db_error)?;
     Ok(Json(json!({"bookings":bookings})))
@@ -770,7 +797,7 @@ async fn owner_action(
     AxumPath((id, action)): AxumPath<(String, String)>,
     headers: HeaderMap,
 ) -> ApiResult<Json<Value>> {
-    authorize(&state.db, &headers).await?;
+    authorize(&state, &headers).await?;
     let b: Option<Booking> = sqlx::query_as("SELECT id,reference,guest_name,email,phone,starts_at,timezone,duration_minutes,status,guest_token,consent_at,reminder_done,reminder_done_at,created_at,updated_at FROM bookings WHERE id=?").bind(&id).fetch_optional(&state.db).await.map_err(db_error)?;
     let b = b.ok_or_else(|| ApiError(StatusCode::NOT_FOUND, "Booking not found.".into()))?;
     match action.as_str() {
@@ -822,7 +849,7 @@ async fn verify_license(
     headers: HeaderMap,
     Json(input): Json<LicenseInput>,
 ) -> ApiResult<Json<Value>> {
-    authorize(&state.db, &headers).await?;
+    authorize(&state, &headers).await?;
     if input.license.len() < 10 || input.license.len() > 1000 {
         return Err(ApiError(
             StatusCode::UNPROCESSABLE_ENTITY,
@@ -923,7 +950,8 @@ async fn approve_booking(db: &SqlitePool, id: &str) -> ApiResult<bool> {
     Ok(result.rows_affected() == 1)
 }
 fn validate_name_email(name: &str, email: &str) -> ApiResult<()> {
-    if name.trim().len() < 2 || name.len() > 80 {
+    let name_length = name.trim().chars().count();
+    if !(2..=80).contains(&name_length) {
         return Err(ApiError(
             StatusCode::UNPROCESSABLE_ENTITY,
             "Enter your name (2–80 characters).".into(),
@@ -938,14 +966,14 @@ fn validate_name_email(name: &str, email: &str) -> ApiResult<()> {
     Ok(())
 }
 
-fn validate_setup(i: &SetupInput, require_password: bool) -> ApiResult<()> {
-    if i.business_name.trim().len() < 2 || i.business_name.len() > 80 {
+fn validate_setup(i: &SetupInput) -> ApiResult<()> {
+    if !(2..=80).contains(&i.business_name.trim().chars().count()) {
         return Err(ApiError(
             StatusCode::UNPROCESSABLE_ENTITY,
             "Business name must be 2–80 characters.".into(),
         ));
     }
-    if i.service_name.trim().len() < 2 || i.service_name.len() > 80 {
+    if !(2..=80).contains(&i.service_name.trim().chars().count()) {
         return Err(ApiError(
             StatusCode::UNPROCESSABLE_ENTITY,
             "Service name must be 2–80 characters.".into(),
@@ -963,14 +991,7 @@ fn validate_setup(i: &SetupInput, require_password: bool) -> ApiResult<()> {
             "Duration must be 15–480 minutes.".into(),
         ));
     }
-    validate_weekly_hours(&i.weekly_hours, i.duration_minutes)?;
-    if require_password && i.password.len() < 10 {
-        return Err(ApiError(
-            StatusCode::UNPROCESSABLE_ENTITY,
-            "Use at least 10 characters for the owner password.".into(),
-        ));
-    }
-    Ok(())
+    validate_weekly_hours(&i.weekly_hours, i.duration_minutes)
 }
 fn validate_weekly_hours(hours: &Value, duration_minutes: i64) -> ApiResult<()> {
     let object = hours.as_object().ok_or_else(|| {
@@ -1099,47 +1120,28 @@ fn db_error(e: sqlx::Error) -> ApiError {
         "The booking desk could not save that. Try again.".into(),
     )
 }
-async fn create_session(db: &SqlitePool) -> ApiResult<String> {
-    let token = random_token(48);
-    sqlx::query("INSERT INTO owner_sessions(token_hash,expires_at,created_at) VALUES(?,?,?)")
-        .bind(hash(&token))
-        .bind((Utc::now() + ChronoDuration::days(30)).to_rfc3339())
-        .bind(Utc::now().to_rfc3339())
-        .execute(db)
-        .await
-        .map_err(db_error)?;
-    Ok(token)
-}
-async fn authorize(db: &SqlitePool, headers: &HeaderMap) -> ApiResult<()> {
-    let token = headers
-        .get(header::AUTHORIZATION)
-        .and_then(|v| v.to_str().ok())
-        .and_then(|v| v.strip_prefix("Bearer "))
-        .ok_or_else(|| {
-            ApiError(
-                StatusCode::UNAUTHORIZED,
-                "Owner sign-in is required.".into(),
-            )
-        })?
-        .to_string();
-    let expiry: Option<String> =
-        sqlx::query_scalar("SELECT expires_at FROM owner_sessions WHERE token_hash=?")
-            .bind(hash(&token))
-            .fetch_optional(db)
-            .await
-            .map_err(db_error)?;
-    if expiry
-        .and_then(|v| DateTime::parse_from_rfc3339(&v).ok())
-        .map(|v| v > Utc::now())
-        .unwrap_or(false)
-    {
-        Ok(())
-    } else {
-        Err(ApiError(
+async fn authenticated_owner_oid(state: &AppState, headers: &HeaderMap) -> ApiResult<String> {
+    state.entra.owner_oid(headers).await.map_err(|_| {
+        ApiError(
             StatusCode::UNAUTHORIZED,
-            "Your owner session expired. Sign in again.".into(),
-        ))
+            "Sign in with your Sociobot account to continue.".into(),
+        )
+    })
+}
+async fn authorize(state: &AppState, headers: &HeaderMap) -> ApiResult<()> {
+    let oid = authenticated_owner_oid(state, headers).await?;
+    let owner_oid: Option<String> = sqlx::query_scalar("SELECT owner_oid FROM settings WHERE id=1")
+        .fetch_optional(&state.db)
+        .await
+        .map_err(db_error)?
+        .flatten();
+    if owner_oid.as_deref() == Some(&oid) {
+        return Ok(());
     }
+    Err(ApiError(
+        StatusCode::FORBIDDEN,
+        "This booking desk belongs to another Sociobot account.".into(),
+    ))
 }
 fn is_paid(s: &Settings) -> bool {
     s.paid_until
@@ -1158,10 +1160,6 @@ async fn cleanup(db: &SqlitePool) -> anyhow::Result<()> {
     let cutoff = (Utc::now() - ChronoDuration::days(days)).to_rfc3339();
     sqlx::query("DELETE FROM bookings WHERE starts_at < ? AND status IN ('cancelled','completed')")
         .bind(cutoff)
-        .execute(db)
-        .await?;
-    sqlx::query("DELETE FROM owner_sessions WHERE expires_at < ?")
-        .bind(Utc::now().to_rfc3339())
         .execute(db)
         .await?;
     Ok(())
@@ -1212,29 +1210,27 @@ mod tests {
             .connect_with(options)
             .await
             .unwrap();
-        sqlx::raw_sql(include_str!("../migrations/0001_init.sql"))
-            .execute(&db)
-            .await
-            .unwrap();
+        sqlx::migrate!("./migrations").run(&db).await.unwrap();
+        let client = reqwest::Client::new();
         (
             AppState {
                 db,
-                limiter: Arc::new(Mutex::new(HashMap::new())),
-                client: reqwest::Client::new(),
+                entra: auth::EntraValidator::from_environment(client.clone()),
+                client,
             },
             path,
         )
     }
 
     async fn seed_test_settings(db: &SqlitePool, paid_until: Option<String>) {
-        sqlx::query("INSERT INTO settings(id,business_name,service_name,timezone,duration_minutes,weekly_hours,welcome_note,password_hash,paid_until,created_at) VALUES(1,?,?,?,?,?,?,?,?,?)")
+        sqlx::query("INSERT INTO settings(id,business_name,service_name,timezone,duration_minutes,weekly_hours,welcome_note,owner_oid,paid_until,created_at) VALUES(1,?,?,?,?,?,?,?,?,?)")
             .bind("Signal Studio")
             .bind("Consultation")
             .bind("UTC")
             .bind(30_i64)
             .bind(r#"{"mon":["09:00","17:00"],"tue":["09:00","17:00"],"wed":["09:00","17:00"],"thu":["09:00","17:00"],"fri":["09:00","17:00"],"sat":["09:00","17:00"],"sun":["09:00","17:00"]}"#)
             .bind("")
-            .bind("test-password-hash")
+            .bind("test-owner")
             .bind(paid_until)
             .bind(Utc::now().to_rfc3339())
             .execute(db)
@@ -1327,7 +1323,10 @@ mod tests {
     #[test]
     fn validates_email_and_name() {
         assert!(validate_name_email("Ada Lovelace", "ada@example.com").is_ok());
-        assert!(validate_name_email("A", "bad").is_err());
+        assert!(validate_name_email("李小", "li@example.com").is_ok());
+        assert!(validate_name_email("A", "ada@example.com").is_err());
+        assert!(validate_name_email("李", "li@example.com").is_err());
+        assert!(validate_name_email(&"界".repeat(81), "long@example.com").is_err());
     }
     #[test]
     fn hashes_tokens_without_echoing() {
@@ -1354,6 +1353,71 @@ mod tests {
     }
 
     #[test]
+    fn claim_container_runtime_contract() {
+        let dockerfile = include_str!("../Dockerfile");
+        let server = include_str!("main.rs");
+        let service_worker = include_str!("../public/sw.js");
+        assert!(dockerfile.contains("useradd --uid 10001"));
+        assert!(dockerfile.contains("USER app"));
+        assert!(dockerfile.contains("ENV PORT=8080"));
+        assert!(server.contains("sqlite:/data/guest-booking-confirm.db"));
+        assert!(server.contains(".with_graceful_shutdown(shutdown())"));
+        assert!(server.contains("SignalKind::terminate()"));
+        assert!(service_worker.contains("path === '/auth/callback'"));
+    }
+
+    #[tokio::test]
+    async fn legacy_database_migrates_to_sociobot_owner_identity() {
+        let path = std::env::temp_dir().join(format!(
+            "guest-booking-confirm-upgrade-{}-{}.db",
+            std::process::id(),
+            random_token(12)
+        ));
+        let options = SqliteConnectOptions::from_str(&format!("sqlite:{}", path.display()))
+            .unwrap()
+            .create_if_missing(true)
+            .foreign_keys(true);
+        let db = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(options)
+            .await
+            .unwrap();
+        sqlx::raw_sql(include_str!("../migrations/0001_init.sql"))
+            .execute(&db)
+            .await
+            .unwrap();
+        sqlx::query("INSERT INTO settings(id,business_name,service_name,timezone,duration_minutes,weekly_hours,welcome_note,password_hash,created_at) VALUES(1,'Signal Studio','Consultation','UTC',30,'{}','','legacy-hash',?)")
+            .bind(Utc::now().to_rfc3339())
+            .execute(&db)
+            .await
+            .unwrap();
+
+        sqlx::migrate!("./migrations").run(&db).await.unwrap();
+        let owner_oid: Option<String> =
+            sqlx::query_scalar("SELECT owner_oid FROM settings WHERE id=1")
+                .fetch_one(&db)
+                .await
+                .unwrap();
+        assert_eq!(owner_oid, None);
+        let columns: Vec<String> =
+            sqlx::query_scalar("SELECT name FROM pragma_table_info('settings')")
+                .fetch_all(&db)
+                .await
+                .unwrap();
+        assert!(!columns.iter().any(|column| column == "password_hash"));
+        let sessions: i64 = sqlx::query_scalar(
+            "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='owner_sessions'",
+        )
+        .fetch_one(&db)
+        .await
+        .unwrap();
+        assert_eq!(sessions, 0);
+
+        db.close().await;
+        std::fs::remove_file(path).unwrap();
+    }
+
+    #[test]
     fn calendar_date_is_utc() {
         assert_eq!(
             ics_date(
@@ -1374,9 +1438,8 @@ mod tests {
             duration_minutes: 30,
             weekly_hours: json!({"mon":["17:00","09:00"]}),
             welcome_note: String::new(),
-            password: "correct-horse-battery".into(),
         };
-        let inverted = validate_setup(&setup, true).unwrap_err();
+        let inverted = validate_setup(&setup).unwrap_err();
         assert_eq!(inverted.0, StatusCode::UNPROCESSABLE_ENTITY);
         assert_eq!(
             inverted.1,
@@ -1384,9 +1447,9 @@ mod tests {
         );
 
         setup.weekly_hours = json!({"mon":["27:00","28:00"]});
-        assert!(validate_setup(&setup, true).is_err());
+        assert!(validate_setup(&setup).is_err());
         setup.weekly_hours = json!({"mon":["09:00"]});
-        assert!(validate_setup(&setup, true).is_err());
+        assert!(validate_setup(&setup).is_err());
     }
 
     #[tokio::test]
@@ -1397,7 +1460,8 @@ mod tests {
             .method("POST")
             .uri("/api/owner/setup")
             .header(header::CONTENT_TYPE, "application/json")
-            .body(Body::from(r#"{"business_name":"Signal Studio","service_name":"Consultation","timezone":"UTC","duration_minutes":30,"weekly_hours":{"mon":["17:00","09:00"]},"password":"correct-horse-battery"}"#))
+            .header("x-test-oid", "test-owner")
+            .body(Body::from(r#"{"business_name":"Signal Studio","service_name":"Consultation","timezone":"UTC","duration_minutes":30,"weekly_hours":{"mon":["17:00","09:00"]}}"#))
             .unwrap();
         let response = app.oneshot(request).await.unwrap();
         assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
@@ -1408,6 +1472,79 @@ mod tests {
         assert!(std::str::from_utf8(&bytes)
             .unwrap()
             .contains("Monday closing time must be later than opening time."));
+        state.db.close().await;
+        std::fs::remove_file(path).unwrap();
+    }
+
+    #[tokio::test]
+    async fn owner_routes_require_and_isolate_sociobot_entra_identity() {
+        let (state, path) = test_state().await;
+        let app = build_app(state.clone());
+        let unauthenticated = app
+            .clone()
+            .oneshot(
+                Request::builder()
+                    .uri("/api/owner/status")
+                    .header("x-forwarded-for", "identity-unauthenticated")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(unauthenticated.status(), StatusCode::UNAUTHORIZED);
+
+        seed_test_settings(&state.db, None).await;
+        let owner = app
+            .clone()
+            .oneshot(
+                Request::builder()
+                    .uri("/api/owner/status")
+                    .header("x-forwarded-for", "identity-owner")
+                    .header("x-test-oid", "test-owner")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(owner.status(), StatusCode::OK);
+
+        let other_owner = app
+            .oneshot(
+                Request::builder()
+                    .uri("/api/owner/status")
+                    .header("x-forwarded-for", "identity-other")
+                    .header("x-test-oid", "different-owner")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(other_owner.status(), StatusCode::FORBIDDEN);
+        state.db.close().await;
+        std::fs::remove_file(path).unwrap();
+    }
+
+    #[tokio::test]
+    async fn api_rate_limit_counter_is_atomic_across_app_states() {
+        let (state, path) = test_state().await;
+        let window = Utc::now().timestamp();
+        let mut requests = tokio::task::JoinSet::new();
+        for _ in 0..41 {
+            let db = state.db.clone();
+            requests.spawn(async move {
+                record_rate_limit(&db, "read:one-forwarded-client", window)
+                    .await
+                    .unwrap()
+            });
+        }
+        let mut allowances = Vec::new();
+        while let Some(value) = requests.join_next().await {
+            allowances.push(value.unwrap());
+        }
+        allowances.sort_unstable();
+        assert_eq!(allowances, (1_i64..=41).collect::<Vec<_>>());
+        assert_eq!(allowances.iter().filter(|count| **count <= 40).count(), 40);
+        assert_eq!(allowances.iter().filter(|count| **count > 40).count(), 1);
         state.db.close().await;
         std::fs::remove_file(path).unwrap();
     }
@@ -1547,12 +1684,8 @@ mod tests {
         assert!(calendar_text.contains("SUMMARY:Consultation — Signal Studio"));
         assert!(calendar_text.contains("STATUS:CONFIRMED"));
 
-        let owner_session = create_session(&state.db).await.unwrap();
         let mut headers = HeaderMap::new();
-        headers.insert(
-            header::AUTHORIZATION,
-            HeaderValue::from_str(&format!("Bearer {owner_session}")).unwrap(),
-        );
+        headers.insert("x-test-oid", HeaderValue::from_static("test-owner"));
         assert_eq!(
             owner_action(
                 State(state.clone()),
@@ -1617,14 +1750,38 @@ mod tests {
         let (state, path) = test_state().await;
         seed_test_settings(&state.db, None).await;
         let slot = test_slot(&state).await;
-        for number in 0..30 {
+        for number in 0..29 {
             assert_eq!(
                 create_test_booking(&state, &slot, number).await.unwrap().0,
                 StatusCode::CREATED
             );
         }
-        let limit = create_test_booking(&state, &slot, 31).await.unwrap_err();
-        assert_eq!(limit.0, StatusCode::CONFLICT);
+        let mut race = tokio::task::JoinSet::new();
+        for number in 29..41 {
+            let state = state.clone();
+            let slot = slot.clone();
+            race.spawn(async move { create_test_booking(&state, &slot, number).await });
+        }
+        let mut created = 0;
+        let mut limited = 0;
+        while let Some(result) = race.join_next().await {
+            match result.unwrap() {
+                Ok((StatusCode::CREATED, _)) => created += 1,
+                Err(ApiError(StatusCode::CONFLICT, message))
+                    if message.contains("free 30-booking limit") =>
+                {
+                    limited += 1
+                }
+                other => panic!("unexpected concurrent booking result: {other:?}"),
+            }
+        }
+        assert_eq!((created, limited), (1, 11));
+        let active: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM bookings WHERE status NOT IN ('cancelled','completed') AND starts_at > ?")
+            .bind(Utc::now().to_rfc3339())
+            .fetch_one(&state.db)
+            .await
+            .unwrap();
+        assert_eq!(active, 30);
 
         seed_closed_booking(&state.db, "closed-31-days", 31).await;
         seed_closed_booking(&state.db, "closed-29-days", 29).await;

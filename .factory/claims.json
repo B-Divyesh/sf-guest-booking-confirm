@@ -60,14 +60,14 @@
     "claim": "Owners can record that a manual reminder was sent without the product sending a message.",
     "where": "README, owner panel, demo",
     "test": "npm run test:e2e -- --grep @claim:manual-reminder-checklist",
-    "sandbox": "fresh browser context at /demo; mark the sample reminder sent, reload, and assert the recorded state persists only in the demo namespace"
+    "sandbox": "fresh browser context at /demo; begin request recording after load, mark the sample reminder sent, assert zero action requests, reload, and assert only same-origin GETs plus persisted state"
   },
   {
     "id": "free-desk-capacity-and-retention",
     "claim": "The free desk allows 30 active future bookings and deletes closed records after 30 days.",
     "where": "owner panel, privacy page, README",
     "test": "cargo test --locked claim_free_desk_capacity_and_retention",
-    "sandbox": "temporary SQLite desk; create 30 active requests, reject the 31st, then run cleanup over closed records aged 29 and 31 days"
+    "sandbox": "temporary SQLite desk; create 29 active requests, submit 12 requests concurrently, assert exactly one succeeds and the final count is 30, then test 29/31-day cleanup"
   },
   {
     "id": "panel-pro-capacity-and-retention",
@@ -78,9 +78,23 @@
   },
   {
     "id": "api-rate-limit",
-    "claim": "Every API endpoint except /health is rate-limited and returns 429 with Retry-After.",
+    "claim": "Read API calls allow 40 requests per client in each one-second window; later calls return 429 with Retry-After: 1.",
     "where": "README",
     "test": "npm run test:e2e -- --grep @claim:api-rate-limit",
-    "sandbox": "fresh browser context; issue 41 same-client GET requests to a public API endpoint and assert the final response is 429 with Retry-After: 1"
+    "sandbox": "fresh server and browser context; make 41 concurrent same-client HTTP reads and assert exactly one 429 response with Retry-After: 1; the Rust suite separately proves the shared SQLite counter is atomic"
+  },
+  {
+    "id": "owner-entra-identity",
+    "claim": "Owners sign in through Sociobot Microsoft Entra External ID; the product has no owner password.",
+    "where": "owner panel, privacy page, README",
+    "test": "npm run test:e2e -- --grep @claim:owner-entra-identity",
+    "sandbox": "fresh browser context; assert the Sociobot Entra sign-in screen has no password, unauthenticated setup is rejected, then use the test-only identity gate to reach setup"
+  },
+  {
+    "id": "container-runtime-contract",
+    "claim": "The container contract sets UID 10001, PORT 8080, SQLite under /data, and graceful SIGTERM handling.",
+    "where": "README",
+    "test": "cargo test --locked claim_container_runtime_contract",
+    "sandbox": "compile-time contract test against the shipped Dockerfile and Rust server entry point"
   }
 ]
