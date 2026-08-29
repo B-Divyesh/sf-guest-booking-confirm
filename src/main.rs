@@ -144,7 +144,9 @@ async fn main() -> anyhow::Result<()> {
         .synchronous(SqliteSynchronous::Normal)
         .busy_timeout(Duration::from_secs(5));
     let db = SqlitePoolOptions::new()
-        .max_connections(8)
+        // Every API request records its allowance in SQLite. One connection
+        // avoids competing file locks on the single-replica Azure Files mount.
+        .max_connections(1)
         .connect_with(opts)
         .await
         .context("connect sqlite")?;
@@ -1393,6 +1395,7 @@ mod tests {
         assert!(dockerfile.contains("ENV PORT=8080"));
         assert!(server.contains("sqlite:/data/guest-booking-confirm.db"));
         assert!(server.contains("journal_mode(SqliteJournalMode::Delete)"));
+        assert!(server.contains("max_connections(1)"));
         assert!(server.contains(".with_graceful_shutdown(shutdown())"));
         assert!(server.contains("SignalKind::terminate()"));
         assert!(service_worker.contains("path === '/auth/callback'"));
