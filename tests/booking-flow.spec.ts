@@ -259,14 +259,20 @@ test('@claim:no-tracking-cookies demo sends no cross-origin request and writes n
   expect(requests.every(url => new URL(url).origin === 'http://127.0.0.1:4173')).toBeTruthy();
 });
 
-test('@claim:api-rate-limit API responses enforce a per-client limit with Retry-After', async ({ page }) => {
+test('@claim:api-rate-limit API responses enforce a deployment-wide rolling limit with Retry-After', async ({ page, request }, testInfo) => {
   await page.goto('/demo');
-  const responses = await page.evaluate(async () => Promise.all(
-    Array.from({ length: 41 }, () => fetch('/api/public/settings', { headers: { 'x-forwarded-for': 'claims-rate-limit' } })
-      .then(response => ({ status: response.status, retryAfter: response.headers.get('retry-after') })))
-  ));
-  expect(responses.filter(response => response.status === 429)).toHaveLength(1);
-  expect(responses.find(response => response.status === 429)?.retryAfter).toBe('1');
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const client = `claims-rate-limit-${testInfo.workerIndex}-${attempt}-${Date.now()}`;
+    const responses = await Promise.all(Array.from({ length: 41 }, async () => {
+      const response = await request.get('/api/public/settings', {
+        headers: { 'x-forwarded-for': client }
+      });
+      return { status: response.status(), retryAfter: response.headers()['retry-after'] };
+    }));
+    expect(responses.filter(response => response.status === 200), `attempt ${attempt + 1} allowed responses`).toHaveLength(40);
+    expect(responses.filter(response => response.status === 429), `attempt ${attempt + 1} limited responses`).toHaveLength(1);
+    expect(responses.find(response => response.status === 429)?.retryAfter).toBe('1');
+  }
 });
 
 test('unknown routes return the designed 404 and hashed assets are immutable', async ({ page, request }) => {

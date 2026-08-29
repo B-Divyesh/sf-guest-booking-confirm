@@ -291,9 +291,9 @@ async fn rate_limit(State(state): State<AppState>, req: Request, next: Next) -> 
     };
     let key = format!("{class}:{client}");
     let max = if req.method() == Method::GET { 40 } else { 12 };
-    let window = Utc::now().timestamp();
-    let count = record_rate_limit(&state.db, &key, window).await;
-    let count = match count {
+    let now_ms = Utc::now().timestamp_millis();
+    let allowed = record_rate_limit(&state.db, &key, now_ms, max).await;
+    let allowed = match allowed {
         Ok(value) => value,
         Err(error) => {
             warn!(%error, "rate limit state unavailable");
@@ -304,7 +304,7 @@ async fn rate_limit(State(state): State<AppState>, req: Request, next: Next) -> 
                 .into_response();
         }
     };
-    if count > max {
+    if !allowed {
         let mut res = (
             StatusCode::TOO_MANY_REQUESTS,
             Json(json!({"error":"Too many requests. Try again in a moment."})),
@@ -314,23 +314,39 @@ async fn rate_limit(State(state): State<AppState>, req: Request, next: Next) -> 
             .insert(header::RETRY_AFTER, HeaderValue::from_static("1"));
         return res;
     }
-    if count == 1 && window.rem_euclid(60) == 0 {
-        let _ = sqlx::query("DELETE FROM rate_limits WHERE window_start < ?")
-            .bind(window - 60)
-            .execute(&state.db)
-            .await;
-    }
     next.run(req).await
 }
 
-async fn record_rate_limit(db: &SqlitePool, key: &str, window: i64) -> Result<i64, sqlx::Error> {
-    sqlx::query_scalar::<_, i64>(
-        "INSERT INTO rate_limits(client_key,window_start,count) VALUES(?,?,1) ON CONFLICT(client_key) DO UPDATE SET window_start=excluded.window_start,count=CASE WHEN rate_limits.window_start=excluded.window_start THEN rate_limits.count+1 ELSE 1 END RETURNING count",
-    )
-    .bind(key)
-    .bind(window)
-    .fetch_one(db)
-    .await
+async fn record_rate_limit(
+    db: &SqlitePool,
+    key: &str,
+    now_ms: i64,
+    max: i64,
+) -> Result<bool, sqlx::Error> {
+    let mut transaction = db.begin().await?;
+    let cutoff = now_ms - 1_000;
+    sqlx::query("DELETE FROM rate_limit_events WHERE occurred_at_ms <= ?")
+        .bind(cutoff)
+        .execute(&mut *transaction)
+        .await?;
+    let count: i64 =
+        sqlx::query_scalar("SELECT COUNT(*) FROM rate_limit_events WHERE client_key = ?")
+            .bind(key)
+            .fetch_one(&mut *transaction)
+            .await?;
+    let allowed = count < max;
+    if allowed {
+        sqlx::query(
+            "INSERT INTO rate_limit_events(client_key,occurred_at_ms,event_id) VALUES(?,?,?)",
+        )
+        .bind(key)
+        .bind(now_ms)
+        .bind(random_token(16))
+        .execute(&mut *transaction)
+        .await?;
+    }
+    transaction.commit().await?;
+    Ok(allowed)
 }
 
 async fn public_settings(State(state): State<AppState>) -> ApiResult<Json<Value>> {
@@ -1357,6 +1373,7 @@ mod tests {
         let dockerfile = include_str!("../Dockerfile");
         let server = include_str!("main.rs");
         let service_worker = include_str!("../public/sw.js");
+        let deployment = include_str!("../deploy/enforce-single-replica.sh");
         assert!(dockerfile.contains("useradd --uid 10001"));
         assert!(dockerfile.contains("USER app"));
         assert!(dockerfile.contains("ENV PORT=8080"));
@@ -1364,6 +1381,9 @@ mod tests {
         assert!(server.contains(".with_graceful_shutdown(shutdown())"));
         assert!(server.contains("SignalKind::terminate()"));
         assert!(service_worker.contains("path === '/auth/callback'"));
+        assert!(deployment.contains("--min-replicas 1"));
+        assert!(deployment.contains("--max-replicas 1"));
+        assert!(deployment.contains("properties.template.scale.minReplicas"));
     }
 
     #[tokio::test]
@@ -1527,12 +1547,12 @@ mod tests {
     #[tokio::test]
     async fn api_rate_limit_counter_is_atomic_across_app_states() {
         let (state, path) = test_state().await;
-        let window = Utc::now().timestamp();
+        let now_ms = Utc::now().timestamp_millis();
         let mut requests = tokio::task::JoinSet::new();
         for _ in 0..41 {
             let db = state.db.clone();
             requests.spawn(async move {
-                record_rate_limit(&db, "read:one-forwarded-client", window)
+                record_rate_limit(&db, "read:one-forwarded-client", now_ms, 40)
                     .await
                     .unwrap()
             });
@@ -1541,10 +1561,43 @@ mod tests {
         while let Some(value) = requests.join_next().await {
             allowances.push(value.unwrap());
         }
-        allowances.sort_unstable();
-        assert_eq!(allowances, (1_i64..=41).collect::<Vec<_>>());
-        assert_eq!(allowances.iter().filter(|count| **count <= 40).count(), 40);
-        assert_eq!(allowances.iter().filter(|count| **count > 40).count(), 1);
+        assert_eq!(allowances.iter().filter(|allowed| **allowed).count(), 40);
+        assert_eq!(allowances.iter().filter(|allowed| !**allowed).count(), 1);
+        state.db.close().await;
+        std::fs::remove_file(path).unwrap();
+    }
+
+    #[tokio::test]
+    async fn api_rate_limit_does_not_reset_at_a_wall_clock_second_boundary() {
+        let (state, path) = test_state().await;
+        let key = "read:second-boundary-regression";
+        for _ in 0..20 {
+            assert!(record_rate_limit(&state.db, key, 999_900, 40)
+                .await
+                .unwrap());
+        }
+        for _ in 0..20 {
+            assert!(record_rate_limit(&state.db, key, 1_000_100, 40)
+                .await
+                .unwrap());
+        }
+
+        let request_41 = record_rate_limit(&state.db, key, 1_000_101, 40)
+            .await
+            .unwrap();
+        assert!(
+            !request_41,
+            "request 41 must be limited across a clock-second boundary"
+        );
+
+        let after_one_second = record_rate_limit(&state.db, key, 1_000_900, 40)
+            .await
+            .unwrap();
+        assert!(
+            after_one_second,
+            "capacity must return when the oldest events expire"
+        );
+
         state.db.close().await;
         std::fs::remove_file(path).unwrap();
     }

@@ -78,10 +78,10 @@
   },
   {
     "id": "api-rate-limit",
-    "claim": "Read API calls allow 40 requests per client in each one-second window; later calls return 429 with Retry-After: 1.",
+    "claim": "Read API calls allow 40 requests per client in any rolling one-second window; later calls return 429 with Retry-After: 1.",
     "where": "README",
     "test": "npm run test:e2e -- --grep @claim:api-rate-limit",
-    "sandbox": "fresh server and browser context; make 41 concurrent same-client HTTP reads and assert exactly one 429 response with Retry-After: 1; the Rust suite separately proves the shared SQLite counter is atomic"
+    "sandbox": "fresh server and browser context; repeat three independent 41-request same-client HTTP bursts and assert 40 successes plus one 429 with Retry-After: 1 each time; the Rust suite proves atomic counting across a wall-clock second boundary and the one-replica deployment contract"
   },
   {
     "id": "owner-entra-identity",
@@ -92,7 +92,7 @@
   },
   {
     "id": "container-runtime-contract",
-    "claim": "The container contract sets UID 10001, PORT 8080, SQLite under /data, and graceful SIGTERM handling.",
+    "claim": "The container contract sets UID 10001, PORT 8080, SQLite under /data, one serving replica, and graceful SIGTERM handling.",
     "where": "README",
     "test": "cargo test --locked claim_container_runtime_contract",
     "sandbox": "compile-time contract test against the shipped Dockerfile and Rust server entry point"
