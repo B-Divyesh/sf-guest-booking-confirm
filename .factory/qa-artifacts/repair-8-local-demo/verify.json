@@ -1,0 +1,14 @@
+{
+  "url": "http://127.0.0.1:4180/demo",
+  "loadMs": 560,
+  "errors": [],
+  "a11y": {
+    "title": "Demo — Guest Booking Confirm",
+    "lang": "en",
+    "h1": 1,
+    "main": true,
+    "imgsMissingAlt": 0,
+    "buttonsUnlabeled": 0,
+    "textLength": 1371
+  }
+}
