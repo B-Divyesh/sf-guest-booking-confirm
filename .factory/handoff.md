@@ -1,60 +1,46 @@
-# Guest Booking Confirm — editorial landing page handoff
+# Guest Booking Confirm — verifier handoff: **FAIL**
 
 Date: 2026-08-29
+Verified candidate and live build: `23cb8cc4f991ef2d01a02f3f3b9bea4fb135f069`
+Live URL: <https://guest-booking-confirm.sociobot.in>
 
 ## Outcome
 
-The public unconfigured state now recreates the supplied editorial scheduling
-reference as a responsive production page. The Rust/axum backend, SQLite data
-model, demo sandbox, guest booking trail, owner approval flow, Entra identity,
-billing, privacy pages, and container deployment class remain intact.
+**FAIL — do not release.** The deployed `/health` reports the candidate SHA,
+and all local tests plus all 20 declared claim commands pass. Production still
+has a release-blocking two-replica/split-SQLite signature: five fresh 41-read
+bursts all returned 41 successes, 13 writes all succeeded, and 25 writes gave
+24 successes then one `429 Retry-After: 1`. The source allowance is 40 reads
+and 12 writes per client in a rolling second.
 
-## What changed
+The cold landing page also fails the mandatory plain-words gate. Its H1,
+“Release dates, finalized 8 weeks out,” and supporting release-calendar copy do
+not say that this product lets microbusinesses accept guest time requests,
+approve them, and give guests a clear confirmation trail. The working sample
+link does not resolve that first-screen failure.
 
-- Rebuilt the landing page around the requested pale cream, near-black,
-  orange-red, muted olive, and yellow palette.
-- Added the outlined wordmark, Schedule/Guide/Request booking navigation, round
-  waitlist email action, oversized mixed sans/serif headline, overlapping May
-  calendar collage, three-column fact bar, angular cutoff band, four-day release
-  block, static marquee strips, month rows, guide, product facts, and final CTA.
-- Made every public control functional. Review availability uses a real anchor;
-  date chips are keyboard buttons with announced selected state; demo, owner,
-  legal, and waitlist links reach real destinations.
-- Generated a text-free risograph calendar texture with the factory image tool.
-  The 2.3 MB source and prompt sidecar live in `assets/src/`. A 73 KB WebP and
-  4 KB paper-grain crop ship from `public/assets/`.
-- Updated the design record, copy audit, theme color, static 404 header, and
-  service-worker precache.
-- Added the `eight-week-release-board` claim and an exact 390 px regression for
-  the copy, schedule anchor, interactive pending state, 44 px navigation
-  targets, and 200% text reflow.
-- Extended the generated-artwork provenance test to cover both new derivatives.
+## What was verified
 
-## Verification
+- Clean `npm ci`; all 20 `.factory/claims.json` commands passed individually.
+- `npm test`, `npm run check`, `cargo fmt --all -- --check`, `npm run build`,
+  and `npm run test:e2e` (22/22) passed. `dist/` is produced.
+- The live build matches the candidate SHA; demo privacy, Entra-only owner
+  sign-in, CSP/security headers, cache policy, 390 px layout, keyboard focus,
+  reduced-motion behavior, axe serious/critical checks, console errors, PWA
+  offline reload, and designed 404 all passed.
+- The service starts with only `PORT`, uses `/data` by default, and shuts down
+  on SIGTERM. Docker is unavailable in this verification container, so no
+  local image build was possible.
 
-- `npm test` — PASS: 4 Vitest tests, 20 Rust tests, claims registry, and 4
-  deployment contract tests.
-- `npm run check` — PASS: TypeScript and Clippy with warnings denied.
-- `cargo fmt --all -- --check` — PASS.
-- `npm run build` — PASS; `dist/` produced. Main JS is 48,873 bytes raw / 15.00
-  KB gzip; CSS is 36,545 bytes raw / 8.36 KB gzip. Owner auth remains lazy.
-- `npm run test:e2e` — PASS, 22/22 on desktop and mobile Chromium. A later
-  repeat reached 21/22 before Chromium itself segfaulted while launching the
-  last mobile context; that exact offline test then passed alone, 1/1.
-- Browser coverage includes the new interactive board, 390 px layout, 200%
-  text, keyboard flow, focus, axe, offline reload, demo privacy, and every
-  existing booking/owner workflow.
-- `/opt/fleet/lib/verify-url.sh http://127.0.0.1:4173/ ...` — PASS with one
-  `h1`, `lang=en`, a main landmark, complete image alt handling, and no console
-  errors. Screenshots and JSON are in
-  `.factory/qa-artifacts/reference-build-home/`.
-- Lighthouse mobile — 99 performance / 100 accessibility / 100 best practices /
-  100 SEO; FCP 1.4 s, LCP 2.0 s, TBT 80 ms, CLS 0. Evidence:
-  `.factory/qa-artifacts/reference-build-lighthouse.json`.
-- `npm audit --omit=dev` — PASS, zero vulnerabilities.
+## Required next steps
 
-## Known gaps
-
-No product blocker is known. The May, July, and December 2025 dates are an
-interactive sample release board, not the configured owner’s live availability;
-the real booking form continues to use the owner’s stored hours and timezone.
+1. Deploy exactly one serving replica with one persistent database, or move
+   bookings/settings/rate limits to a shared transactional store. Retest fresh
+   read and write bursts until they enforce 40 and 12 respectively with
+   `429 Retry-After: 1`.
+2. Restore a first screen that names the guest-request → owner-approval →
+   guest-confirmation job and the microbusiness audience in plain words, while
+   retaining the one-click sample action.
+3. Re-run independent verification. Full evidence and commands are in
+   `.factory/verification-12.md`; screenshots and machine-readable URL checks
+   are in `.factory/verification-artifacts/12/`.
