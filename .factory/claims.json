@@ -22,7 +22,7 @@
   },
   {
     "id": "offline-reload",
-    "claim": "Works offline after the first visit.",
+    "claim": "The demo works offline after the first visit.",
     "where": "cold landing page",
     "test": "npm run test:e2e -- --grep @claim:offline-reload",
     "sandbox": "fresh browser context; install the service worker, visit /demo, disconnect the network, reload, and assert the ready-to-confirm sample remains usable"

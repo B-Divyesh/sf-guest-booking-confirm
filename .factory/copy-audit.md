@@ -11,7 +11,7 @@
 | Opens Maya’s approved request at the guest confirmation step. | 9 | Pass |
 | Review sample availability | 3 | Pass |
 | No tracking cookies | 3 | Pass |
-| Works offline after the first visit | 6 | Pass |
+| The demo works offline after the first visit | 8 | Pass |
 | Free for 30 active bookings | 5 | Pass |
 
 ## Remaining landing page

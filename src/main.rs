@@ -1384,6 +1384,7 @@ mod tests {
         let server = include_str!("main.rs");
         let service_worker = include_str!("../public/sw.js");
         let deployment = include_str!("../deploy/enforce-single-replica.sh");
+        let persistent_data = include_str!("../deploy/ensure-persistent-data.sh");
         let release = include_str!("../deploy/release.sh");
         assert!(dockerfile.contains("useradd --uid 10001"));
         assert!(dockerfile.contains("USER app"));
@@ -1396,15 +1397,21 @@ mod tests {
         assert!(deployment.contains("--max-replicas 1"));
         assert!(deployment.contains("properties.template.scale.minReplicas"));
         assert!(deployment.contains("one active revision and one running replica"));
+        assert!(persistent_data.contains("storageType:\"AzureFile\""));
+        assert!(persistent_data.contains("mount_path=\"/data\""));
+        assert!(persistent_data.contains("Persistent data mount verification failed"));
         let factory_deploy = release
             .find("\"$factory_deploy_script\"")
             .expect("release must run the factory container deployer");
+        let storage_enforcement = release
+            .find("ensure-persistent-data.sh")
+            .expect("release must restore persistent SQLite storage");
         let replica_enforcement = release
             .find("enforce-single-replica.sh")
             .expect("release must enforce the SQLite topology");
         assert!(
-            factory_deploy < replica_enforcement,
-            "single-replica enforcement must run after the factory deploy resets scale"
+            factory_deploy < storage_enforcement && storage_enforcement < replica_enforcement,
+            "persistent storage and single-replica enforcement must run after the factory deploy resets the template"
         );
     }
 

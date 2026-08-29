@@ -73,7 +73,7 @@ test('@claim:eight-week-release-board cold landing schedule works and reflows at
   await expect(page.getByRole('link', { name: 'Try it with sample data' }).first()).toBeVisible();
   await expect(page.getByText('Opens Maya’s approved request at the guest confirmation step.')).toBeVisible();
   await expect(page.getByText('No tracking cookies', { exact: true })).toBeVisible();
-  await expect(page.getByText('Works offline after the first visit', { exact: true })).toBeVisible();
+  await expect(page.getByText('The demo works offline after the first visit', { exact: true })).toBeVisible();
   await expect(page.getByText('Free for 30 active bookings', { exact: true })).toBeVisible();
   await expect(page.locator('.release-facts-bar')).toContainText('8 weeks');
   await expect(page.getByText('Dates lock two weeks before each appointment.')).toBeVisible();

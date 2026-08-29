@@ -48,7 +48,7 @@ docker run --rm -p 8080:8080 -v gbc-data:/data guest-booking-confirm
 
 Read API calls allow 40 requests per client in any rolling one-second window. Later calls return `429` with `Retry-After: 1`. Write limits are stricter. `/health` is exempt and returns the compiled build SHA.
 
-The container contract sets UID 10001, `PORT=8080`, SQLite under `/data`, and one serving replica. It handles `SIGTERM` for a graceful shutdown. Factory releases must use `npm run deploy`; this calls the repository release gate instead of the unsafe `maxReplicas=3` factory default. The gate runs the standard container deployment, enforces one active revision with one replica, and proves the live build identity plus the 40-read and 12-write limits three times. It checks the topology again as the final infrastructure action. A release fails if any check does not pass. Mount persistent storage at `/data` outside the factory deployment.
+The container contract sets UID 10001, `PORT=8080`, SQLite on a persistent Azure Files volume at `/data`, and one serving replica. It handles `SIGTERM` for a graceful shutdown. Factory releases must use `npm run deploy`; this calls the repository release gate instead of the unsafe `maxReplicas=3` factory default. The gate runs the standard container deployment, restores the persistent `/data` mount, enforces one active revision with one replica, and proves the live build identity plus the 40-read and 12-write limits three times. It checks the topology again as the final infrastructure action. A release fails if any check does not pass.
 
 ## Privacy and billing
 

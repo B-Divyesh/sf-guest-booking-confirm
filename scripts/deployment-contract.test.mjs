@@ -21,7 +21,10 @@ async function fixture({ stuck = false } = {}) {
   const deployPath = join(directory, 'factory-deploy');
   const verifyPath = join(directory, 'verify-release');
 
-  await writeFile(statePath, JSON.stringify({ min: 1, max: 1, mode: 'single', active: 1, running: 1 }));
+  await writeFile(statePath, JSON.stringify({
+    min: 1, max: 1, mode: 'single', active: 1, running: 1,
+    share: false, environmentStorage: false, persistent: true,
+  }));
   await writeFile(azPath, `#!/usr/bin/env node
 const fs = require('node:fs');
 const args = process.argv.slice(2);
@@ -30,7 +33,25 @@ const logPath = process.env.MOCK_AZ_LOG;
 const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
 fs.appendFileSync(logPath, 'az ' + args.join(' ') + '\\n');
 const query = args[args.indexOf('--query') + 1];
-if (args[0] === 'containerapp' && args[1] === 'update') {
+if (args[0] === 'storage' && args[1] === 'share-rm' && args[2] === 'show') {
+  process.exit(state.share ? 0 : 1);
+} else if (args[0] === 'storage' && args[1] === 'share-rm' && args[2] === 'create') {
+  state.share = true;
+  fs.writeFileSync(statePath, JSON.stringify(state));
+} else if (args[0] === 'storage' && args[1] === 'account' && args[2] === 'keys') {
+  process.stdout.write('mock-storage-key');
+} else if (args[0] === 'containerapp' && args[1] === 'env' && args[2] === 'storage' && args[3] === 'show') {
+  process.exit(state.environmentStorage ? 0 : 1);
+} else if (args[0] === 'containerapp' && args[1] === 'env' && args[2] === 'storage' && args[3] === 'set') {
+  state.environmentStorage = true;
+  fs.writeFileSync(statePath, JSON.stringify(state));
+} else if (args[0] === 'rest') {
+  const body = JSON.parse(args[args.indexOf('--body') + 1]);
+  const volumes = body.properties?.template?.volumes || [];
+  const mounts = body.properties?.template?.containers?.[0]?.volumeMounts || [];
+  state.persistent = volumes.some(item => item.name === 'gbc-data' && item.storageName === 'guest-booking-confirm-data') && mounts.some(item => item.volumeName === 'gbc-data' && item.mountPath === '/data');
+  fs.writeFileSync(statePath, JSON.stringify(state));
+} else if (args[0] === 'containerapp' && args[1] === 'update') {
   state.min = Number(args[args.indexOf('--min-replicas') + 1]);
   state.max = Number(args[args.indexOf('--max-replicas') + 1]);
   if (process.env.MOCK_AZ_STUCK !== '1') state.running = state.max;
@@ -39,11 +60,22 @@ if (args[0] === 'containerapp' && args[1] === 'update') {
   state.mode = args[args.indexOf('--mode') + 1];
   state.active = state.mode === 'single' ? 1 : 2;
   fs.writeFileSync(statePath, JSON.stringify(state));
+} else if (args[0] === 'containerapp' && args[1] === 'show' && !args.includes('--query')) {
+  process.stdout.write(JSON.stringify({
+    id: '/subscriptions/mock/resourceGroups/sociobot/providers/Microsoft.App/containerApps/sf-guest-booking-confirm',
+    properties: { template: {
+      containers: [{ name: 'app', image: 'registry.test/app:sha', resources: { cpu: 0.5, memory: '1Gi' }, env: [{ name: 'PORT', value: '8080' }], volumeMounts: state.persistent ? [{ volumeName: 'gbc-data', mountPath: '/data' }] : null }],
+      volumes: state.persistent ? [{ name: 'gbc-data', storageType: 'AzureFile', storageName: 'guest-booking-confirm-data' }] : null,
+      scale: { minReplicas: state.min, maxReplicas: state.max }
+    } }
+  }));
 } else if (args[0] === 'containerapp' && args[1] === 'show') {
   const values = {
     'properties.template.scale.minReplicas': state.min,
     'properties.template.scale.maxReplicas': state.max,
-    'properties.latestReadyRevisionName': 'mock-revision'
+    'properties.latestReadyRevisionName': 'mock-revision',
+    "properties.template.volumes[?name == 'gbc-data' && storageName == 'guest-booking-confirm-data' && storageType == 'AzureFile'] | length(@)": state.persistent ? 1 : 0,
+    "properties.template.containers[0].volumeMounts[?volumeName == 'gbc-data' && mountPath == '/data'] | length(@)": state.persistent ? 1 : 0
   };
   process.stdout.write(String(values[query]));
 } else if (args[0] === 'containerapp' && args[1] === 'revision' && args[2] === 'list') {
@@ -63,13 +95,14 @@ const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
 state.min = 1;
 state.max = 3;
 state.running = 2;
+state.persistent = false;
 fs.writeFileSync(statePath, JSON.stringify(state));
 fs.appendFileSync(logPath, 'factory-deploy ' + process.argv.slice(2).join(' ') + '\\n');
 `);
   await writeFile(verifyPath, `#!/usr/bin/env node
 const fs = require('node:fs');
 const state = JSON.parse(fs.readFileSync(process.env.MOCK_AZ_STATE, 'utf8'));
-if (state.min !== 1 || state.max !== 1 || state.mode !== 'single' || state.active !== 1 || state.running !== 1) {
+if (state.min !== 1 || state.max !== 1 || state.mode !== 'single' || state.active !== 1 || state.running !== 1 || !state.persistent) {
   process.stderr.write('live verification started before safe topology: ' + JSON.stringify(state) + '\\n');
   process.exit(4);
 }
@@ -105,12 +138,16 @@ test('release repairs the factory max=3 default and verifies one serving replica
   assert.equal(result.status, 0, result.stderr);
 
   const state = JSON.parse(await readFile(mock.statePath, 'utf8'));
-  assert.deepEqual(state, { min: 1, max: 1, mode: 'single', active: 1, running: 1 });
+  assert.deepEqual(state, {
+    min: 1, max: 1, mode: 'single', active: 1, running: 1,
+    share: true, environmentStorage: true, persistent: true,
+  });
 
   const calls = (await readFile(mock.logPath, 'utf8')).trim().split('\n');
   assert.match(calls[0], /^factory-deploy guest-booking-confirm .* Dockerfile 8080$/);
-  assert.match(calls[1], /^az containerapp update /);
-  assert.match(calls[2], /^az containerapp revision set-mode /);
+  assert.ok(calls.some(call => /^az storage share-rm create /.test(call)));
+  assert.ok(calls.some(call => /^az containerapp env storage set /.test(call)));
+  assert.ok(calls.some(call => /^az rest --method patch /.test(call)));
   assert.ok(calls.some(call => /^verify-release https:\/\/release\.test [0-9a-f]{40}$/.test(call)));
   assert.equal(calls.filter(call => /^az containerapp update /.test(call)).length, 2);
   assert.equal(calls.filter(call => /^az containerapp revision set-mode /.test(call)).length, 2);
@@ -128,4 +165,5 @@ test('release fails instead of claiming success while two replicas still serve',
   const state = JSON.parse(await readFile(mock.statePath, 'utf8'));
   assert.equal(state.max, 1, 'the desired scale is corrected even if convergence stalls');
   assert.equal(state.running, 2, 'the test preserves the unsafe serving state that must block release');
+  assert.equal(state.persistent, true, 'persistent data is repaired before topology convergence is checked');
 });

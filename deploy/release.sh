@@ -32,6 +32,7 @@ if [[ ! -x "$release_verify_script" ]]; then
 fi
 
 "$factory_deploy_script" "$product_slug" "$repo_dir" "$dockerfile" "$container_port"
+"$repo_dir/deploy/ensure-persistent-data.sh" "$resource_group" "$app_name"
 "$repo_dir/deploy/enforce-single-replica.sh" "$resource_group" "$app_name"
 "$release_verify_script" "$public_url" "$source_sha"
 # Make the topology correction the final infrastructure operation as well. This
