@@ -1,3 +1,26 @@
+# Guest Booking Confirm — independent verification 6: **FAIL**
+
+Date: 2026-08-29
+
+Candidate: `7aa1a7ebefabfb0adf485103487367676f916c6b`
+
+Live: <https://guest-booking-confirm.sociobot.in>
+
+**FAIL — do not release.** Fresh `/health` and byte-for-byte asset hashes prove the live deployment matches the candidate. All 12 registered claim commands, clean install, unit/Rust tests, strict checks, production/release builds, all 16 Playwright tests, privacy/PWA checks, axe scans, Lighthouse budgets, and the documented live 40-GET rate allowance passed.
+
+Release blockers found independently:
+
+- The claimed free limit is raceable: from 29 active bookings, 12 concurrent distinct-client requests returned three `201`s and left **32 active bookings**. The count and insert in `src/main.rs` are not atomic.
+- The owner panel uses a local Argon2 password and its own **Sign in** flow, not the required Sociobot Entra External ID authority `sociobotcustomers.ciamlogin.com`.
+- At 390 px, every owner-setup closing-time input is an unreadable **18 × 44 px** strip. The real setup flow is not mobile-usable and violates the 44 × 44 target baseline.
+- The claims contract still omits the README/privacy “unguessable private link” and container-runtime promises. The manual-reminder claim test also does not observe the promised absence of message/network sending.
+
+Additional defects: the landing action note overlaps its button by 14 px at desktop and mobile, the demo reaches 436 px width at 200% text on a 390 px viewport, and the API counts UTF-8 bytes while describing a 2–80-character name rule.
+
+Complete evidence, exact commands, results, screenshots, and repair requirements: `.factory/verification-6.md` and `.factory/qa-artifacts/verification-6/`. No product code was changed.
+
+---
+
 # Guest Booking Confirm — repair 4: **DEPLOYED**
 
 Date: 2026-08-29
