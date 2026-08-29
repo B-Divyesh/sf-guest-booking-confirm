@@ -47,6 +47,10 @@ if (args[0] === 'storage' && args[1] === 'share-rm' && args[2] === 'show') {
   fs.writeFileSync(statePath, JSON.stringify(state));
 } else if (args[0] === 'rest') {
   const body = JSON.parse(args[args.indexOf('--body') + 1]);
+  if ('cooldownPeriod' in body.properties.template.scale || 'pollingInterval' in body.properties.template.scale || 'ephemeralStorage' in body.properties.template.containers[0].resources) {
+    process.stderr.write('read-only fields leaked into the Azure template patch\\n');
+    process.exit(3);
+  }
   const volumes = body.properties?.template?.volumes || [];
   const mounts = body.properties?.template?.containers?.[0]?.volumeMounts || [];
   state.persistent = volumes.some(item => item.name === 'gbc-data' && item.storageName === 'guest-booking-confirm-data') && mounts.some(item => item.volumeName === 'gbc-data' && item.mountPath === '/data');
@@ -64,9 +68,9 @@ if (args[0] === 'storage' && args[1] === 'share-rm' && args[2] === 'show') {
   process.stdout.write(JSON.stringify({
     id: '/subscriptions/mock/resourceGroups/sociobot/providers/Microsoft.App/containerApps/sf-guest-booking-confirm',
     properties: { template: {
-      containers: [{ name: 'app', image: 'registry.test/app:sha', resources: { cpu: 0.5, memory: '1Gi' }, env: [{ name: 'PORT', value: '8080' }], volumeMounts: state.persistent ? [{ volumeName: 'gbc-data', mountPath: '/data' }] : null }],
+      containers: [{ name: 'app', image: 'registry.test/app:sha', resources: { cpu: 0.5, memory: '1Gi', ephemeralStorage: '2Gi' }, env: [{ name: 'PORT', value: '8080' }], volumeMounts: state.persistent ? [{ volumeName: 'gbc-data', mountPath: '/data' }] : null }],
       volumes: state.persistent ? [{ name: 'gbc-data', storageType: 'AzureFile', storageName: 'guest-booking-confirm-data' }] : null,
-      scale: { minReplicas: state.min, maxReplicas: state.max }
+      scale: { minReplicas: state.min, maxReplicas: state.max, cooldownPeriod: 300, pollingInterval: 30 }
     } }
   }));
 } else if (args[0] === 'containerapp' && args[1] === 'show') {

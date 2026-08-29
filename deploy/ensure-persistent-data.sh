@@ -13,11 +13,17 @@ storage_name="${AZURE_ENV_STORAGE_NAME:-guest-booking-confirm-data}"
 share_name="${AZURE_FILE_SHARE_NAME:-sf-guest-booking-confirm-data}"
 volume_name="gbc-data"
 mount_path="/data"
+wait_attempts="${STORAGE_WAIT_ATTEMPTS:-60}"
+wait_seconds="${STORAGE_WAIT_SECONDS:-2}"
 
 command -v jq >/dev/null || {
   printf 'jq is required to preserve the deployed container template.\n' >&2
   exit 2
 }
+if [[ ! "$wait_attempts" =~ ^[1-9][0-9]*$ || ! "$wait_seconds" =~ ^[0-9]+$ ]]; then
+  printf 'Storage wait settings must be non-negative integers, with at least one attempt.\n' >&2
+  exit 2
+fi
 
 if ! az storage share-rm show \
   --resource-group "$resource_group" \
@@ -63,12 +69,26 @@ app_json="$(az containerapp show \
   --name "$app_name" \
   --output json)"
 resource_id="$(jq -r '.id' <<<"$app_json")"
+current_volumes="$(jq -r \
+  --arg storage_name "$storage_name" \
+  --arg volume_name "$volume_name" \
+  '[.properties.template.volumes[]? | select(.name == $volume_name and .storageName == $storage_name and .storageType == "AzureFile")] | length' <<<"$app_json")"
+current_paths="$(jq -r \
+  --arg volume_name "$volume_name" \
+  --arg mount_path "$mount_path" \
+  '[.properties.template.containers[0].volumeMounts[]? | select(.volumeName == $volume_name and .mountPath == $mount_path)] | length' <<<"$app_json")"
+if [[ "$current_volumes" == "1" && "$current_paths" == "1" ]]; then
+  printf 'Verified %s mounts persistent Azure Files storage at %s.\n' "$app_name" "$mount_path"
+  exit 0
+fi
 template_patch="$(jq -c \
   --arg storage_name "$storage_name" \
   --arg volume_name "$volume_name" \
   --arg mount_path "$mount_path" \
   '.properties.template.volumes = (((.properties.template.volumes // []) | map(select(.name != $volume_name))) + [{name:$volume_name, storageType:"AzureFile", storageName:$storage_name}])
   | .properties.template.containers[0].volumeMounts = (((.properties.template.containers[0].volumeMounts // []) | map(select(.volumeName != $volume_name))) + [{volumeName:$volume_name, mountPath:$mount_path}])
+  | .properties.template.scale |= del(.cooldownPeriod, .pollingInterval)
+  | .properties.template.containers |= map(.resources |= del(.ephemeralStorage))
   | {properties:{template:.properties.template}}' <<<"$app_json")"
 
 if [[ -z "$resource_id" || "$resource_id" == "null" ]]; then
@@ -82,21 +102,30 @@ az rest \
   --body "$template_patch" \
   --output none
 
-mounted_volumes="$(az containerapp show \
-  --resource-group "$resource_group" \
-  --name "$app_name" \
-  --query "properties.template.volumes[?name == '$volume_name' && storageName == '$storage_name' && storageType == 'AzureFile'] | length(@)" \
-  --output tsv)"
-mounted_paths="$(az containerapp show \
-  --resource-group "$resource_group" \
-  --name "$app_name" \
-  --query "properties.template.containers[0].volumeMounts[?volumeName == '$volume_name' && mountPath == '$mount_path'] | length(@)" \
-  --output tsv)"
+mounted_volumes="0"
+mounted_paths="0"
+for ((attempt = 1; attempt <= wait_attempts; attempt += 1)); do
+  deployed_app="$(az containerapp show \
+    --resource-group "$resource_group" \
+    --name "$app_name" \
+    --output json)"
+  mounted_volumes="$(jq -r \
+    --arg storage_name "$storage_name" \
+    --arg volume_name "$volume_name" \
+    '[.properties.template.volumes[]? | select(.name == $volume_name and .storageName == $storage_name and .storageType == "AzureFile")] | length' <<<"$deployed_app")"
+  mounted_paths="$(jq -r \
+    --arg volume_name "$volume_name" \
+    --arg mount_path "$mount_path" \
+    '[.properties.template.containers[0].volumeMounts[]? | select(.volumeName == $volume_name and .mountPath == $mount_path)] | length' <<<"$deployed_app")"
+  if [[ "$mounted_volumes" == "1" && "$mounted_paths" == "1" ]]; then
+    printf 'Verified %s mounts persistent Azure Files storage at %s.\n' "$app_name" "$mount_path"
+    exit 0
+  fi
+  if ((attempt < wait_attempts)); then
+    sleep "$wait_seconds"
+  fi
+done
 
-if [[ "$mounted_volumes" != "1" || "$mounted_paths" != "1" ]]; then
-  printf 'Persistent data mount verification failed for %s: volumes=%s mounts=%s.\n' \
-    "$app_name" "$mounted_volumes" "$mounted_paths" >&2
-  exit 1
-fi
-
-printf 'Verified %s mounts persistent Azure Files storage at %s.\n' "$app_name" "$mount_path"
+printf 'Persistent data mount verification failed for %s: volumes=%s mounts=%s.\n' \
+  "$app_name" "$mounted_volumes" "$mounted_paths" >&2
+exit 1
