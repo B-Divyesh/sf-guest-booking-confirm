@@ -30,7 +30,8 @@ Both verification-12 P1 findings are repaired.
   `/demo` reload after the browser is disconnected.
 - `scripts/deployment-contract.test.mjs` starts from the factory’s exact unsafe
   state (`max=3`, two running replicas, no persistent mount), asserts that the
-  release creates/restores `/data`, and rejects a release if two replicas remain.
+  release creates/restores `/data`, waits while its visible mount still reports
+  provisioning in progress, and rejects a release if two replicas remain.
 - `scripts/release-verification.test.mjs` proves the live gate rejects the
   doubled two-replica signature and accepts only 40 reads plus one `429`, and
   12 writes plus one `429`, each with `Retry-After: 1`.

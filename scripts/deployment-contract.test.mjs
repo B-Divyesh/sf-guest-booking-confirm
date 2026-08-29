@@ -24,6 +24,7 @@ async function fixture({ stuck = false } = {}) {
   await writeFile(statePath, JSON.stringify({
     min: 1, max: 1, mode: 'single', active: 1, running: 1,
     share: false, environmentStorage: false, persistent: true,
+    provisioning: 'Succeeded', provisioningChecks: 0,
   }));
   await writeFile(azPath, `#!/usr/bin/env node
 const fs = require('node:fs');
@@ -54,8 +55,14 @@ if (args[0] === 'storage' && args[1] === 'share-rm' && args[2] === 'show') {
   const volumes = body.properties?.template?.volumes || [];
   const mounts = body.properties?.template?.containers?.[0]?.volumeMounts || [];
   state.persistent = volumes.some(item => item.name === 'gbc-data' && item.storageName === 'guest-booking-confirm-data') && mounts.some(item => item.volumeName === 'gbc-data' && item.mountPath === '/data');
+  state.provisioning = 'Updating';
+  state.provisioningChecks = 0;
   fs.writeFileSync(statePath, JSON.stringify(state));
 } else if (args[0] === 'containerapp' && args[1] === 'update') {
+  if (state.provisioning !== 'Succeeded') {
+    process.stderr.write('ContainerAppOperationInProgress\\n');
+    process.exit(1);
+  }
   state.min = Number(args[args.indexOf('--min-replicas') + 1]);
   state.max = Number(args[args.indexOf('--max-replicas') + 1]);
   if (process.env.MOCK_AZ_STUCK !== '1') state.running = state.max;
@@ -65,9 +72,18 @@ if (args[0] === 'storage' && args[1] === 'share-rm' && args[2] === 'show') {
   state.active = state.mode === 'single' ? 1 : 2;
   fs.writeFileSync(statePath, JSON.stringify(state));
 } else if (args[0] === 'containerapp' && args[1] === 'show' && !args.includes('--query')) {
+  let provisioningState = state.provisioning;
+  if (state.provisioning === 'Updating') {
+    state.provisioningChecks += 1;
+    if (state.provisioningChecks >= 2) {
+      state.provisioning = 'Succeeded';
+      provisioningState = 'Succeeded';
+    }
+    fs.writeFileSync(statePath, JSON.stringify(state));
+  }
   process.stdout.write(JSON.stringify({
     id: '/subscriptions/mock/resourceGroups/sociobot/providers/Microsoft.App/containerApps/sf-guest-booking-confirm',
-    properties: { template: {
+    properties: { provisioningState, template: {
       containers: [{ name: 'app', image: 'registry.test/app:sha', resources: { cpu: 0.5, memory: '1Gi', ephemeralStorage: '2Gi' }, env: [{ name: 'PORT', value: '8080' }], volumeMounts: state.persistent ? [{ volumeName: 'gbc-data', mountPath: '/data' }] : null }],
       volumes: state.persistent ? [{ name: 'gbc-data', storageType: 'AzureFile', storageName: 'guest-booking-confirm-data' }] : null,
       scale: { minReplicas: state.min, maxReplicas: state.max, cooldownPeriod: 300, pollingInterval: 30 }
@@ -128,6 +144,8 @@ fs.appendFileSync(process.env.MOCK_AZ_LOG, 'verify-release ' + process.argv.slic
       MOCK_AZ_STATE: statePath,
       MOCK_AZ_LOG: logPath,
       MOCK_AZ_STUCK: stuck ? '1' : '0',
+      STORAGE_WAIT_ATTEMPTS: '3',
+      STORAGE_WAIT_SECONDS: '0',
       REPLICA_WAIT_ATTEMPTS: '1',
       REPLICA_WAIT_SECONDS: '0'
     }
@@ -145,6 +163,7 @@ test('release repairs the factory max=3 default and verifies one serving replica
   assert.deepEqual(state, {
     min: 1, max: 1, mode: 'single', active: 1, running: 1,
     share: true, environmentStorage: true, persistent: true,
+    provisioning: 'Succeeded', provisioningChecks: 2,
   });
 
   const calls = (await readFile(mock.logPath, 'utf8')).trim().split('\n');
@@ -152,6 +171,11 @@ test('release repairs the factory max=3 default and verifies one serving replica
   assert.ok(calls.some(call => /^az storage share-rm create /.test(call)));
   assert.ok(calls.some(call => /^az containerapp env storage set /.test(call)));
   assert.ok(calls.some(call => /^az rest --method patch /.test(call)));
+  assert.equal(
+    calls.filter(call => /^az containerapp show /.test(call) && !call.includes('--query')).length,
+    3,
+    'the mount must be polled until Azure reports provisioning Succeeded'
+  );
   assert.ok(calls.some(call => /^verify-release https:\/\/release\.test [0-9a-f]{40}$/.test(call)));
   assert.equal(calls.filter(call => /^az containerapp update /.test(call)).length, 2);
   assert.equal(calls.filter(call => /^az containerapp revision set-mode /.test(call)).length, 2);

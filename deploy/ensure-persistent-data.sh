@@ -77,33 +77,37 @@ current_paths="$(jq -r \
   --arg volume_name "$volume_name" \
   --arg mount_path "$mount_path" \
   '[.properties.template.containers[0].volumeMounts[]? | select(.volumeName == $volume_name and .mountPath == $mount_path)] | length' <<<"$app_json")"
-if [[ "$current_volumes" == "1" && "$current_paths" == "1" ]]; then
+provisioning_state="$(jq -r '.properties.provisioningState // "Succeeded"' <<<"$app_json")"
+if [[ "$current_volumes" == "1" && "$current_paths" == "1" && "$provisioning_state" == "Succeeded" ]]; then
   printf 'Verified %s mounts persistent Azure Files storage at %s.\n' "$app_name" "$mount_path"
   exit 0
 fi
-template_patch="$(jq -c \
-  --arg storage_name "$storage_name" \
-  --arg volume_name "$volume_name" \
-  --arg mount_path "$mount_path" \
-  '.properties.template.volumes = (((.properties.template.volumes // []) | map(select(.name != $volume_name))) + [{name:$volume_name, storageType:"AzureFile", storageName:$storage_name}])
-  | .properties.template.containers[0].volumeMounts = (((.properties.template.containers[0].volumeMounts // []) | map(select(.volumeName != $volume_name))) + [{volumeName:$volume_name, mountPath:$mount_path}])
-  | .properties.template.scale |= del(.cooldownPeriod, .pollingInterval)
-  | .properties.template.containers |= map(.resources |= del(.ephemeralStorage))
-  | {properties:{template:.properties.template}}' <<<"$app_json")"
+if [[ "$current_volumes" != "1" || "$current_paths" != "1" ]]; then
+  template_patch="$(jq -c \
+    --arg storage_name "$storage_name" \
+    --arg volume_name "$volume_name" \
+    --arg mount_path "$mount_path" \
+    '.properties.template.volumes = (((.properties.template.volumes // []) | map(select(.name != $volume_name))) + [{name:$volume_name, storageType:"AzureFile", storageName:$storage_name}])
+    | .properties.template.containers[0].volumeMounts = (((.properties.template.containers[0].volumeMounts // []) | map(select(.volumeName != $volume_name))) + [{volumeName:$volume_name, mountPath:$mount_path}])
+    | .properties.template.scale |= del(.cooldownPeriod, .pollingInterval)
+    | .properties.template.containers |= map(.resources |= del(.ephemeralStorage))
+    | {properties:{template:.properties.template}}' <<<"$app_json")"
 
-if [[ -z "$resource_id" || "$resource_id" == "null" ]]; then
-  printf 'Could not resolve the container app resource ID.\n' >&2
-  exit 1
+  if [[ -z "$resource_id" || "$resource_id" == "null" ]]; then
+    printf 'Could not resolve the container app resource ID.\n' >&2
+    exit 1
+  fi
+
+  az rest \
+    --method patch \
+    --url "https://management.azure.com${resource_id}?api-version=2024-03-01" \
+    --body "$template_patch" \
+    --output none
 fi
-
-az rest \
-  --method patch \
-  --url "https://management.azure.com${resource_id}?api-version=2024-03-01" \
-  --body "$template_patch" \
-  --output none
 
 mounted_volumes="0"
 mounted_paths="0"
+provisioning_state=""
 for ((attempt = 1; attempt <= wait_attempts; attempt += 1)); do
   deployed_app="$(az containerapp show \
     --resource-group "$resource_group" \
@@ -117,7 +121,8 @@ for ((attempt = 1; attempt <= wait_attempts; attempt += 1)); do
     --arg volume_name "$volume_name" \
     --arg mount_path "$mount_path" \
     '[.properties.template.containers[0].volumeMounts[]? | select(.volumeName == $volume_name and .mountPath == $mount_path)] | length' <<<"$deployed_app")"
-  if [[ "$mounted_volumes" == "1" && "$mounted_paths" == "1" ]]; then
+  provisioning_state="$(jq -r '.properties.provisioningState // "Succeeded"' <<<"$deployed_app")"
+  if [[ "$mounted_volumes" == "1" && "$mounted_paths" == "1" && "$provisioning_state" == "Succeeded" ]]; then
     printf 'Verified %s mounts persistent Azure Files storage at %s.\n' "$app_name" "$mount_path"
     exit 0
   fi
@@ -126,6 +131,6 @@ for ((attempt = 1; attempt <= wait_attempts; attempt += 1)); do
   fi
 done
 
-printf 'Persistent data mount verification failed for %s: volumes=%s mounts=%s.\n' \
-  "$app_name" "$mounted_volumes" "$mounted_paths" >&2
+printf 'Persistent data mount verification failed for %s: volumes=%s mounts=%s provisioning=%s.\n' \
+  "$app_name" "$mounted_volumes" "$mounted_paths" "$provisioning_state" >&2
 exit 1
