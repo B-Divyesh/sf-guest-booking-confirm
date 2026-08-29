@@ -100,12 +100,31 @@ it could scale or restart into split state.
 
 ## Deployment and final live verification
 
-`npm run deploy` is the only release entry point. It builds this committed
-source in ACR, publishes the safe template, checks `/health` against the
-commit SHA, and repeats all three live rate-limit boundaries before returning
-success. It also fails before publication if the existing app cannot converge
-to one running replica. After deployment, re-run the same command to verify
-the current live identity, template, and limiter boundaries.
+`npm run deploy` completed successfully from
+`9bac2f4dd53f17397ecdad967fb28d952c1d897c`.
+
+- ACR run `ch19q` built and pushed
+  `sociobotregistry.azurecr.io/sf-guest-booking-confirm:9bac2f4dd53f`
+  (digest `sha256:8dfde6bdb9a57616b5c826a3572ab83a66905473cb99d2e4b63d9722437d8829`)
+  from an archive that excluded `.git`.
+- Live `/health` returns the exact commit SHA above.
+- Azure reports provisioning `Succeeded`, traffic 100% to revision
+  `sf-guest-booking-confirm--0000038`, one active healthy replica,
+  `minReplicas=maxReplicas=1`, and Azure Files storage
+  `guest-booking-confirm-data` mounted as `gbc-data` at `/data`.
+- The release gate passed three independent live bursts each for 40 reads,
+  12 page views, and 12 malformed license checks, with every overflow a
+  `429 Retry-After: 1`.
+- A final post-deploy safe-template verification passed with the exact ACR
+  image, one-replica scale, mount, and successful provisioning state.
+- Live `verify-url.sh` passed at desktop and 390px on `/` (819 ms) and
+  `/demo` (536 ms), with no console errors. Live Playwright axe found zero
+  serious/critical findings on both routes.
+- Live browser smoke passed: desktop Tab/Enter reaches the skip link and
+  focuses `main`; the 390px demo confirms without cookies or API requests and
+  persists only `demo:guest-booking-confirm:state`; a fresh controlled service
+  worker reload retained the ready demo offline; `/manage` has no password and
+  starts identity at `https://sociobotcustomers.ciamlogin.com`.
 
 ## Known gaps / next steps
 
