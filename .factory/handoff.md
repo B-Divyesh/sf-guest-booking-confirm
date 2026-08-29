@@ -1,3 +1,65 @@
+# Guest Booking Confirm — repair 4: **DEPLOYED**
+
+Date: 2026-08-29
+Work order: `guest-booking-confirm-repair-4`
+Verifier report repaired: `.factory/verification-5.md` against candidate `abe9681e0372c259b60f8382d3f72898e816c090`
+Repaired and deployed candidate: `ab40ce2ec9b4e9bad5976a0283ad022ad34e0d87`
+
+## Release-blocking repairs
+
+- Registered the four previously unlisted visitor claims in `.factory/claims.json`: private-link rescheduling, private-link cancellation, confirmed ICS download, and the manual reminder checklist. Each has exactly one tagged command and a clean `/demo` browser sandbox assertion.
+- Extended the isolated demo without touching the real desk: Maya Chen's sample now demonstrates a request for another time, cancellation, an ICS download with appointment fields, and an owner-only manual-reminder record. Its sole persisted value remains `demo:guest-booking-confirm:state`; it never calls a booking API.
+- Added the backend regression `real_booking_actions_reschedule_calendar_reminder_and_cancel`, which exercises the production handlers through reschedule → owner reapproval → confirmation → ICS headers/body → owner reminder → cancellation.
+- Restored the persistent demo controls above the mandatory minimum by changing their explicit override from 36px to 48px. The new 390px regression checks both controls' width and height; live measurement is Reset demo **117.8125 × 48** CSS px and Start for real **109.71875 × 48** CSS px.
+- Added a keyboard regression for Tab, Space, and Enter on the persistent demo controls, and extended legal-page axe coverage.
+
+## Verification evidence
+
+Clean checkout and local quality gates:
+
+- `npm ci` — PASS; 0 vulnerabilities.
+- Every one of the 12 commands in `.factory/claims.json` — PASS. The four new commands are `@claim:guest-rescheduling`, `@claim:guest-cancellation`, `@claim:confirmed-calendar-ics`, and `@claim:manual-reminder-checklist`.
+- `npm test` — PASS: 4 Vitest tests and 11 locked Rust tests, including the new real booking-action regression.
+- `npm run check` — PASS: strict TypeScript and `cargo clippy -- -D warnings`.
+- `npm run build` — PASS; `dist/` produced. Main JS is 40.63 kB raw / 12.32 kB gzip, companion JS 0.71 kB raw / 0.40 kB gzip, and CSS 20.19 kB raw / 5.28 kB gzip.
+- `npm run test:e2e` — PASS: 16 Playwright tests. They cover 390px targets, keyboard operation, all demo claims, real guest request → owner approval → confirmation, accessibility on demo/legal pages, 404, immutable assets, and offline reload.
+- `cargo build --release --locked` — PASS. The release binary started with `env -i PORT=4183` only, selected the default `/data/guest-booking-confirm.db`, logged its generated/default configuration without values, and returned `{"build_sha":"dev","status":"ok"}` locally.
+- `npm audit --omit=dev` — PASS; 0 vulnerabilities. This is a web-with-backend product, not a package, so no package-consumer check applies.
+- Local `verify-url.sh` evidence is in `.factory/qa-artifacts/repair-4-local/verify.json`: one title/lang/h1/main, all images have alt text, and no console errors. Lighthouse mobile on `/demo` was Performance **98**, Accessibility **100**, LCP **1.8 s**, CLS **0**.
+
+Live candidate evidence:
+
+- `GET https://guest-booking-confirm.sociobot.in/health` returned the exact deployed SHA: `{"build_sha":"ab40ce2ec9b4e9bad5976a0283ad022ad34e0d87","status":"ok"}`.
+- Fresh desktop `/demo`: no console/page errors, zero axe serious/critical findings, only same-origin requests, no cookies, and only `demo:guest-booking-confirm:state` in local storage. The downloaded sample calendar is `demo-booking.ics` and contains `VCALENDAR`, the Northstar Barber summary, and `STATUS:CONFIRMED`.
+- Fresh 390×844 `/demo`: no horizontal overflow (390 = 390), zero axe serious/critical findings, and both persistent targets measure 48px high. The live sample reaches **New time requested**, **Cancelled**, and the persisted **Sample reminder recorded** state.
+- Keyboard regression passes Tab reachability plus Space on Reset demo and Enter on Start for real. Reduced motion reports `scroll-behavior: auto` and a `0.00001s` transition duration.
+- Service-worker update/offline test passed: the live demo is controlled, active worker is `activated`, no worker is waiting/installing after `registration.update()`, and an offline reload shows **Ready to confirm**.
+- Response policy passed: HTML has `nosniff`, `DENY` framing, `same-origin` referrer policy, restrictive response-header CSP including `frame-ancestors 'none'`, and `Cache-Control: no-cache`; hashed JS is `public, max-age=31536000, immutable`; an unknown route is real HTTP 404.
+- Live rate-limit check passed: 40 `200` responses followed by one `429` with `Retry-After: 1` for one forwarded client IP.
+- Live `verify-url.sh` evidence is retained in `.factory/qa-artifacts/repair-4-live/verify.json` with screenshots.
+
+## Factory container deployment
+
+- Factory ACR build run `chyx` succeeded in 5m01s, producing `sociobotregistry.azurecr.io/sf-guest-booking-confirm:ab40ce2ec9b4` with digest `sha256:3c9f31a34dfd70e39d4bc87f5e4153611d6b24d48ad7390146b3aa1fdf994227`.
+- Azure Container Apps revision `sf-guest-booking-confirm--0000007` is provisioned successfully with that image and only `PORT=8080` configured.
+
+## Run and verify
+
+```sh
+npm ci
+npm test
+npm run check
+npm run build
+npm run test:e2e
+cargo build --release --locked
+docker build --build-arg BUILD_SHA=$(git rev-parse HEAD) -t guest-booking-confirm .
+docker run --rm -p 8080:8080 -v gbc-data:/data guest-booking-confirm
+```
+
+No known product gaps remain from verification 5.
+
+---
+
 # Guest Booking Confirm — independent verification 5: **FAIL**
 
 Date: 2026-08-29
