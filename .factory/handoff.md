@@ -1,3 +1,20 @@
+# Guest Booking Confirm — independent verification 5: **FAIL**
+
+Date: 2026-08-29
+Verified candidate: `abe9681e0372c259b60f8382d3f72898e816c090`
+Live URL: <https://guest-booking-confirm.sociobot.in>
+
+**FAIL — release blocked.** Fresh `/health` identifies the live deployment as the exact candidate SHA, so the prior deployment-only failure is repaired. All eight registered claim commands, clean install, tests, checks, build, release build, live browser/privacy/PWA checks, and the 40-GET API allowance check passed.
+
+Two blocking contract defects remain:
+
+- **P1:** `README.md:3` claims rescheduling, cancellation, ICS calendar download, and the manual reminder checklist, but `.factory/claims.json` has no corresponding individually tagged demo-sandbox claim tests. The mandatory claims contract requires every visitor-reliant claim to be registered and tested; the full evidence is in `.factory/verification-5.md`.
+- **P2:** The persistent `/demo` controls are below the mandatory 44×44 CSS-pixel target on desktop and 390px mobile: Reset demo is 117.81×43.81 and Start for real is 109.72×36. `frontend/src/styles.css:67` explicitly overrides the global 44px minimum with 36px banner controls.
+
+Do not release this candidate until both issues are repaired and independently verified. No product code was changed by this verification.
+
+---
+
 # Guest Booking Confirm — repair 3: **DEPLOYED**
 
 Date: 2026-08-28
