@@ -124,11 +124,11 @@ function marketingLanding(): void {
   shell(`<main id="main" class="release-landing">
     <section class="release-hero" aria-labelledby="release-title">
       <div class="release-copy">
-        <p class="eyebrow">Appointment release board</p>
-        <h1 id="release-title">Release dates,<br><em>finalized 8 weeks out.</em></h1>
-        <p class="release-lede">We open the appointment calendar 8 weeks in advance and lock dates two weeks before the event.</p>
-        <div class="release-actions"><a class="button primary" href="#schedule">Review availability</a><a class="text-link" href="/demo" data-nav>Try it with sample data <span aria-hidden="true">↗</span></a></div>
-        <ul class="release-facts" aria-label="Booking facts"><li>Guests need no account</li><li>Owners approve every request</li><li>No tracking cookies</li></ul>
+        <p class="eyebrow">Guest booking for microbusinesses</p>
+        <h1 id="release-title">Request and confirm<br><em>guest appointments.</em></h1>
+        <p class="release-lede">For microbusinesses that approve time requests before each guest gets a clear booking status.</p>
+        <div class="release-actions"><a class="button primary" href="/demo" data-nav>Try it with sample data</a><span class="action-note">Opens Maya’s approved request at the guest confirmation step.</span><a class="text-link" href="#schedule">Review sample availability <span aria-hidden="true">↓</span></a></div>
+        <ul class="release-facts" aria-label="Booking facts"><li>No tracking cookies</li><li>Works offline after the first visit</li><li>Free for 30 active bookings</li></ul>
       </div>
       <figure class="calendar-collage" aria-label="May 2025 release date preview">
         <img src="/assets/editorial-calendar-texture.webp" width="1536" height="1024" alt="" fetchpriority="high" decoding="async">

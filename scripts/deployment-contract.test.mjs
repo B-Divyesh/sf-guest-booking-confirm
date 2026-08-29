@@ -8,6 +8,11 @@ import test from 'node:test';
 
 const repo = fileURLToPath(new URL('../', import.meta.url));
 
+test('the repository deploy command cannot bypass the single-replica release gate', async () => {
+  const packageJson = JSON.parse(await readFile(join(repo, 'package.json'), 'utf8'));
+  assert.equal(packageJson.scripts.deploy, './deploy/release.sh');
+});
+
 async function fixture({ stuck = false } = {}) {
   const directory = await mkdtemp(join(tmpdir(), 'gbc-deploy-contract-'));
   const statePath = join(directory, 'state.json');

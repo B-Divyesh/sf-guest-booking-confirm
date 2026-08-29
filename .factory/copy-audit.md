@@ -4,14 +4,15 @@
 
 | Copy | Words | Result |
 | --- | ---: | --- |
-| Appointment release board | 3 | Pass |
-| Release dates, finalized 8 weeks out. | 6 | Pass |
-| We open the appointment calendar 8 weeks in advance and lock dates two weeks before the event. | 17 | Pass |
-| Review availability | 2 | Pass |
+| Guest booking for microbusinesses | 4 | Pass |
+| Request and confirm guest appointments. | 5 | Pass |
+| For microbusinesses that approve time requests before each guest gets a clear booking status. | 14 | Pass |
 | Try it with sample data | 5 | Pass |
-| Guests need no account | 4 | Pass |
-| Owners approve every request | 4 | Pass |
+| Opens Maya’s approved request at the guest confirmation step. | 9 | Pass |
+| Review sample availability | 3 | Pass |
 | No tracking cookies | 3 | Pass |
+| Works offline after the first visit | 6 | Pass |
+| Free for 30 active bookings | 5 | Pass |
 
 ## Remaining landing page
 
@@ -46,5 +47,6 @@ No sentence exceeds 22 words. No banned plain-words terms appear.
 | A request that needs a decision | time request |
 | A calendar date shown on the landing page | release date |
 | The business operator | owner |
+| A small business using the booking desk | microbusiness |
 | The private status URL | private booking link |
 | The isolated try-out | demo |

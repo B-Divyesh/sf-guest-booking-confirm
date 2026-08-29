@@ -68,8 +68,15 @@ test('@claim:owner-entra-identity owner access uses Sociobot Entra and mobile ho
 test('@claim:eight-week-release-board cold landing schedule works and reflows at 200% text on 390px', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'Release dates, finalized 8 weeks out.' })).toBeVisible();
-  await expect(page.getByText('We open the appointment calendar 8 weeks in advance and lock dates two weeks before the event.')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Request and confirm guest appointments.' })).toBeVisible();
+  await expect(page.getByText('For microbusinesses that approve time requests before each guest gets a clear booking status.')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Try it with sample data' }).first()).toBeVisible();
+  await expect(page.getByText('Opens Maya’s approved request at the guest confirmation step.')).toBeVisible();
+  await expect(page.getByText('No tracking cookies', { exact: true })).toBeVisible();
+  await expect(page.getByText('Works offline after the first visit', { exact: true })).toBeVisible();
+  await expect(page.getByText('Free for 30 active bookings', { exact: true })).toBeVisible();
+  await expect(page.locator('.release-facts-bar')).toContainText('8 weeks');
+  await expect(page.getByText('Dates lock two weeks before each appointment.')).toBeVisible();
   const navTargets = await page.locator('.topbar nav a').evaluateAll(nodes => nodes.map(node => {
     const bounds = node.getBoundingClientRect();
     return { width: bounds.width, height: bounds.height };
@@ -84,7 +91,7 @@ test('@claim:eight-week-release-board cold landing schedule works and reflows at
     return action.top - copy.bottom;
   });
   expect(spacing).toBeGreaterThanOrEqual(20);
-  await page.getByRole('link', { name: 'Review availability' }).click();
+  await page.getByRole('link', { name: 'Review sample availability' }).click();
   await expect(page).toHaveURL(/#schedule$/);
   await expect(page.getByRole('heading', { name: 'Review the date board' })).toBeVisible();
   await page.locator('[data-release-date="Jul 7"]').click();
@@ -432,7 +439,7 @@ test('unknown routes return the designed 404 and hashed assets are immutable', a
   expect(assetResponse.headers()['cache-control']).toContain('immutable');
 });
 
-test('service worker leaves identity callbacks uncached and reloads the demo offline', async ({ page, context }) => {
+test('@claim:offline-reload service worker leaves identity callbacks uncached and reloads the demo offline', async ({ page, context }) => {
   await page.goto('/');
   await page.evaluate(() => navigator.serviceWorker.ready);
   await page.reload();

@@ -79,9 +79,11 @@ footer nav { display: flex; gap: 20px; } footer a { min-width:44px; min-height:4
 .release-copy h1 { margin:0 0 28px; max-width:760px; font-family:"Arial Black","Arial Narrow",Arial,sans-serif; font-size:clamp(4rem,7.2vw,7.4rem); line-height:.84; font-weight:900; letter-spacing:-.075em; text-transform:uppercase; }
 .release-copy h1 em { display:block; margin-top:10px; font-family:Georgia,"Iowan Old Style",serif; font-size:.62em; line-height:.98; font-weight:400; letter-spacing:-.05em; text-transform:none; }
 .release-lede { max-width:570px; margin-bottom:28px; font-size:1.1rem; line-height:1.55; }
-.release-actions { display:flex; flex-wrap:wrap; align-items:center; gap:20px; }
+.release-actions { display:grid; grid-template-columns:auto minmax(180px,1fr); align-items:center; gap:10px 20px; }
 .release-actions .primary { min-height:56px; padding:13px 22px; color:var(--ink); background:var(--signal); border-color:var(--ink); box-shadow:5px 5px 0 var(--ink); text-transform:uppercase; letter-spacing:.035em; }
 .release-actions .primary:hover { background:#ff6942; }
+.release-actions .action-note { max-width:31ch; color:var(--muted); font-size:.82rem; line-height:1.4; }
+.release-actions .text-link { grid-column:1/-1; justify-self:start; }
 .text-link { min-height:44px; display:inline-flex; align-items:center; gap:8px; font-weight:800; }
 .release-facts { padding:24px 0 0; margin:28px 0 0; display:flex; flex-wrap:wrap; gap:8px 22px; list-style:none; border-top:1px solid #9d9789; }
 .release-facts li { font-size:.78rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; }
@@ -326,8 +328,10 @@ body.offline::before { content:"Offline — saved pages remain readable; updates
   .release-copy h1 { font-size:clamp(3.35rem,16vw,4.2rem); }
   .release-copy h1 em { margin-top:8px; font-size:.58em; }
   .release-lede { font-size:1rem; }
-  .release-actions { align-items:stretch; flex-direction:column; gap:10px; }
+  .release-actions { grid-template-columns:1fr; align-items:stretch; gap:10px; }
   .release-actions > * { width:100%; justify-content:center; }
+  .release-actions .action-note { max-width:none; text-align:center; }
+  .release-actions .text-link { grid-column:auto; justify-self:stretch; }
   .release-facts { display:grid; gap:7px; }
   .calendar-collage { min-height:440px; overflow:hidden; }
   .calendar-collage > img { inset:0; width:100%; height:100%; }

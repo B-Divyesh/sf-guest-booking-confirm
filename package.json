@@ -12,7 +12,8 @@
     "test:billing": "node --test scripts/billing-live.test.mjs",
     "test:e2e": "playwright test",
     "check": "tsc --noEmit && cargo clippy -- -D warnings",
-    "preview": "DATABASE_URL=sqlite:./data/preview.db cargo run"
+    "preview": "DATABASE_URL=sqlite:./data/preview.db cargo run",
+    "deploy": "./deploy/release.sh"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.10.2",
