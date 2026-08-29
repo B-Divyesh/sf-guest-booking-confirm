@@ -14,14 +14,19 @@ az containerapp update \
   --max-replicas 1 \
   --output none
 
-actual_scale="$(az containerapp show \
+actual_min="$(az containerapp show \
   --resource-group "$resource_group" \
   --name "$app_name" \
-  --query '[properties.template.scale.minReplicas,properties.template.scale.maxReplicas]' \
+  --query 'properties.template.scale.minReplicas' \
+  --output tsv)"
+actual_max="$(az containerapp show \
+  --resource-group "$resource_group" \
+  --name "$app_name" \
+  --query 'properties.template.scale.maxReplicas' \
   --output tsv)"
 
-if [[ "$actual_scale" != $'1\t1' ]]; then
-  printf 'Expected one replica, got: %s\n' "$actual_scale" >&2
+if [[ "$actual_min" != "1" || "$actual_max" != "1" ]]; then
+  printf 'Expected one replica, got min=%s max=%s.\n' "$actual_min" "$actual_max" >&2
   exit 1
 fi
 
