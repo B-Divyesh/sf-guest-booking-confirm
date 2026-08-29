@@ -13,6 +13,7 @@
   --green: #2c7559;
   --red: #a33b32;
   --focus: #146d87;
+  --focus-dark: #ffd166;
   --line: #c9bba5;
   font-family: Arial, "Helvetica Neue", sans-serif;
   color: var(--ink);
@@ -64,8 +65,10 @@ footer nav { display: flex; gap: 20px; } footer a { min-width:44px; min-height:4
 .mini-rail span { width: 25px; height: 25px; margin-bottom: 8px; display: grid; place-items: center; border: 1px solid #aeb6b1; border-radius: 50%; color: var(--paper-light); font-size: .75rem; }
 .hero-demo { margin-top: 24px; color: var(--paper-light); background: transparent; border-color: #c8c7bb; }
 .hero-demo:hover { color: var(--ink); background: var(--paper-light); }
+.booking-hero :focus-visible { outline-color: var(--focus-dark); }
 .demo-banner { min-height: 52px; padding: 8px clamp(16px, 5vw, 72px); display:flex; flex-wrap:wrap; align-items:center; gap:12px 18px; color:var(--paper-light); background:#31584c; border-bottom:3px solid var(--green); font-size:.88rem; }
 .demo-banner span { flex:1; color:#e0eee5; }.demo-banner .quiet { min-height:48px; color:var(--paper-light); }.demo-banner .secondary { min-height:48px; padding:10px 12px; }
+.demo-banner :focus-visible { outline-color: var(--focus-dark); }
 
 .request-layout { max-width: 1240px; margin: 0 auto; padding: clamp(64px, 9vw, 128px) clamp(20px, 5vw, 72px); display: grid; grid-template-columns: 1fr 1.5fr; gap: clamp(40px, 8vw, 112px); }
 .request-intro { align-self: start; position: sticky; top: 28px; }

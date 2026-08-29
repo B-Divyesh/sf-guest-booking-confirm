@@ -22,8 +22,9 @@ The interface is deliberately single-mode. A warm paper background and dark char
 | green | `#2C7559` | confirmed state, always paired with words/icons |
 | red | `#A33B32` | cancel/error, always paired with words/icons |
 | focus | `#146D87` | 3px keyboard focus ring |
+| focus-dark | `#FFD166` | 3px keyboard focus ring on charcoal and green surfaces |
 
-Contrast targets are at least 4.5:1 for body copy and 3:1 for controls and large display type. Status never depends on hue alone: every lamp has a label and shape/state copy.
+Contrast targets are at least 4.5:1 for body copy and 3:1 for controls and large display type. The focus ring uses teal on paper and warm yellow on dark panels so it remains at least 3:1 against adjacent surfaces. Status never depends on hue alone: every lamp has a label and shape/state copy.
 
 ## Typography
 

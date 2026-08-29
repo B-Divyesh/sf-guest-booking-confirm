@@ -7,10 +7,10 @@ export default defineConfig({
   workers: 1,
   use: { baseURL: 'http://127.0.0.1:4173', trace: 'retain-on-failure' },
   webServer: {
-    command: "npm run build && db_dir=$(mktemp -d /tmp/gbc-playwright-XXXXXX) && TEST_ENTRA_OID=playwright-sociobot-entra-user DATABASE_URL=sqlite:$db_dir/app.db PORT=4173 cargo run",
+    command: "npm run build && cargo build --locked && db_dir=$(mktemp -d /tmp/gbc-playwright-XXXXXX) && TEST_ENTRA_OID=playwright-sociobot-entra-user DATABASE_URL=sqlite:$db_dir/app.db PORT=4173 cargo run --locked",
     url: 'http://127.0.0.1:4173/health',
     reuseExistingServer: false,
-    timeout: 120_000
+    timeout: 600_000
   },
   projects: [
     {

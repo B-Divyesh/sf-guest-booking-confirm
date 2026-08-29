@@ -21,6 +21,13 @@
     "sandbox": "fresh browser context through the demo confirmation flow; assert document.cookie is empty and every request stays same-origin"
   },
   {
+    "id": "anonymous-page-view-count",
+    "claim": "The service stores only a daily page-view count, with no cookie, fingerprint, or IP address attached.",
+    "where": "privacy page",
+    "test": "cargo test --locked claim_anonymous_page_view_count",
+    "sandbox": "temporary SQLite desk; send two page-view requests carrying an IP and user agent, assert no Set-Cookie, one daily count of two, and a page-count schema containing only day and count"
+  },
+  {
     "id": "guest-no-account",
     "claim": "Guests need no account.",
     "where": "landing page, README",
@@ -82,6 +89,27 @@
     "where": "owner panel, terms page, README",
     "test": "npm run test:billing",
     "sandbox": "live Sociobot product catalog; assert the exact USD 29.00 product registration, 303 checkout redirect, Dodo hosted session, product name, and displayed price without completing a purchase"
+  },
+  {
+    "id": "browser-license-storage",
+    "claim": "Sociobot sign-in state stays in session storage; a license and its last result stay in local storage without delaying the free first paint.",
+    "where": "privacy page",
+    "test": "npm run test:e2e -- --grep @claim:browser-license-storage",
+    "sandbox": "fresh owner browser with a checkout-return license; hold verification pending, assert the free panel is usable, identity is session-only, the token is local, the URL is stripped, then assert the verdict cache"
+  },
+  {
+    "id": "revoked-license-fallback",
+    "claim": "A refunded or revoked license returns the calendar to free limits without deleting bookings or blocking calendar export.",
+    "where": "terms page",
+    "test": "cargo test --locked claim_revoked_license_returns_to_free_limits_and_keeps_export",
+    "sandbox": "temporary paid SQLite desk with a confirmed booking; apply a revoked verdict, assert free limits, retained booking data, and a successful ICS export"
+  },
+  {
+    "id": "generated-artwork-provenance",
+    "claim": "The generated artwork has recorded prompt provenance.",
+    "where": "site footer, design record",
+    "test": "cargo test --locked claim_generated_artwork_provenance",
+    "sandbox": "repository source; assert the public disclosure, dated design record, factory-image prompt sidecar, original source asset, and optimized production asset"
   },
   {
     "id": "api-rate-limit",

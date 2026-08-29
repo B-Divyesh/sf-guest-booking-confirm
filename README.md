@@ -37,7 +37,8 @@ Owners sign in at `/manage` through Sociobot Microsoft Entra External ID. The fi
 ```sh
 npm test          # Vitest unit tests + Rust tests
 npm run check     # strict TypeScript + clippy
-npm run test:e2e # 390px Chromium workflow + axe accessibility scan
+npm run test:claims # registry integrity and exact claim-to-test mapping
+npm run test:e2e # desktop and 390px Chromium workflows + axe accessibility scans
 npm run test:billing # live catalog and hosted checkout smoke test; no purchase
 npm run build     # reproducible frontend output in dist/
 docker build --build-arg BUILD_SHA=$(git rev-parse HEAD) -t guest-booking-confirm .

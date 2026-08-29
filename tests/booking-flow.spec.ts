@@ -136,10 +136,12 @@ test('@claim:guest-no-account @claim:owner-approval-before-booking guest request
   expect({ consoleErrors, failedResponses }).toEqual({ consoleErrors: [], failedResponses: [] });
 });
 
-test('checkout return stores, strips, and verifies the Panel Pro license', async ({ page }) => {
+test('@claim:browser-license-storage checkout return stores, strips, and verifies without blocking the free first paint', async ({ page }) => {
   await useTestOwner(page);
   const returnedLicense = 'license_return_regression_token';
   let submittedLicense = '';
+  let releaseVerification!: () => void;
+  const verificationPending = new Promise<void>(resolve => { releaseVerification = resolve; });
   await page.route('**/api/owner/status', route => route.fulfill({
     status: 200,
     contentType: 'application/json',
@@ -165,18 +167,67 @@ test('checkout return stores, strips, and verifies the Panel Pro license', async
   }));
   await page.route('**/api/license/verify', async route => {
     submittedLicense = route.request().postDataJSON().license;
+    await verificationPending;
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ valid: false, reason: 'invalid' }) });
   });
   await page.goto(`/manage?license=${returnedLicense}`);
 
+  await expect(page.getByRole('heading', { name: 'Free desk · 30 active bookings' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Buy Panel Pro · $29' })).toHaveAttribute(
     'href',
     'https://api.sociobot.in/api/v1/products/guest-booking-confirm/checkout',
   );
   await expect(page).toHaveURL(/\/manage$/);
   await expect.poll(() => submittedLicense).toBe(returnedLicense);
-  expect(await page.evaluate(() => localStorage.getItem('sb_license:guest-booking-confirm'))).toBe(returnedLicense);
+  expect(await page.evaluate(() => ({
+    license: localStorage.getItem('sb_license:guest-booking-confirm'),
+    localIdentity: localStorage.getItem('gbc_test_owner_oid'),
+    sessionIdentity: sessionStorage.getItem('gbc_test_owner_oid'),
+  }))).toEqual({ license: returnedLicense, localIdentity: null, sessionIdentity: TEST_OWNER });
+  releaseVerification();
   await expect(page.getByRole('alert')).toHaveText('This license is not active (invalid). Free features remain available.');
+  expect(await page.evaluate(() => ({
+    checked: Number(localStorage.getItem('sb_license:guest-booking-confirm:checked')),
+    valid: localStorage.getItem('sb_license:guest-booking-confirm:valid'),
+  }))).toEqual({ checked: expect.any(Number), valid: 'false' });
+});
+
+test('a revoked cached license refreshes the owner panel to free limits', async ({ page }) => {
+  await useTestOwner(page);
+  await page.addInitScript(() => {
+    localStorage.setItem('sb_license:guest-booking-confirm', 'formerly_valid_license_token');
+    localStorage.setItem('sb_license:guest-booking-confirm:checked', '0');
+    localStorage.setItem('sb_license:guest-booking-confirm:valid', 'true');
+  });
+  let paid = true;
+  let releaseVerification!: () => void;
+  const verificationPending = new Promise<void>(resolve => { releaseVerification = resolve; });
+  await page.route('**/api/owner/status', route => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ configured: true, legacy_owner: false }),
+  }));
+  await page.route('**/api/owner/settings', route => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ business_name: 'Signal Studio', service_name: 'Consultation', timezone: 'UTC', duration_minutes: 30, weekly_hours: {}, welcome_note: '', paid }),
+  }));
+  await page.route('**/api/owner/bookings', route => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ bookings: [] }),
+  }));
+  await page.route('**/api/license/verify', async route => {
+    await verificationPending;
+    paid = false;
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ valid: false, reason: 'revoked' }) });
+  });
+
+  await page.goto('/manage');
+  await expect(page.getByRole('heading', { name: 'Panel Pro is active' })).toBeVisible();
+  releaseVerification();
+  await expect(page.getByRole('heading', { name: 'Free desk · 30 active bookings' })).toBeVisible();
+  await expect(page.getByRole('alert')).toHaveText('This license is not active (revoked). Free features remain available.');
 });
 
 test('legal pages expose one h1 and a main landmark', async ({ page }) => {
@@ -258,6 +309,39 @@ test('persistent demo controls meet the 44px target at a 390px viewport', async 
     expect(target.width, `${target.id} width`).toBeGreaterThanOrEqual(44);
     expect(target.height, `${target.id} height`).toBeGreaterThanOrEqual(44);
   }
+});
+
+test('keyboard focus indicators have at least 3:1 contrast on every dark product surface', async ({ page }) => {
+  const contrast = ([foreground, background]: [string, string]): number => {
+    const luminance = (color: string): number => {
+      const values = color.match(/[\d.]+/g)!.slice(0, 3).map(value => Number(value) / 255)
+        .map(value => value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4);
+      return 0.2126 * values[0] + 0.7152 * values[1] + 0.0722 * values[2];
+    };
+    const [first, second] = [luminance(foreground), luminance(background)];
+    return (Math.max(first, second) + 0.05) / (Math.min(first, second) + 0.05);
+  };
+  const focusedColors = async (target: string, surface: string): Promise<[string, string]> => page.evaluate(([targetSelector, surfaceSelector]) => {
+    const element = document.querySelector<HTMLElement>(targetSelector)!;
+    element.focus();
+    if (!element.matches(':focus-visible')) throw new Error(`${targetSelector} is not focus-visible`);
+    return [getComputedStyle(element).outlineColor, getComputedStyle(document.querySelector(surfaceSelector)!).backgroundColor];
+  }, [target, surface] as const);
+
+  await page.goto('/demo');
+  for (const target of ['#reset-demo', '#start-real']) {
+    expect(contrast(await focusedColors(target, '.demo-banner')), `${target} focus contrast`).toBeGreaterThanOrEqual(3);
+  }
+
+  await page.route('**/api/public/settings', route => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ configured: true, business_name: 'Signal Studio', service_name: 'Consultation', timezone: 'UTC', duration_minutes: 30, welcome_note: '' }),
+  }));
+  await page.route('**/api/public/slots?**', route => route.fulfill({ status: 200, contentType: 'application/json', body: '{"slots":[]}' }));
+  await page.goto('/');
+  await expect(page.locator('.hero-demo')).toBeVisible();
+  expect(contrast(await focusedColors('.hero-demo', '.booking-hero')), 'configured hero focus contrast').toBeGreaterThanOrEqual(3);
 });
 
 test('demo controls are reachable and operable by keyboard', async ({ page }) => {

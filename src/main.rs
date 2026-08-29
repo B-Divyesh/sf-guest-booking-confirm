@@ -897,6 +897,11 @@ async fn verify_license(
                 "License service returned an unreadable response.".into(),
             )
         })?;
+    apply_license_verdict(&state.db, &verdict).await?;
+    Ok(Json(verdict))
+}
+
+async fn apply_license_verdict(db: &SqlitePool, verdict: &Value) -> ApiResult<()> {
     if verdict["valid"].as_bool() == Some(true) {
         let until = verdict["expires_at"]
             .as_str()
@@ -904,16 +909,16 @@ async fn verify_license(
             .unwrap_or_else(|| (Utc::now() + ChronoDuration::days(3650)).to_rfc3339());
         sqlx::query("UPDATE settings SET paid_until=? WHERE id=1")
             .bind(until)
-            .execute(&state.db)
+            .execute(db)
             .await
             .map_err(db_error)?;
     } else {
         sqlx::query("UPDATE settings SET paid_until=NULL WHERE id=1")
-            .execute(&state.db)
+            .execute(db)
             .await
             .map_err(db_error)?;
     }
-    Ok(Json(verdict))
+    Ok(())
 }
 
 fn guest_view(b: &Booking) -> Value {
@@ -1389,6 +1394,60 @@ mod tests {
         assert!(deployment.contains("--min-replicas 1"));
         assert!(deployment.contains("--max-replicas 1"));
         assert!(deployment.contains("properties.template.scale.minReplicas"));
+    }
+
+    #[test]
+    fn claim_generated_artwork_provenance() {
+        let app = include_str!("../frontend/src/app.ts");
+        let design = include_str!("../.factory/design.md");
+        let provenance = include_str!("../assets/src/confirmation-console.png.json");
+        let original = include_bytes!("../assets/src/confirmation-console.png");
+        let production = include_bytes!("../public/assets/confirmation-console.webp");
+        let metadata: Value = serde_json::from_str(provenance).unwrap();
+
+        assert!(app.contains("Generated artwork with recorded prompt provenance."));
+        assert!(
+            design.contains("Generated using the factory Azure image deployment on 2026-08-28.")
+        );
+        assert_eq!(metadata["deployment"], "factory-image");
+        assert!(metadata["prompt"]
+            .as_str()
+            .unwrap()
+            .contains("appointment confirmation instrument"));
+        assert!(original.len() > production.len());
+        assert!(production.len() > 10_000);
+    }
+
+    #[tokio::test]
+    async fn claim_anonymous_page_view_count() {
+        let (state, path) = test_state().await;
+        let app = build_app(state.clone());
+        for _ in 0..2 {
+            let request = Request::builder()
+                .method("POST")
+                .uri("/api/page-view")
+                .header("x-forwarded-for", "203.0.113.42")
+                .header("user-agent", "privacy-claim-fingerprint")
+                .body(Body::empty())
+                .unwrap();
+            let response = app.clone().oneshot(request).await.unwrap();
+            assert_eq!(response.status(), StatusCode::NO_CONTENT);
+            assert!(response.headers().get(header::SET_COOKIE).is_none());
+        }
+        let rows: Vec<(String, i64)> = sqlx::query_as("SELECT day,count FROM page_counts")
+            .fetch_all(&state.db)
+            .await
+            .unwrap();
+        assert_eq!(rows, vec![(Utc::now().date_naive().to_string(), 2)]);
+        let columns: Vec<String> =
+            sqlx::query_scalar("SELECT name FROM pragma_table_info('page_counts') ORDER BY cid")
+                .fetch_all(&state.db)
+                .await
+                .unwrap();
+        assert_eq!(columns, vec!["day", "count"]);
+
+        state.db.close().await;
+        std::fs::remove_file(path).unwrap();
     }
 
     #[tokio::test]
@@ -1881,6 +1940,48 @@ mod tests {
                 .await
                 .unwrap();
         assert_eq!(remaining, vec!["closed-364-days"]);
+        state.db.close().await;
+        std::fs::remove_file(path).unwrap();
+    }
+
+    #[tokio::test]
+    async fn claim_revoked_license_returns_to_free_limits_and_keeps_export() {
+        let (state, path) = test_state().await;
+        seed_test_settings(
+            &state.db,
+            Some((Utc::now() + ChronoDuration::days(30)).to_rfc3339()),
+        )
+        .await;
+        let start = (Utc::now() + ChronoDuration::days(2)).to_rfc3339();
+        let id = "revoked-export";
+        let token = format!("{id}{}", "x".repeat(40));
+        seed_requested_booking(&state.db, id, &start).await;
+        sqlx::query("UPDATE bookings SET status='confirmed' WHERE id=?")
+            .bind(id)
+            .execute(&state.db)
+            .await
+            .unwrap();
+
+        assert!(is_paid(&get_settings(&state.db).await.unwrap().unwrap()));
+        apply_license_verdict(&state.db, &json!({"valid":false,"reason":"revoked"}))
+            .await
+            .unwrap();
+        assert!(!is_paid(&get_settings(&state.db).await.unwrap().unwrap()));
+        let retained: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM bookings WHERE id=?")
+            .bind(id)
+            .fetch_one(&state.db)
+            .await
+            .unwrap();
+        assert_eq!(retained, 1);
+        let calendar = guest_ics(State(state.clone()), AxumPath(token))
+            .await
+            .unwrap();
+        assert_eq!(calendar.status(), StatusCode::OK);
+        assert_eq!(
+            calendar.headers().get(header::CONTENT_TYPE).unwrap(),
+            "text/calendar; charset=utf-8"
+        );
+
         state.db.close().await;
         std::fs::remove_file(path).unwrap();
     }
