@@ -1,0 +1,25 @@
+{
+  "ownerEmptyStart": true,
+  "invalidHoursMessage": "Monday closing time must be later than opening time.",
+  "ownerEmptyQueue": true,
+  "offlineMessage": "Signal interruptedWe couldn’t open the booking deskThe booking desk is offline. Check your connection and try again.Try again",
+  "offlineRecovered": true,
+  "requiredMessage": "Complete the required fields and choose a time.",
+  "invalidEmailMessage": "Complete the required fields and choose a time.",
+  "requestState": "Request received",
+  "approval": 200,
+  "confirmedByKeyboard": true,
+  "calendarDownload": "booking.ics",
+  "rescheduleState": "New time requested",
+  "rescheduleApproval": 200,
+  "reminderRecordedInOwnerUI": true,
+  "cancelPrompt": "Cancel GBC-HQXVT4? This releases the time and cannot be undone from this link.Yes, cancel bookingKeep booking",
+  "cancelledState": "Cancelled",
+  "finalAxeSeriousCritical": [],
+  "invalidLinkRecovery": "Signal interruptedWe couldn’t open the booking deskThis private booking link is invalid or has expired.Return home",
+  "consoleErrors": [
+    "Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ],
+  "pageErrors": []
+}

@@ -1,0 +1,361 @@
+{
+  "health": {
+    "status": 200,
+    "headers": {
+      "content-length": "33",
+      "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-src https://sociobotcustomers.ciamlogin.com; base-uri 'self'; form-action 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-ancestors 'none'",
+      "content-type": "application/json",
+      "date": "Sat, 29 Aug 2026 18:12:31 GMT",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "referrer-policy": "same-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "build_sha": "dev",
+      "status": "ok"
+    }
+  },
+  "unauthenticatedOwner": {
+    "status": 401,
+    "headers": {
+      "content-length": "59",
+      "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-src https://sociobotcustomers.ciamlogin.com; base-uri 'self'; form-action 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-ancestors 'none'",
+      "content-type": "application/json",
+      "date": "Sat, 29 Aug 2026 18:12:31 GMT",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "referrer-policy": "same-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "error": "Sign in with your Sociobot account to continue."
+    }
+  },
+  "setup": {
+    "status": 201,
+    "headers": {
+      "content-length": "14",
+      "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-src https://sociobotcustomers.ciamlogin.com; base-uri 'self'; form-action 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-ancestors 'none'",
+      "content-type": "application/json",
+      "date": "Sat, 29 Aug 2026 18:12:31 GMT",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "referrer-policy": "same-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "saved": true
+    }
+  },
+  "otherOwner": {
+    "status": 401,
+    "headers": {
+      "content-length": "59",
+      "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-src https://sociobotcustomers.ciamlogin.com; base-uri 'self'; form-action 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-ancestors 'none'",
+      "content-type": "application/json",
+      "date": "Sat, 29 Aug 2026 18:12:31 GMT",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "referrer-policy": "same-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "error": "Sign in with your Sociobot account to continue."
+    }
+  },
+  "slotBoundary": {
+    "status": 200,
+    "count": 1419,
+    "first": {
+      "date": "2026-08-29",
+      "local": "2026-08-29T19:00:00+00:00",
+      "start": "2026-08-29T19:00:00Z"
+    },
+    "last": {
+      "date": "2026-09-28",
+      "local": "2026-09-28T23:00:00+00:00",
+      "start": "2026-09-28T23:00:00Z"
+    }
+  },
+  "invalidName": {
+    "status": 422,
+    "headers": {
+      "content-length": "48",
+      "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-src https://sociobotcustomers.ciamlogin.com; base-uri 'self'; form-action 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-ancestors 'none'",
+      "content-type": "application/json",
+      "date": "Sat, 29 Aug 2026 18:12:31 GMT",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "referrer-policy": "same-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "error": "Enter your name (2–80 characters)."
+    }
+  },
+  "invalidEmail": {
+    "status": 422,
+    "headers": {
+      "content-length": "40",
+      "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-src https://sociobotcustomers.ciamlogin.com; base-uri 'self'; form-action 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-ancestors 'none'",
+      "content-type": "application/json",
+      "date": "Sat, 29 Aug 2026 18:12:31 GMT",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "referrer-policy": "same-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "error": "Enter a valid email address."
+    }
+  },
+  "missingConsent": {
+    "status": 422,
+    "headers": {
+      "content-length": "61",
+      "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-src https://sociobotcustomers.ciamlogin.com; base-uri 'self'; form-action 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-ancestors 'none'",
+      "content-type": "application/json",
+      "date": "Sat, 29 Aug 2026 18:12:31 GMT",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "referrer-policy": "same-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "error": "Consent is required to keep your booking details."
+    }
+  },
+  "closedSlot": {
+    "status": 422,
+    "headers": {
+      "content-length": "67",
+      "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-src https://sociobotcustomers.ciamlogin.com; base-uri 'self'; form-action 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-ancestors 'none'",
+      "content-type": "application/json",
+      "date": "Sat, 29 Aug 2026 18:12:31 GMT",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "referrer-policy": "same-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "error": "Choose a time between 20 minutes and one year from now."
+    }
+  },
+  "normalCreate": {
+    "status": 201,
+    "headers": {
+      "content-length": "98",
+      "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-src https://sociobotcustomers.ciamlogin.com; base-uri 'self'; form-action 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-ancestors 'none'",
+      "content-type": "application/json",
+      "date": "Sat, 29 Aug 2026 18:12:31 GMT",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "referrer-policy": "same-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "reference": "GBC-4C5T7V",
+      "status": "requested",
+      "token": "lTFjvxxy3Yi7oX98P6K9TOpk1NVmLrKL96NFqLe4"
+    }
+  },
+  "pendingState": {
+    "status": "requested",
+    "tokenExposedToOwner": true
+  },
+  "normalApproval": {
+    "status": 200,
+    "headers": {
+      "content-length": "14",
+      "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-src https://sociobotcustomers.ciamlogin.com; base-uri 'self'; form-action 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-ancestors 'none'",
+      "content-type": "application/json",
+      "date": "Sat, 29 Aug 2026 18:12:31 GMT",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "referrer-policy": "same-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "saved": true
+    }
+  },
+  "afterApproval": {
+    "status": 200,
+    "headers": {
+      "content-length": "303",
+      "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-src https://sociobotcustomers.ciamlogin.com; base-uri 'self'; form-action 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-ancestors 'none'",
+      "content-type": "application/json",
+      "date": "Sat, 29 Aug 2026 18:12:31 GMT",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "referrer-policy": "same-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "booking": {
+        "duration_minutes": 30,
+        "guest_name": "Normal Guest",
+        "reference": "GBC-4C5T7V",
+        "starts_at": "2026-08-29T19:00:00+00:00",
+        "status": "awaiting_confirmation",
+        "timezone": "UTC",
+        "updated_at": "2026-08-29T18:12:31.486133414+00:00"
+      },
+      "business_name": "Verification Workshop",
+      "service_name": "Instrument check"
+    }
+  },
+  "concurrentConfirm": [
+    {
+      "status": 200,
+      "headers": {
+        "content-length": "22",
+        "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-src https://sociobotcustomers.ciamlogin.com; base-uri 'self'; form-action 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-ancestors 'none'",
+        "content-type": "application/json",
+        "date": "Sat, 29 Aug 2026 18:12:31 GMT",
+        "permissions-policy": "camera=(), microphone=(), geolocation=()",
+        "referrer-policy": "same-origin",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "body": {
+        "status": "confirmed"
+      }
+    },
+    {
+      "status": 409,
+      "headers": {
+        "content-length": "85",
+        "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-src https://sociobotcustomers.ciamlogin.com; base-uri 'self'; form-action 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-ancestors 'none'",
+        "content-type": "application/json",
+        "date": "Sat, 29 Aug 2026 18:12:31 GMT",
+        "permissions-policy": "camera=(), microphone=(), geolocation=()",
+        "referrer-policy": "same-origin",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "body": {
+        "error": "This confirmation link has already been used or the request is not ready."
+      }
+    }
+  ],
+  "calendar": {
+    "status": 200,
+    "headers": {
+      "content-disposition": "attachment; filename=booking.ics",
+      "content-length": "433",
+      "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-src https://sociobotcustomers.ciamlogin.com; base-uri 'self'; form-action 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-ancestors 'none'",
+      "content-type": "text/calendar; charset=utf-8",
+      "date": "Sat, 29 Aug 2026 18:12:31 GMT",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "referrer-policy": "same-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Sociobot//Guest Booking Confirm//EN\r\nCALSCALE:GREGORIAN\r\nBEGIN:VEVENT\r\nUID:a6v8NMgHlVFBq08y53@guest-booking-confirm.sociobot.in\r\nDTSTAMP:20260829T181231Z\r\nDTSTART:20260829T190000Z\r\nDTEND:20260829T193000Z\r\nSUMMARY:Instrument check — Verification Workshop\r\nDESCRIPTION:Booking reference GBC-4C5T7V. Keep your private booking link to make changes.\r\nSTATUS:CONFIRMED\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n"
+  },
+  "reminder": {
+    "status": 200,
+    "headers": {
+      "content-length": "14",
+      "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-src https://sociobotcustomers.ciamlogin.com; base-uri 'self'; form-action 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-ancestors 'none'",
+      "content-type": "application/json",
+      "date": "Sat, 29 Aug 2026 18:12:31 GMT",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "referrer-policy": "same-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "saved": true
+    }
+  },
+  "afterReminder": {
+    "consent_at": "2026-08-29T18:12:31.479439386+00:00",
+    "created_at": "2026-08-29T18:12:31.479439386+00:00",
+    "duration_minutes": 30,
+    "email": "normal.guest@example.test",
+    "guest_name": "Normal Guest",
+    "guest_token": "lTFjvxxy3Yi7oX98P6K9TOpk1NVmLrKL96NFqLe4",
+    "id": "a6v8NMgHlVFBq08y53",
+    "phone": "+1 555 0100",
+    "reference": "GBC-4C5T7V",
+    "reminder_done": 1,
+    "reminder_done_at": "2026-08-29T18:12:31.498860158+00:00",
+    "starts_at": "2026-08-29T19:00:00+00:00",
+    "status": "confirmed",
+    "timezone": "UTC",
+    "updated_at": "2026-08-29T18:12:31.498862158+00:00"
+  },
+  "invalidToken": {
+    "status": 404,
+    "headers": {
+      "content-length": "64",
+      "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-src https://sociobotcustomers.ciamlogin.com; base-uri 'self'; form-action 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-ancestors 'none'",
+      "content-type": "application/json",
+      "date": "Sat, 29 Aug 2026 18:12:31 GMT",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "referrer-policy": "same-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "error": "This private booking link is invalid or has expired."
+    }
+  },
+  "concurrentApproval": [
+    {
+      "status": 200,
+      "headers": {
+        "content-length": "14",
+        "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-src https://sociobotcustomers.ciamlogin.com; base-uri 'self'; form-action 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-ancestors 'none'",
+        "content-type": "application/json",
+        "date": "Sat, 29 Aug 2026 18:12:31 GMT",
+        "permissions-policy": "camera=(), microphone=(), geolocation=()",
+        "referrer-policy": "same-origin",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "body": {
+        "saved": true
+      }
+    },
+    {
+      "status": 409,
+      "headers": {
+        "content-length": "56",
+        "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-src https://sociobotcustomers.ciamlogin.com; base-uri 'self'; form-action 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-ancestors 'none'",
+        "content-type": "application/json",
+        "date": "Sat, 29 Aug 2026 18:12:31 GMT",
+        "permissions-policy": "camera=(), microphone=(), geolocation=()",
+        "referrer-policy": "same-origin",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "body": {
+        "error": "Another accepted booking now uses this slot."
+      }
+    }
+  ],
+  "readRateLimit": {
+    "200:null": 40,
+    "429:1": 1
+  },
+  "writeRateLimit": {
+    "204:null": 12,
+    "429:1": 1
+  },
+  "licenseRateLimit": {
+    "422:null": 12,
+    "429:1": 1
+  },
+  "load100": {
+    "counts": {
+      "200": 100
+    },
+    "totalMs": 170,
+    "p95Ms": 109
+  },
+  "persistenceToken": "lTFjvxxy3Yi7oX98P6K9TOpk1NVmLrKL96NFqLe4"
+}

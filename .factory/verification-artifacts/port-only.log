@@ -1,0 +1,2 @@
+{"timestamp":"2026-08-29T18:13:01.080886Z","level":"INFO","fields":{"message":"service starting","port":4188,"database":"sqlite:/data/guest-booking-confirm.db","build_sha":"dev","identity_authority":"https://sociobotcustomers.ciamlogin.com/35c6fe40-0ec0-46b6-98c6-213ad4de6650/","config":"database and Sociobot Entra defaults used when overrides are absent"},"target":"guest_booking_confirm"}
+{"timestamp":"2026-08-29T18:13:01.158465Z","level":"INFO","fields":{"message":"shutdown signal received"},"target":"guest_booking_confirm"}

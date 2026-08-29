@@ -1,0 +1,8 @@
+   Compiling guest-booking-confirm v0.1.0 (/work/repo)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 10.05s
+     Running unittests src/main.rs (target/debug/deps/guest_booking_confirm-baa3ea70b4d41a91)
+
+running 1 test
+test tests::claim_anonymous_page_view_count ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 19 filtered out; finished in 0.08s

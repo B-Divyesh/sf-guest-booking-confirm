@@ -1,0 +1,61 @@
+
+> guest-booking-confirm@1.0.0 test
+> vitest run && cargo test && npm run test:claims
+
+
+ RUN  v3.2.7 /work/repo/frontend
+
+ ✓ src/utils.test.ts (4 tests) 24ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  18:03:51
+   Duration  1.05s (transform 94ms, setup 0ms, collect 35ms, tests 24ms, environment 0ms, prepare 194ms)
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s
+     Running unittests src/main.rs (target/debug/deps/guest_booking_confirm-baa3ea70b4d41a91)
+
+running 20 tests
+test auth::tests::sociobot_entra_defaults_are_the_required_external_identity_tenant ... ok
+test tests::api_rate_limit_counter_is_atomic_across_app_states ... ok
+test tests::api_rate_limit_does_not_reset_at_a_wall_clock_second_boundary ... ok
+test tests::api_rejects_inverted_weekly_hours_with_a_recovery_message ... ok
+test tests::calendar_date_is_utc ... ok
+test tests::claim_anonymous_page_view_count ... ok
+test tests::claim_container_runtime_contract ... ok
+test tests::claim_free_desk_capacity_and_retention ... ok
+test tests::claim_generated_artwork_provenance ... ok
+test tests::claim_panel_pro_capacity_and_retention ... ok
+test tests::claim_revoked_license_returns_to_free_limits_and_keeps_export ... ok
+test tests::concurrent_guest_confirmation_allows_exactly_one_success ... ok
+test tests::concurrent_owner_approval_allows_one_slot_holder ... ok
+test tests::dockerfile_uses_the_unpinned_current_stable_rust_builder ... ok
+test tests::hashes_tokens_without_echoing ... ok
+test tests::legacy_database_migrates_to_sociobot_owner_identity ... ok
+test tests::owner_routes_require_and_isolate_sociobot_entra_identity ... ok
+test tests::real_booking_actions_reschedule_calendar_reminder_and_cancel ... ok
+test tests::rejects_inverted_or_malformed_weekly_hours ... ok
+test tests::validates_email_and_name ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.77s
+
+
+> guest-booking-confirm@1.0.0 test:claims
+> node --test scripts/claims-contract.test.mjs
+
+TAP version 13
+# Subtest: the claims registry has one executable regression for every public promise
+ok 1 - the claims registry has one executable regression for every public promise
+  ---
+  duration_ms: 1.048319
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 87.167094

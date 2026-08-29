@@ -1,0 +1,19 @@
+demo-confirmation-trail	0	npm run test:e2e -- --grep @claim:demo-confirmation-trail
+demo-local-only	0	npm run test:e2e -- --grep @claim:demo-local-only
+no-tracking-cookies	0	npm run test:e2e -- --grep @claim:no-tracking-cookies
+anonymous-page-view-count	0	cargo test --locked claim_anonymous_page_view_count
+guest-no-account	0	npm run test:e2e -- --grep @claim:guest-no-account
+owner-approval-before-booking	0	npm run test:e2e -- --grep @claim:owner-approval-before-booking
+guest-rescheduling	0	npm run test:e2e -- --grep @claim:guest-rescheduling
+guest-cancellation	0	npm run test:e2e -- --grep @claim:guest-cancellation
+confirmed-calendar-ics	0	npm run test:e2e -- --grep @claim:confirmed-calendar-ics
+manual-reminder-checklist	0	npm run test:e2e -- --grep @claim:manual-reminder-checklist
+free-desk-capacity-and-retention	0	cargo test --locked claim_free_desk_capacity_and_retention
+panel-pro-capacity-and-retention	0	cargo test --locked claim_panel_pro_capacity_and_retention
+panel-pro-checkout	0	npm run test:billing
+browser-license-storage	0	npm run test:e2e -- --grep @claim:browser-license-storage
+revoked-license-fallback	0	cargo test --locked claim_revoked_license_returns_to_free_limits_and_keeps_export
+generated-artwork-provenance	0	cargo test --locked claim_generated_artwork_provenance
+api-rate-limit	0	npm run test:e2e -- --grep @claim:api-rate-limit
+owner-entra-identity	0	npm run test:e2e -- --grep @claim:owner-entra-identity
+container-runtime-contract	0	cargo test --locked claim_container_runtime_contract

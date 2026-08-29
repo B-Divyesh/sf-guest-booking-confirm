@@ -1,0 +1,14 @@
+{
+  "url": "https://guest-booking-confirm.sociobot.in",
+  "loadMs": 596,
+  "errors": [],
+  "a11y": {
+    "title": "Guest Booking Confirm — clear appointment status",
+    "lang": "en",
+    "h1": 1,
+    "main": true,
+    "imgsMissingAlt": 0,
+    "buttonsUnlabeled": 0,
+    "textLength": 653
+  }
+}

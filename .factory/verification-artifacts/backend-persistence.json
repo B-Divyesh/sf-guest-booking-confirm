@@ -1,0 +1,16 @@
+{
+  "status": 200,
+  "body": {
+    "booking": {
+      "duration_minutes": 30,
+      "guest_name": "Normal Guest",
+      "reference": "GBC-4C5T7V",
+      "starts_at": "2026-08-29T19:00:00+00:00",
+      "status": "confirmed",
+      "timezone": "UTC",
+      "updated_at": "2026-08-29T18:12:31.498862158+00:00"
+    },
+    "business_name": "Verification Workshop",
+    "service_name": "Instrument check"
+  }
+}

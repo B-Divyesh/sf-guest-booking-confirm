@@ -1,0 +1,406 @@
+{
+  "routes": [
+    {
+      "viewport": "desktop",
+      "path": "/",
+      "status": 200,
+      "title": "Guest Booking Confirm — clear appointment status",
+      "lang": "en",
+      "h1Count": 1,
+      "h1": "Request and confirm guest appointments",
+      "mainCount": 1,
+      "overflow": 0,
+      "undersized": [],
+      "imagesMissingAlt": 0,
+      "seriousCriticalAxe": []
+    },
+    {
+      "viewport": "desktop",
+      "path": "/demo",
+      "status": 200,
+      "title": "Demo — Guest Booking Confirm",
+      "lang": "en",
+      "h1Count": 1,
+      "h1": "Ready to confirm",
+      "mainCount": 1,
+      "overflow": 0,
+      "undersized": [],
+      "imagesMissingAlt": 0,
+      "seriousCriticalAxe": []
+    },
+    {
+      "viewport": "desktop",
+      "path": "/privacy",
+      "status": 200,
+      "title": "Privacy — Guest Booking Confirm",
+      "lang": "en",
+      "h1Count": 1,
+      "h1": "Privacy",
+      "mainCount": 1,
+      "overflow": 0,
+      "undersized": [],
+      "imagesMissingAlt": 0,
+      "seriousCriticalAxe": []
+    },
+    {
+      "viewport": "desktop",
+      "path": "/terms",
+      "status": 200,
+      "title": "Terms — Guest Booking Confirm",
+      "lang": "en",
+      "h1Count": 1,
+      "h1": "Terms",
+      "mainCount": 1,
+      "overflow": 0,
+      "undersized": [],
+      "imagesMissingAlt": 0,
+      "seriousCriticalAxe": []
+    },
+    {
+      "viewport": "desktop",
+      "path": "/manage",
+      "status": 200,
+      "title": "Owner panel — Guest Booking Confirm",
+      "lang": "en",
+      "h1Count": 1,
+      "h1": "Sign in to manage appointments",
+      "mainCount": 1,
+      "overflow": 0,
+      "undersized": [],
+      "imagesMissingAlt": 0,
+      "seriousCriticalAxe": []
+    },
+    {
+      "viewport": "desktop",
+      "consoleErrors": [],
+      "pageErrors": []
+    },
+    {
+      "viewport": "mobile390",
+      "path": "/",
+      "status": 200,
+      "title": "Guest Booking Confirm — clear appointment status",
+      "lang": "en",
+      "h1Count": 1,
+      "h1": "Request and confirm guest appointments",
+      "mainCount": 1,
+      "overflow": 0,
+      "undersized": [],
+      "imagesMissingAlt": 0,
+      "overflowAt200PercentText": 0,
+      "seriousCriticalAxe": []
+    },
+    {
+      "viewport": "mobile390",
+      "path": "/demo",
+      "status": 200,
+      "title": "Demo — Guest Booking Confirm",
+      "lang": "en",
+      "h1Count": 1,
+      "h1": "Ready to confirm",
+      "mainCount": 1,
+      "overflow": 0,
+      "undersized": [],
+      "imagesMissingAlt": 0,
+      "overflowAt200PercentText": 0,
+      "seriousCriticalAxe": []
+    },
+    {
+      "viewport": "mobile390",
+      "path": "/privacy",
+      "status": 200,
+      "title": "Privacy — Guest Booking Confirm",
+      "lang": "en",
+      "h1Count": 1,
+      "h1": "Privacy",
+      "mainCount": 1,
+      "overflow": 0,
+      "undersized": [],
+      "imagesMissingAlt": 0,
+      "overflowAt200PercentText": 0,
+      "seriousCriticalAxe": []
+    },
+    {
+      "viewport": "mobile390",
+      "path": "/terms",
+      "status": 200,
+      "title": "Terms — Guest Booking Confirm",
+      "lang": "en",
+      "h1Count": 1,
+      "h1": "Terms",
+      "mainCount": 1,
+      "overflow": 0,
+      "undersized": [],
+      "imagesMissingAlt": 0,
+      "overflowAt200PercentText": 0,
+      "seriousCriticalAxe": []
+    },
+    {
+      "viewport": "mobile390",
+      "path": "/manage",
+      "status": 200,
+      "title": "Owner panel — Guest Booking Confirm",
+      "lang": "en",
+      "h1Count": 1,
+      "h1": "Sign in to manage appointments",
+      "mainCount": 1,
+      "overflow": 0,
+      "undersized": [],
+      "imagesMissingAlt": 0,
+      "overflowAt200PercentText": 0,
+      "seriousCriticalAxe": []
+    },
+    {
+      "viewport": "mobile390",
+      "consoleErrors": [],
+      "pageErrors": []
+    }
+  ],
+  "demo": {
+    "status": 200,
+    "firstState": "Ready to confirm",
+    "persistedState": "Confirmed",
+    "rescheduledState": "New time requested",
+    "cancelledState": "Cancelled",
+    "downloadName": "demo-booking.ics",
+    "calendarChecks": [
+      {
+        "value": "BEGIN:VCALENDAR",
+        "present": true
+      },
+      {
+        "value": "SUMMARY:Precision cut — Northstar Barber",
+        "present": true
+      },
+      {
+        "value": "STATUS:CONFIRMED",
+        "present": true
+      },
+      {
+        "value": "DTSTART:",
+        "present": true
+      },
+      {
+        "value": "DTEND:",
+        "present": true
+      }
+    ],
+    "requests": [
+      {
+        "method": "GET",
+        "url": "https://guest-booking-confirm.sociobot.in/demo",
+        "type": "document"
+      },
+      {
+        "method": "GET",
+        "url": "https://guest-booking-confirm.sociobot.in/assets/main-BELu721o.js",
+        "type": "script"
+      },
+      {
+        "method": "GET",
+        "url": "https://guest-booking-confirm.sociobot.in/assets/styles-D9vuBSo5.js",
+        "type": "script"
+      },
+      {
+        "method": "GET",
+        "url": "https://guest-booking-confirm.sociobot.in/assets/styles-BRgow0Hu.css",
+        "type": "stylesheet"
+      },
+      {
+        "method": "GET",
+        "url": "https://guest-booking-confirm.sociobot.in/demo",
+        "type": "document"
+      },
+      {
+        "method": "GET",
+        "url": "https://guest-booking-confirm.sociobot.in/assets/main-BELu721o.js",
+        "type": "script"
+      },
+      {
+        "method": "GET",
+        "url": "https://guest-booking-confirm.sociobot.in/assets/styles-D9vuBSo5.js",
+        "type": "script"
+      },
+      {
+        "method": "GET",
+        "url": "https://guest-booking-confirm.sociobot.in/assets/styles-BRgow0Hu.css",
+        "type": "stylesheet"
+      }
+    ],
+    "crossOrigin": [],
+    "apiRequests": [],
+    "cookies": "",
+    "localStorage": {
+      "demo:guest-booking-confirm:state": "{\"status\":\"cancelled\",\"startsAt\":\"2026-09-06T19:00:00.000Z\",\"reminderDone\":false}"
+    },
+    "sessionStorage": {},
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  "keyboard": {
+    "firstFocus": {
+      "text": "Skip to main content",
+      "className": "skip-link"
+    },
+    "afterSkip": {
+      "tag": "MAIN",
+      "id": "main"
+    },
+    "reducedMotion": {
+      "matches": true,
+      "scrollBehavior": "auto",
+      "animated": []
+    },
+    "focusSamples": [
+      {
+        "selector": "#reset-demo",
+        "focusVisible": true,
+        "outline": "rgb(255, 209, 102) solid 3px",
+        "outlineColor": "rgb(255, 209, 102)",
+        "background": "rgb(49, 88, 76)",
+        "contrast": 5.535885119469367
+      },
+      {
+        "selector": "#start-real",
+        "focusVisible": true,
+        "outline": "rgb(255, 209, 102) solid 3px",
+        "outlineColor": "rgb(255, 209, 102)",
+        "background": "rgb(49, 88, 76)",
+        "contrast": 5.535885119469367
+      }
+    ],
+    "tabOrder": [
+      {
+        "id": "",
+        "text": "Guest Booking Confirm"
+      },
+      {
+        "id": "",
+        "text": "Try sample"
+      },
+      {
+        "id": "",
+        "text": "Owner panel"
+      },
+      {
+        "id": "reset-demo",
+        "text": "Reset demo"
+      }
+    ],
+    "resetByKeyboard": "Ready to confirm"
+  },
+  "pwa": {
+    "controlled": true,
+    "update": {
+      "waiting": false,
+      "active": true
+    },
+    "offlineState": "Confirmed",
+    "cachedIdentityCallback": false,
+    "cachedUrls": [
+      "https://guest-booking-confirm.sociobot.in/assets/favicon.svg",
+      "https://guest-booking-confirm.sociobot.in/assets/confirmation-console-fallback.svg",
+      "https://guest-booking-confirm.sociobot.in/",
+      "https://guest-booking-confirm.sociobot.in/assets/main-BELu721o.js",
+      "https://guest-booking-confirm.sociobot.in/assets/styles-D9vuBSo5.js",
+      "https://guest-booking-confirm.sociobot.in/assets/styles-BRgow0Hu.css",
+      "https://guest-booking-confirm.sociobot.in/demo"
+    ]
+  },
+  "identity": {
+    "noPassword": true,
+    "identityRequest": "https://sociobotcustomers.ciamlogin.com/35c6fe40-0ec0-46b6-98c6-213ad4de6650/v2.0/.well-known/openid-configuration",
+    "sessionStorageKeys": [
+      "msal.version",
+      "server-telemetry-25c704f4-465a-47af-80ab-2c489466b697"
+    ],
+    "localStorageKeys": []
+  },
+  "navigation": {
+    "pathAfterBack": "/",
+    "focusAfterBack": {
+      "tag": "BODY",
+      "text": "Skip to main content\n    \n    Guest Booking Confirm\n    Try sampleOwner panel\n  Opening the appointment desk…Clear appointment state, no guest account. Generated artwork with recorded prompt provenance. No tracking cookies. Built by Param Factory · build IDPrivacyTerms"
+    }
+  },
+  "links": {
+    "statuses": [
+      {
+        "href": "https://guest-booking-confirm.sociobot.in/#main",
+        "status": 200
+      },
+      {
+        "href": "https://guest-booking-confirm.sociobot.in/",
+        "status": 200
+      },
+      {
+        "href": "https://guest-booking-confirm.sociobot.in/demo",
+        "status": 200
+      },
+      {
+        "href": "https://guest-booking-confirm.sociobot.in/manage",
+        "status": 200
+      },
+      {
+        "href": "https://guest-booking-confirm.sociobot.in/health",
+        "status": 200
+      },
+      {
+        "href": "https://guest-booking-confirm.sociobot.in/privacy",
+        "status": 200
+      },
+      {
+        "href": "https://guest-booking-confirm.sociobot.in/terms",
+        "status": 200
+      },
+      {
+        "href": "https://guest-booking-confirm.sociobot.in/demo#main",
+        "status": 200
+      },
+      {
+        "href": "https://guest-booking-confirm.sociobot.in/privacy#main",
+        "status": 200
+      },
+      {
+        "href": "https://guest-booking-confirm.sociobot.in/terms#main",
+        "status": 200
+      },
+      {
+        "href": "https://guest-booking-confirm.sociobot.in/manage#main",
+        "status": 200
+      }
+    ],
+    "missing": {
+      "status": 404,
+      "type": "text/html; charset=utf-8"
+    },
+    "robots": 200,
+    "sitemap": {
+      "status": 200,
+      "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n  <url><loc>https://guest-booking-confirm.sociobot.in/</loc></url>\n  <url><loc>https://guest-booking-confirm.sociobot.in/demo</loc></url>\n  <url><loc>https://guest-booking-confirm.sociobot.in/privacy</loc></url>\n  <url><loc>https://guest-booking-confirm.sociobot.in/terms</loc></url>\n</urlset>\n"
+    },
+    "cache": {
+      "document": "no-cache",
+      "mainAsset": "public, max-age=31536000, immutable",
+      "serviceWorker": "no-cache"
+    }
+  },
+  "metadata": {
+    "title": "Guest Booking Confirm — clear appointment status",
+    "description": "Request, confirm, reschedule, and remember guest appointments without creating an account.",
+    "canonical": "https://guest-booking-confirm.sociobot.in/",
+    "ogImage": "https://guest-booking-confirm.sociobot.in/assets/social-card.jpg",
+    "twitterCard": "summary_large_image",
+    "headers": {
+      "cache-control": "no-cache",
+      "content-length": "1882",
+      "content-security-policy": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-src https://sociobotcustomers.ciamlogin.com; base-uri 'self'; form-action 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-ancestors 'none'",
+      "content-type": "text/html; charset=utf-8",
+      "date": "Sat, 29 Aug 2026 18:14:18 GMT",
+      "permissions-policy": "camera=(), microphone=(), geolocation=()",
+      "referrer-policy": "same-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    }
+  }
+}
