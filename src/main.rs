@@ -20,7 +20,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use sqlx::{
-    sqlite::{SqliteConnectOptions, SqlitePoolOptions},
+    sqlite::{SqliteConnectOptions, SqliteJournalMode, SqlitePoolOptions, SqliteSynchronous},
     FromRow, SqlitePool,
 };
 use tokio::{net::TcpListener, signal};
@@ -138,6 +138,8 @@ async fn main() -> anyhow::Result<()> {
     let opts = SqliteConnectOptions::from_str(&database_url)?
         .create_if_missing(true)
         .foreign_keys(true)
+        .journal_mode(SqliteJournalMode::Wal)
+        .synchronous(SqliteSynchronous::Normal)
         .busy_timeout(Duration::from_secs(5));
     let db = SqlitePoolOptions::new()
         .max_connections(8)
@@ -1220,7 +1222,10 @@ mod tests {
         let options = SqliteConnectOptions::from_str(&format!("sqlite:{}", path.display()))
             .unwrap()
             .create_if_missing(true)
-            .foreign_keys(true);
+            .foreign_keys(true)
+            .journal_mode(SqliteJournalMode::Wal)
+            .synchronous(SqliteSynchronous::Normal)
+            .busy_timeout(Duration::from_secs(5));
         let db = SqlitePoolOptions::new()
             .max_connections(4)
             .connect_with(options)
@@ -1396,7 +1401,10 @@ mod tests {
         let options = SqliteConnectOptions::from_str(&format!("sqlite:{}", path.display()))
             .unwrap()
             .create_if_missing(true)
-            .foreign_keys(true);
+            .foreign_keys(true)
+            .journal_mode(SqliteJournalMode::Wal)
+            .synchronous(SqliteSynchronous::Normal)
+            .busy_timeout(Duration::from_secs(5));
         let db = SqlitePoolOptions::new()
             .max_connections(1)
             .connect_with(options)
