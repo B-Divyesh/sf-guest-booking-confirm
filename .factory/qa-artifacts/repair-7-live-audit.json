@@ -1,0 +1,83 @@
+{
+  "desktop": {
+    "status": 200,
+    "initial": {
+      "title": "Demo — Guest Booking Confirm",
+      "lang": "en",
+      "h1": 1,
+      "main": 1,
+      "overflow": 0,
+      "cookies": "",
+      "storage": [
+        "demo:guest-booking-confirm:state"
+      ]
+    },
+    "confirmed": {
+      "heading": "Confirmed",
+      "cookies": "",
+      "storage": [
+        [
+          "demo:guest-booking-confirm:state",
+          "{\"status\":\"confirmed\"}"
+        ]
+      ]
+    },
+    "seriousCritical": [],
+    "consoleErrors": [],
+    "pageErrors": [],
+    "requestOrigins": [
+      "https://guest-booking-confirm.sociobot.in"
+    ],
+    "apiActions": []
+  },
+  "mobile390": {
+    "status": 200,
+    "initial": {
+      "title": "Demo — Guest Booking Confirm",
+      "lang": "en",
+      "h1": 1,
+      "main": 1,
+      "overflow": 0,
+      "cookies": "",
+      "storage": [
+        "demo:guest-booking-confirm:state"
+      ]
+    },
+    "confirmed": {
+      "heading": "Confirmed",
+      "cookies": "",
+      "storage": [
+        [
+          "demo:guest-booking-confirm:state",
+          "{\"status\":\"confirmed\"}"
+        ]
+      ]
+    },
+    "seriousCritical": [],
+    "consoleErrors": [],
+    "pageErrors": [],
+    "requestOrigins": [
+      "https://guest-booking-confirm.sociobot.in"
+    ],
+    "apiActions": []
+  },
+  "keyboardResizeMotion": {
+    "skipFocused": true,
+    "mainFocused": true,
+    "viewport": 390,
+    "scrollWidth": 390,
+    "reducedMotion": true,
+    "scrollBehavior": "auto"
+  },
+  "offline": {
+    "controlled": true,
+    "active": "activated",
+    "waiting": null,
+    "heading": "Confirmed"
+  },
+  "identity": {
+    "passwordFields": 0,
+    "provider": "https://sociobotcustomers.ciamlogin.com/35c6fe40-0ec0-46b6-98c6-213ad4de6650/v2.0/.well-known/openid-configuration",
+    "namesExternalId": true
+  }
+}
