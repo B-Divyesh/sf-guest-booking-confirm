@@ -8,7 +8,7 @@
     "build": "vite build",
     "test": "vitest run && cargo test && npm run test:claims && npm run test:deploy",
     "test:claims": "node --test scripts/claims-contract.test.mjs",
-    "test:deploy": "node --test scripts/deployment-contract.test.mjs",
+    "test:deploy": "node --test scripts/deployment-contract.test.mjs scripts/release-verification.test.mjs",
     "test:billing": "node --test scripts/billing-live.test.mjs",
     "test:e2e": "playwright test",
     "check": "tsc --noEmit && cargo clippy -- -D warnings",

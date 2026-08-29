@@ -14,6 +14,7 @@ async function fixture({ stuck = false } = {}) {
   const logPath = join(directory, 'calls.log');
   const azPath = join(directory, 'az');
   const deployPath = join(directory, 'factory-deploy');
+  const verifyPath = join(directory, 'verify-release');
 
   await writeFile(statePath, JSON.stringify({ min: 1, max: 1, mode: 'single', active: 1, running: 1 }));
   await writeFile(azPath, `#!/usr/bin/env node
@@ -60,7 +61,16 @@ state.running = 2;
 fs.writeFileSync(statePath, JSON.stringify(state));
 fs.appendFileSync(logPath, 'factory-deploy ' + process.argv.slice(2).join(' ') + '\\n');
 `);
-  await Promise.all([chmod(azPath, 0o755), chmod(deployPath, 0o755)]);
+  await writeFile(verifyPath, `#!/usr/bin/env node
+const fs = require('node:fs');
+const state = JSON.parse(fs.readFileSync(process.env.MOCK_AZ_STATE, 'utf8'));
+if (state.min !== 1 || state.max !== 1 || state.mode !== 'single' || state.active !== 1 || state.running !== 1) {
+  process.stderr.write('live verification started before safe topology: ' + JSON.stringify(state) + '\\n');
+  process.exit(4);
+}
+fs.appendFileSync(process.env.MOCK_AZ_LOG, 'verify-release ' + process.argv.slice(2).join(' ') + '\\n');
+`);
+  await Promise.all([chmod(azPath, 0o755), chmod(deployPath, 0o755), chmod(verifyPath, 0o755)]);
 
   return {
     directory,
@@ -71,6 +81,8 @@ fs.appendFileSync(logPath, 'factory-deploy ' + process.argv.slice(2).join(' ') +
       ...process.env,
       PATH: `${directory}:${process.env.PATH}`,
       FACTORY_DEPLOY_SCRIPT: deployPath,
+      RELEASE_VERIFY_SCRIPT: verifyPath,
+      PUBLIC_URL: 'https://release.test',
       MOCK_AZ_STATE: statePath,
       MOCK_AZ_LOG: logPath,
       MOCK_AZ_STUCK: stuck ? '1' : '0',
@@ -94,6 +106,9 @@ test('release repairs the factory max=3 default and verifies one serving replica
   assert.match(calls[0], /^factory-deploy guest-booking-confirm .* Dockerfile 8080$/);
   assert.match(calls[1], /^az containerapp update /);
   assert.match(calls[2], /^az containerapp revision set-mode /);
+  assert.ok(calls.some(call => /^verify-release https:\/\/release\.test [0-9a-f]{40}$/.test(call)));
+  assert.equal(calls.filter(call => /^az containerapp update /.test(call)).length, 2);
+  assert.equal(calls.filter(call => /^az containerapp revision set-mode /.test(call)).length, 2);
   assert.match(result.stdout, /one active revision and one running replica/);
 });
 
