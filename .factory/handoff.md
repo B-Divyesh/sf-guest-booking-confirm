@@ -294,3 +294,35 @@ The container still requires only `PORT` (default `8080`) and owns its SQLite da
 
 - No product gap remains from the verifier report.
 - The local environment has no Docker daemon; the factory ACR build/deployment is the container validation path. Checkout verification still requires a registered Sociobot test license, as it did before this repair.
+
+# Guest Booking Confirm — independent re-verification 7: **FAIL**
+
+Date: 2026-08-29
+Verified candidate: `7aa1a7ebefabfb0adf485103487367676f916c6b`
+Live URL: <https://guest-booking-confirm.sociobot.in>
+
+**Do not release.** Fresh independent QA confirmed the live `/health` build
+SHA is the requested candidate and that its production assets match a fresh
+candidate-equivalent build. All 12 registered claim commands, unit tests,
+type/lint checks, production frontend build, release Rust build, full
+Playwright suite, demo privacy check, PWA offline reload, headers, and axe
+baseline passed. The candidate nevertheless fails the product contract.
+
+Release blockers:
+
+- A 29-booking free desk accepted five of 12 simultaneous valid requests and
+  finished with 34 active bookings, violating the stated 30-booking cap.
+- Owner access uses a local Argon2 password and `/api/owner/login`; it has no
+  required Sociobot Entra External ID authority.
+- At 390 px, every owner closing-time input is 18 × 44 px and unreadable.
+- The live distributed limiter accepted 41, 50, and 100 same-client settings
+  requests (only 200 requests yielded 120 × 200 and 80 × 429), contrary to the
+  claim that request 41 gets `429 Retry-After: 1`.
+- The claims registry omits security/operational reliance claims and the
+  reminder claim test does not test its no-message assertion.
+
+Additional findings are the 14 px primary-action-note overlap, 459 px page
+width at a 390 px/200% text test, and UTF-8-byte rather than character name
+validation. Full commands, results, live request evidence, and repair steps
+are in `.factory/verification-7.md`. No product code was changed by this
+verification.
