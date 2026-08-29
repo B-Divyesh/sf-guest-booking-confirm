@@ -1384,6 +1384,7 @@ mod tests {
         let server = include_str!("main.rs");
         let service_worker = include_str!("../public/sw.js");
         let deployment = include_str!("../deploy/enforce-single-replica.sh");
+        let release = include_str!("../deploy/release.sh");
         assert!(dockerfile.contains("useradd --uid 10001"));
         assert!(dockerfile.contains("USER app"));
         assert!(dockerfile.contains("ENV PORT=8080"));
@@ -1394,6 +1395,17 @@ mod tests {
         assert!(deployment.contains("--min-replicas 1"));
         assert!(deployment.contains("--max-replicas 1"));
         assert!(deployment.contains("properties.template.scale.minReplicas"));
+        assert!(deployment.contains("one active revision and one running replica"));
+        let factory_deploy = release
+            .find("\"$factory_deploy_script\"")
+            .expect("release must run the factory container deployer");
+        let replica_enforcement = release
+            .find("enforce-single-replica.sh")
+            .expect("release must enforce the SQLite topology");
+        assert!(
+            factory_deploy < replica_enforcement,
+            "single-replica enforcement must run after the factory deploy resets scale"
+        );
     }
 
     #[test]
