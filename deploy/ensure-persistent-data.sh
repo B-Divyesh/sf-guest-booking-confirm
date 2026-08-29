@@ -15,6 +15,10 @@ volume_name="gbc-data"
 mount_path="/data"
 wait_attempts="${STORAGE_WAIT_ATTEMPTS:-60}"
 wait_seconds="${STORAGE_WAIT_SECONDS:-2}"
+# A release first registers the Azure Files share, then applies its image,
+# volume, and single-replica template in one ARM patch.  Keeping this mode
+# separate prevents a new public revision from ever starting without /data.
+prepare_storage_only="${PREPARE_STORAGE_ONLY:-0}"
 
 command -v jq >/dev/null || {
   printf 'jq is required to preserve the deployed container template.\n' >&2
@@ -62,6 +66,11 @@ if ! az containerapp env storage show \
     --azure-file-share-name "$share_name" \
     --output none
   unset storage_key
+fi
+
+if [[ "$prepare_storage_only" == "1" ]]; then
+  printf 'Verified Azure Files storage %s is ready for %s.\n' "$storage_name" "$app_name"
+  exit 0
 fi
 
 app_json="$(az containerapp show \

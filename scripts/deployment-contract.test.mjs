@@ -18,12 +18,12 @@ async function fixture({ stuck = false } = {}) {
   const statePath = join(directory, 'state.json');
   const logPath = join(directory, 'calls.log');
   const azPath = join(directory, 'az');
-  const deployPath = join(directory, 'factory-deploy');
   const verifyPath = join(directory, 'verify-release');
 
   await writeFile(statePath, JSON.stringify({
-    min: 1, max: 1, mode: 'single', active: 1, running: 1,
-    share: false, environmentStorage: false, persistent: true,
+    min: 1, max: 3, mode: 'single', active: 1, running: stuck ? 2 : 1,
+    share: false, environmentStorage: false, persistent: false,
+    image: 'registry.test/unsafe:old', built: false,
     provisioning: 'Succeeded', provisioningChecks: 0,
   }));
   await writeFile(azPath, `#!/usr/bin/env node
@@ -46,15 +46,34 @@ if (args[0] === 'storage' && args[1] === 'share-rm' && args[2] === 'show') {
 } else if (args[0] === 'containerapp' && args[1] === 'env' && args[2] === 'storage' && args[3] === 'set') {
   state.environmentStorage = true;
   fs.writeFileSync(statePath, JSON.stringify(state));
+} else if (args[0] === 'acr' && args[1] === 'build') {
+  const image = args[args.indexOf('--image') + 1];
+  if (!/^sf-guest-booking-confirm:[0-9a-f]{12}$/.test(image) || !args.includes('BUILD_SHA=' + process.env.MOCK_SOURCE_SHA)) {
+    process.stderr.write('ACR build did not use the source identity image tag\\n');
+    process.exit(3);
+  }
+  state.built = true;
+  fs.writeFileSync(statePath, JSON.stringify(state));
 } else if (args[0] === 'rest') {
   const body = JSON.parse(args[args.indexOf('--body') + 1]);
   if ('cooldownPeriod' in body.properties.template.scale || 'pollingInterval' in body.properties.template.scale || 'ephemeralStorage' in body.properties.template.containers[0].resources) {
     process.stderr.write('read-only fields leaked into the Azure template patch\\n');
     process.exit(3);
   }
-  const volumes = body.properties?.template?.volumes || [];
-  const mounts = body.properties?.template?.containers?.[0]?.volumeMounts || [];
-  state.persistent = volumes.some(item => item.name === 'gbc-data' && item.storageName === 'guest-booking-confirm-data') && mounts.some(item => item.volumeName === 'gbc-data' && item.mountPath === '/data');
+  const template = body.properties?.template || {};
+  const volumes = template.volumes || [];
+  const mounts = template.containers?.[0]?.volumeMounts || [];
+  const port = template.containers?.[0]?.env?.find(item => item.name === 'PORT')?.value;
+  const image = template.containers?.[0]?.image;
+  const mounted = volumes.some(item => item.name === 'gbc-data' && item.storageName === 'guest-booking-confirm-data' && item.storageType === 'AzureFile') && mounts.some(item => item.volumeName === 'gbc-data' && item.mountPath === '/data');
+  if (!state.built || !mounted || template.scale?.minReplicas !== 1 || template.scale?.maxReplicas !== 1 || port !== '8080' || !/^sociobotregistry\\.azurecr\\.io\\/sf-guest-booking-confirm:[0-9a-f]{12}$/.test(image)) {
+    process.stderr.write('image was not published with the safe SQLite template\\n');
+    process.exit(3);
+  }
+  state.persistent = true;
+  state.min = 1;
+  state.max = 1;
+  state.image = image;
   state.provisioning = 'Updating';
   state.provisioningChecks = 0;
   fs.writeFileSync(statePath, JSON.stringify(state));
@@ -84,7 +103,7 @@ if (args[0] === 'storage' && args[1] === 'share-rm' && args[2] === 'show') {
   process.stdout.write(JSON.stringify({
     id: '/subscriptions/mock/resourceGroups/sociobot/providers/Microsoft.App/containerApps/sf-guest-booking-confirm',
     properties: { provisioningState, template: {
-      containers: [{ name: 'app', image: 'registry.test/app:sha', resources: { cpu: 0.5, memory: '1Gi', ephemeralStorage: '2Gi' }, env: [{ name: 'PORT', value: '8080' }], volumeMounts: state.persistent ? [{ volumeName: 'gbc-data', mountPath: '/data' }] : null }],
+      containers: [{ name: 'app', image: state.image, resources: { cpu: 0.5, memory: '1Gi', ephemeralStorage: '2Gi' }, env: [{ name: 'PORT', value: '8080' }], volumeMounts: state.persistent ? [{ volumeName: 'gbc-data', mountPath: '/data' }] : null }],
       volumes: state.persistent ? [{ name: 'gbc-data', storageType: 'AzureFile', storageName: 'guest-booking-confirm-data' }] : null,
       scale: { minReplicas: state.min, maxReplicas: state.max, cooldownPeriod: 300, pollingInterval: 30 }
     } }
@@ -107,43 +126,30 @@ if (args[0] === 'storage' && args[1] === 'share-rm' && args[2] === 'show') {
   process.exit(3);
 }
 `);
-  await writeFile(deployPath, `#!/usr/bin/env node
-const fs = require('node:fs');
-const statePath = process.env.MOCK_AZ_STATE;
-const logPath = process.env.MOCK_AZ_LOG;
-const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
-state.min = 1;
-state.max = 3;
-state.running = 2;
-state.persistent = false;
-fs.writeFileSync(statePath, JSON.stringify(state));
-fs.appendFileSync(logPath, 'factory-deploy ' + process.argv.slice(2).join(' ') + '\\n');
-`);
   await writeFile(verifyPath, `#!/usr/bin/env node
 const fs = require('node:fs');
 const state = JSON.parse(fs.readFileSync(process.env.MOCK_AZ_STATE, 'utf8'));
-if (state.min !== 1 || state.max !== 1 || state.mode !== 'single' || state.active !== 1 || state.running !== 1 || !state.persistent) {
+if (state.min !== 1 || state.max !== 1 || state.mode !== 'single' || state.active !== 1 || state.running !== 1 || !state.persistent || !state.built) {
   process.stderr.write('live verification started before safe topology: ' + JSON.stringify(state) + '\\n');
   process.exit(4);
 }
 fs.appendFileSync(process.env.MOCK_AZ_LOG, 'verify-release ' + process.argv.slice(2).join(' ') + '\\n');
 `);
-  await Promise.all([chmod(azPath, 0o755), chmod(deployPath, 0o755), chmod(verifyPath, 0o755)]);
+  await Promise.all([chmod(azPath, 0o755), chmod(verifyPath, 0o755)]);
 
   return {
     directory,
     statePath,
     logPath,
-    deployPath,
     env: {
       ...process.env,
       PATH: `${directory}:${process.env.PATH}`,
-      FACTORY_DEPLOY_SCRIPT: deployPath,
       RELEASE_VERIFY_SCRIPT: verifyPath,
       PUBLIC_URL: 'https://release.test',
       MOCK_AZ_STATE: statePath,
       MOCK_AZ_LOG: logPath,
       MOCK_AZ_STUCK: stuck ? '1' : '0',
+      MOCK_SOURCE_SHA: spawnSync('git', ['rev-parse', 'HEAD'], { cwd: repo, encoding: 'utf8' }).stdout.trim(),
       STORAGE_WAIT_ATTEMPTS: '3',
       STORAGE_WAIT_SECONDS: '0',
       REPLICA_WAIT_ATTEMPTS: '1',
@@ -152,7 +158,7 @@ fs.appendFileSync(process.env.MOCK_AZ_LOG, 'verify-release ' + process.argv.slic
   };
 }
 
-test('release repairs the factory max=3 default and verifies one serving replica', async t => {
+test('release publishes the image only with the persistent one-replica template', async t => {
   const mock = await fixture();
   t.after(() => rm(mock.directory, { recursive: true, force: true }));
 
@@ -163,22 +169,23 @@ test('release repairs the factory max=3 default and verifies one serving replica
   assert.deepEqual(state, {
     min: 1, max: 1, mode: 'single', active: 1, running: 1,
     share: true, environmentStorage: true, persistent: true,
-    provisioning: 'Succeeded', provisioningChecks: 2,
+    image: `sociobotregistry.azurecr.io/sf-guest-booking-confirm:${mock.env.MOCK_SOURCE_SHA.slice(0, 12)}`,
+    built: true, provisioning: 'Succeeded', provisioningChecks: 2,
   });
 
   const calls = (await readFile(mock.logPath, 'utf8')).trim().split('\n');
-  assert.match(calls[0], /^factory-deploy guest-booking-confirm .* Dockerfile 8080$/);
+  assert.match(calls[0], /^az acr build --registry sociobotregistry --image sf-guest-booking-confirm:[0-9a-f]{12} --file Dockerfile /);
   assert.ok(calls.some(call => /^az storage share-rm create /.test(call)));
   assert.ok(calls.some(call => /^az containerapp env storage set /.test(call)));
   assert.ok(calls.some(call => /^az rest --method patch /.test(call)));
-  assert.equal(
-    calls.filter(call => /^az containerapp show /.test(call) && !call.includes('--query')).length,
-    3,
-    'the mount must be polled until Azure reports provisioning Succeeded'
+  assert.ok(
+    calls.filter(call => /^az containerapp show /.test(call) && !call.includes('--query')).length >= 3,
+    'the combined image/mount/scale template must be polled until Azure reports provisioning Succeeded and checked again at release close'
   );
   assert.ok(calls.some(call => /^verify-release https:\/\/release\.test [0-9a-f]{40}$/.test(call)));
-  assert.equal(calls.filter(call => /^az containerapp update /.test(call)).length, 2);
-  assert.equal(calls.filter(call => /^az containerapp revision set-mode /.test(call)).length, 2);
+  assert.equal(calls.filter(call => /^az containerapp update /.test(call)).length, 3);
+  assert.equal(calls.filter(call => /^az containerapp revision set-mode /.test(call)).length, 3);
+  assert.equal(calls.filter(call => /^factory-deploy /.test(call)).length, 0);
   assert.match(result.stdout, /one active revision and one running replica/);
 });
 
@@ -193,5 +200,6 @@ test('release fails instead of claiming success while two replicas still serve',
   const state = JSON.parse(await readFile(mock.statePath, 'utf8'));
   assert.equal(state.max, 1, 'the desired scale is corrected even if convergence stalls');
   assert.equal(state.running, 2, 'the test preserves the unsafe serving state that must block release');
-  assert.equal(state.persistent, true, 'persistent data is repaired before topology convergence is checked');
+  assert.equal(state.persistent, false, 'the new image is never published while an unsafe serving topology remains');
+  assert.equal(state.built, true, 'an image build alone cannot expose a new revision');
 });

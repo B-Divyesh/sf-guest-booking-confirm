@@ -421,6 +421,26 @@ test('@claim:api-rate-limit API responses enforce a deployment-wide rolling limi
     expect(responses.filter(response => response.status === 429), `attempt ${attempt + 1} limited responses`).toHaveLength(1);
     expect(responses.find(response => response.status === 429)?.retryAfter).toBe('1');
   }
+  const pageViewClient = `write-rate-limit-${testInfo.workerIndex}-${Date.now()}`;
+  const pageViews = await Promise.all(Array.from({ length: 14 }, async () => {
+    const response = await request.post('/api/page-view', { headers: { 'x-forwarded-for': pageViewClient } });
+    return { status: response.status(), retryAfter: response.headers()['retry-after'] };
+  }));
+  expect(pageViews.filter(response => response.status === 204)).toHaveLength(12);
+  expect(pageViews.filter(response => response.status === 429)).toHaveLength(2);
+  expect(pageViews.filter(response => response.status === 429).every(response => response.retryAfter === '1')).toBeTruthy();
+
+  const licenseClient = `license-rate-limit-${testInfo.workerIndex}-${Date.now()}`;
+  const licenses = await Promise.all(Array.from({ length: 14 }, async () => {
+    const response = await request.post('/api/license/verify', {
+      headers: { 'content-type': 'application/json', 'x-forwarded-for': licenseClient },
+      data: {}
+    });
+    return { status: response.status(), retryAfter: response.headers()['retry-after'] };
+  }));
+  expect(licenses.filter(response => response.status === 422)).toHaveLength(12);
+  expect(licenses.filter(response => response.status === 429)).toHaveLength(2);
+  expect(licenses.filter(response => response.status === 429).every(response => response.retryAfter === '1')).toBeTruthy();
 });
 
 test('unknown routes return the designed 404 and hashed assets are immutable', async ({ page, request }) => {

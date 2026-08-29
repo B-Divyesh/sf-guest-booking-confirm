@@ -38,28 +38,29 @@ function clientIdentity(run, className) {
   return `198.51.${100 + (hash % 50)}.${10 + (Math.floor(hash / 50) % 200)}`;
 }
 
-async function assertBoundary({ path, method, allowance, run, className }) {
+async function assertBoundary({ path, method, allowance, acceptedStatus, body, headers = {}, run, className }) {
   const client = clientIdentity(run, className);
   const requests = Array.from({ length: allowance + 1 }, () =>
     fetch(`${baseUrl}${path}`, {
       method,
       cache: 'no-store',
-      headers: { 'x-forwarded-for': client }
+      headers: { 'x-forwarded-for': client, ...headers },
+      body
     })
   );
   const responses = await Promise.all(requests);
   const statuses = responses.map(response => response.status);
-  const acceptedStatus = method === 'GET' ? 200 : 204;
-  const accepted = statuses.filter(status => status === acceptedStatus).length;
+  const expectedStatus = acceptedStatus ?? (method === 'GET' ? 200 : 204);
+  const accepted = statuses.filter(status => status === expectedStatus).length;
   const limited = statuses.filter(status => status === 429).length;
-  const unexpected = statuses.filter(status => status !== acceptedStatus && status !== 429);
+  const unexpected = statuses.filter(status => status !== expectedStatus && status !== 429);
   const limitedResponses = responses.filter(response => response.status === 429);
   await Promise.all(responses.map(response => response.arrayBuffer()));
 
   if (accepted !== allowance || limited !== 1 || unexpected.length > 0) {
     throw new Error(
       `${className} burst ${run} violated the global allowance: ` +
-      `expected ${allowance} x ${acceptedStatus} and 1 x 429; received ${JSON.stringify(statuses)}`
+      `expected ${allowance} x ${expectedStatus} and 1 x 429; received ${JSON.stringify(statuses)}`
     );
   }
   if (limitedResponses.some(response => response.headers.get('retry-after') !== '1')) {
@@ -77,6 +78,11 @@ try {
     });
     await assertBoundary({
       path: '/api/page-view', method: 'POST', allowance: 12, run, className: 'write'
+    });
+    await assertBoundary({
+      path: '/api/license/verify', method: 'POST', allowance: 12, acceptedStatus: 422,
+      headers: { 'content-type': 'application/json' }, body: '{}', run,
+      className: 'license verification'
     });
   }
 } catch (error) {

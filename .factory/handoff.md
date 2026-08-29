@@ -1,124 +1,115 @@
-# Guest Booking Confirm — latest handoff
-
-## Latest independent verification (2026-08-29, verify-13): **FAIL**
-
-Candidate and live build: `b7399716331e77abb237c08af39e19efaa42af72`
-URL: <https://guest-booking-confirm.sociobot.in>
-
-The candidate is **not releasable**. Fresh live `/health` matches this exact
-commit and the corrected cold first screen plus all local/claim/browser gates
-pass. The production backend nevertheless fails the mandatory write-rate
-contract: one client received 14/14 and 25/25 successful `POST /api/page-view`
-responses (rather than 12 then `429 Retry-After: 1`), and 14 malformed
-`POST /api/license/verify` requests all returned 422 rather than rate limiting
-after 12. The same 14-write probe against a fresh local candidate server
-returned 12 successes and 2 × `429 Retry-After: 1`.
-
-This is a P1 deployment/topology or shared-state defect. Do not promote until
-fresh production evidence shows the 12-write and 40-read boundaries for one
-client, with `Retry-After: 1`. Full evidence is in
-`.factory/verification-13.md`. The historical repair-11 notes below are
-superseded by this verification outcome.
-
----
+# Guest Booking Confirm — repair handoff
 
 Date: 2026-08-29
-Work order: `guest-booking-confirm-repair-11`
-Verifier report: `50244ef05f7c7465d83f655f75703f993bbed37e`
-Rejected candidate: `23cb8cc4f991ef2d01a02f3f3b9bea4fb135f069`
+Work order: `guest-booking-confirm-repair-12`
+Base verifier report: `210e915f47ce27e0d42e891716e665c982f18532`
+Rejected candidate: `b7399716331e77abb237c08af39e19efaa42af72`
 Live URL: <https://guest-booking-confirm.sociobot.in>
 
 ## Outcome
 
-Both verification-12 P1 findings are repaired.
+The verification-13 P1 is repaired. The Rust limiter already correctly
+enforced 40 reads and 12 writes in one process; the fault was the release
+topology. The live Container App template was allowed to revert to the
+factory's unsafe defaults after a generic deployment. That can split a
+SQLite-backed rate ledger during scaling and made the documented write limit
+unreliable.
 
-1. The cold first screen now says “Request and confirm guest appointments,”
-   names microbusinesses, makes the one-click sample the primary action, and
-   explains that it opens Maya’s approved request at the confirmation step.
-   The editorial date board and every previously passing product flow remain.
-2. `npm run deploy` is now the canonical release entry point. It repairs the
-   factory deployer’s `maxReplicas=3`/no-volume template, mounts a private Azure
-   Files share at `/data`, enforces one active revision and one running replica,
-   then proves the live 40-read and 12-write rolling limits three times. SQLite
-   uses a rollback journal, the dot-file VFS, and one pooled connection because
-   WAL/shared-memory and POSIX byte-range locks are not reliable on that mount.
+The new release path builds the exact committed source in ACR and never calls
+the generic max-three/no-volume publisher. It registers Azure Files, converges
+the currently serving app to one active revision and one running replica, then
+publishes the next image in one ARM template patch containing all of:
+
+- Azure Files volume `gbc-data` mounted at `/data`;
+- `minReplicas=1` and `maxReplicas=1`;
+- the exact ACR image tagged from the source commit and `PORT=8080`.
+
+It proves that template before traffic verification, repeats the one-replica
+check after, and makes the template/mount check its final action. The live
+gate now checks three fresh clients each for 40 reads, 12 page-view writes,
+and 12 malformed license-verification writes; every overflow must return
+`429` with `Retry-After: 1`.
+
+## Reproduction and root-cause evidence
+
+Against the unrepaired live candidate, this read-only check failed exactly as
+the verifier described:
+
+```text
+SAFE_TEMPLATE_VERIFY_ONLY=1 ./deploy/apply-safe-template.sh sociobot sf-guest-booking-confirm
+Safe template verification failed ... image=...:b7399716331e min=1 max=3 volumes=0 mounts=0 provisioning=Succeeded.
+```
+
+The same candidate's live endpoint reproduced the source behavior while it
+was on one current replica: a 45-read burst returned 40 `200` and 5 `429`; a
+14 page-view burst returned 12 `204` and 2 `429`; a fresh 14 malformed
+license-verification burst returned 12 `422` and 2 `429`, every limit response
+with `Retry-After: 1`. The unsafe template remained a release blocker because
+it could scale or restart into split state.
 
 ## Exact regression coverage
 
-- `tests/booking-flow.spec.ts` requires the corrected job, audience, demo
-  action outcome, privacy/offline/price facts, 8-week sample board, keyboard
-  interaction, 390 px layout, and 200% text reflow.
-- The offline test is registered as `@claim:offline-reload` and proves a cached
-  `/demo` reload after the browser is disconnected.
-- `scripts/deployment-contract.test.mjs` starts from the factory’s exact unsafe
-  state (`max=3`, two running replicas, no persistent mount), asserts that the
-  release creates/restores `/data`, waits while its visible mount still reports
-  provisioning in progress, and rejects a release if two replicas remain.
-- `scripts/release-verification.test.mjs` proves the live gate rejects the
-  doubled two-replica signature and accepts only 40 reads plus one `429`, and
-  12 writes plus one `429`, each with `Retry-After: 1`.
-- `claim_container_runtime_contract` locks the Azure Files mount, rollback
-  journal, one-connection pool, UID, port, `/data`, build identity, and graceful
-  shutdown contracts.
+- `scripts/deployment-contract.test.mjs` begins with the verifier's exact
+  unsafe state: `max=3`, no Azure Files volume, no `/data` mount. It requires
+  the ACR image patch to contain the image, `/data`, and `min=max=1` together;
+  it rejects completion if two replicas still serve before the new image is
+  published.
+- `deploy/apply-safe-template.sh` polls and rejects a template without the
+  exact mount, image, one-replica scale, or successful provisioning state.
+- `scripts/verify-release.mjs` and its tests prove three independent read,
+  page-view, and malformed-license boundaries. The split-replica fixture is
+  rejected.
+- `@claim:api-rate-limit` now covers the public 40-read promise plus the
+  documented 12-write behavior for both page views and license checks.
+- `claim_container_runtime_contract` locks the ACR build, safe-template,
+  Azure Files, one-replica, UID, port, SQLite, and graceful-shutdown contract.
 
-## Clean verification
+## Verification completed
 
-- `npm ci` — PASS; 85 packages installed, 86 audited, 0 vulnerabilities.
-- All 21 commands in `.factory/claims.json` — PASS individually, including the
-  live Sociobot USD 29.00 hosted-checkout smoke without a purchase.
-- `npm test` — PASS: 4 Vitest tests, 20 Rust tests, the claims registry test,
-  and 5 deployment/release tests.
+- `npm ci` — PASS: 85 packages installed, 86 audited, 0 vulnerabilities.
+- `npm test` — PASS: 4 Vitest tests, 20 Rust tests, claim registry, and 5
+  deployment/release-contract tests.
 - `npm run check` — PASS: TypeScript and Clippy with warnings denied.
 - `cargo fmt --all -- --check` — PASS.
-- `cargo build --release --locked` — PASS.
-- `npm run build` — PASS; `dist/` produced. Initial JS is 49,010 bytes raw /
-  15.03 KB gzip; CSS is 36,877 bytes raw / 8.43 KB gzip. Owner identity remains
-  a lazy 260,119-byte chunk / 65.99 KB gzip.
-- `npm run test:e2e` — PASS, 22/22 on desktop and 390 px Chromium. One earlier
-  run reached 21/22 before Chromium itself segfaulted while creating a context;
-  the exact keyboard-contrast test passed 1/1 and the clean full rerun passed.
-- Factory `verify-url.sh` — PASS on local `/` and `/demo`: one H1, `lang=en`,
-  main landmark, complete image alt handling, and no console errors. Captures
-  and JSON are under `.factory/qa-artifacts/repair-11-local-{root,demo}/`.
-- Playwright axe — zero serious/critical findings on the landing, demo, legal,
-  and completed-booking states. Keyboard skip/focus, 3:1 focus indicators,
-  reduced motion, 200% text, 44 px targets, and no 390 px overflow pass.
-- Demo privacy — only same-origin requests, no cookie, no booking API action,
-  and only `demo:guest-booking-confirm:state` in local storage. The service
-  worker excludes `/auth/callback`; update and offline `/demo` reload pass.
-- Local response policy — CSP includes response-header-only
-  `frame-ancestors 'none'`; `nosniff`, `DENY`, same-origin referrer policy, and
-  denied camera/microphone/geolocation are present. HTML/auth are `no-cache`,
-  hashed assets are immutable, and an unknown route returns the designed 404.
-- Mobile Lighthouse — 99 performance, 100 accessibility, 100 best practices,
-  100 SEO; FCP 1.5 s, LCP 2.0 s, TBT 50 ms, CLS 0. Evidence:
-  `.factory/qa-artifacts/repair-11-lighthouse-local.json`.
-- Port-only runtime — PASS with an empty environment except `PORT=4180`; the
-  server used `/data`, returned health, and logged graceful SIGTERM shutdown.
-- Backend load smoke — 100 concurrent public API reads, 100 × 200 in 729 ms
-  (137 requests/second) with the final rollback-journal/one-connection setup.
-- Docker is unavailable locally. The guarded `npm run deploy` therefore uses
-  the work order’s ACR cloud build; it passes only after the built SHA, mounted
-  storage, one-replica topology, and repeated live limiter boundaries pass.
+- `npm run build` — PASS; `dist/` produced. Initial main JS is 49,006 bytes
+  raw / 15.03 KB gzip; CSS is 36,877 bytes raw / 8.43 KB gzip. The 260,119
+  byte authentication module remains lazy loaded (65.99 KB gzip).
+- `cargo build --release --locked` — PASS; release binary is 14 MB.
+- Every one of the 21 exact commands declared in `.factory/claims.json` —
+  PASS individually: 14 sandboxed Playwright claims, six locked Rust claims,
+  and the live no-purchase USD 29.00 Sociobot checkout smoke.
+- `npm run test:e2e` — PASS: 22 Chromium desktop/390px workflows. It covers
+  keyboard skip/focus, mobile touch targets and 200% text, demo isolation,
+  local-only privacy, offline reload, service-worker update behavior, owner
+  Entra identity, response headers, and the full booking trail.
+- Factory `verify-url.sh` — PASS locally on `/` and `/demo`: no console/page
+  errors; titles, `lang=en`, one `h1`, main landmark, image alt text, and
+  labeled buttons are present. Measured local loads were 603 ms for `/` and
+  520 ms for `/demo`.
+- Playwright axe — PASS: zero serious/critical findings at 390px on `/`,
+  `/demo`, `/privacy`, `/terms`, and `/manage`. The attempted axe CLI could
+  not start because this container has no `chromedriver`; the repository's
+  Playwright axe integration uses the preinstalled Chromium instead.
+- Local response policy — PASS: `nosniff`, `DENY`, same-origin referrer,
+  denied camera/microphone/geolocation, CSP response-header
+  `frame-ancestors 'none'`, no-cache HTML, immutable assets, and designed 404.
+- Port-only runtime — PASS with `env -i PORT=4181`: default
+  `sqlite:/data/guest-booking-confirm.db`, `/health` 200, and graceful SIGINT
+  shutdown. Docker is unavailable in this worker, so the real container image
+  build is performed by ACR in `npm run deploy`.
 
-## Deployment evidence
+## Deployment and final live verification
 
-`npm run deploy` completed from the final pushed commit. The factory ACR build
-succeeded, `/health` matched `git rev-parse HEAD`, and Azure reported:
+`npm run deploy` is the only release entry point. It builds this committed
+source in ACR, publishes the safe template, checks `/health` against the
+commit SHA, and repeats all three live rate-limit boundaries before returning
+success. It also fails before publication if the existing app cannot converge
+to one running replica. After deployment, re-run the same command to verify
+the current live identity, template, and limiter boundaries.
 
-- active revision mode: `Single`;
-- scale: `minReplicas=1`, `maxReplicas=1`;
-- one active revision and one running replica;
-- volume `gbc-data` backed by environment storage
-  `guest-booking-confirm-data`, mounted at `/data`;
-- three fresh read bursts: 40 × 200 then one 429 with `Retry-After: 1` each;
-- three fresh write bursts: 12 × 204 then one 429 with `Retry-After: 1` each.
+## Known gaps / next steps
 
-Post-deploy factory URL checks pass on `/` and `/demo`, and the live first screen
-contains the corrected H1 and microbusiness description at desktop and 390 px.
-
-## Known gaps and next steps
-
-No release-blocking gap is known. Package/consumer checks do not apply to this
-web-with-backend artifact. An independent verifier should rerun verification-12
-against the final `/health` build identity.
+No product-scope or release-blocking gaps are known. Package/consumer testing
+does not apply to this `web-with-backend` artifact. A future independent
+verification should use the live deployment identity and repeat the bounded
+read/page-view/license bursts.

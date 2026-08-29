@@ -127,10 +127,10 @@
   },
   {
     "id": "api-rate-limit",
-    "claim": "Read API calls allow 40 requests per client in any rolling one-second window; later calls return 429 with Retry-After: 1.",
+    "claim": "Read API calls allow 40 and write API calls allow 12 requests per client in any rolling one-second window; later calls return 429 with Retry-After: 1.",
     "where": "README",
     "test": "npm run test:e2e -- --grep @claim:api-rate-limit",
-    "sandbox": "fresh server and browser context; repeat three independent 41-request same-client HTTP bursts and assert 40 successes plus one 429 with Retry-After: 1 each time; the Rust suite proves atomic counting across a wall-clock second boundary and the one-replica deployment contract"
+    "sandbox": "fresh server and browser context; repeat three independent 41-request same-client read bursts and assert 40 successes plus one 429 with Retry-After: 1 each time, then assert 12 page views and 12 malformed license checks followed by 429 with Retry-After: 1; the Rust suite proves atomic counting across a wall-clock second boundary and the release contract proves one serving replica"
   },
   {
     "id": "owner-entra-identity",

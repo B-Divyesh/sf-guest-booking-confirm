@@ -17,7 +17,7 @@ function startFixture({ split = false } = {}) {
       return;
     }
     const limit = request.method === 'GET' ? 40 : 12;
-    const acceptedStatus = request.method === 'GET' ? 200 : 204;
+    const acceptedStatus = request.method === 'GET' ? 200 : request.url === '/api/license/verify' ? 422 : 204;
     const replica = split ? nextReplica++ % 2 : 0;
     const key = `${request.headers['x-forwarded-for']}:${request.method}:${replica}`;
     const count = counters.get(key) || 0;
@@ -58,6 +58,7 @@ test('release verification proves all read and write boundaries repeatedly', asy
   assert.match(result.stdout, /Verified live build identity/);
   assert.equal((result.stdout.match(/Verified read burst/g) || []).length, 3);
   assert.equal((result.stdout.match(/Verified write burst/g) || []).length, 3);
+  assert.equal((result.stdout.match(/Verified license verification burst/g) || []).length, 3);
 });
 
 test('release verification rejects the two-replica doubled allowance signature', async t => {

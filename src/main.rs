@@ -1393,6 +1393,7 @@ mod tests {
         let service_worker = include_str!("../public/sw.js");
         let deployment = include_str!("../deploy/enforce-single-replica.sh");
         let persistent_data = include_str!("../deploy/ensure-persistent-data.sh");
+        let safe_template = include_str!("../deploy/apply-safe-template.sh");
         let release = include_str!("../deploy/release.sh");
         assert!(dockerfile.contains("useradd --uid 10001"));
         assert!(dockerfile.contains("USER app"));
@@ -1410,19 +1411,34 @@ mod tests {
         assert!(deployment.contains("one active revision and one running replica"));
         assert!(persistent_data.contains("storageType:\"AzureFile\""));
         assert!(persistent_data.contains("mount_path=\"/data\""));
+        assert!(persistent_data.contains("PREPARE_STORAGE_ONLY"));
         assert!(persistent_data.contains("Persistent data mount verification failed"));
-        let factory_deploy = release
-            .find("\"$factory_deploy_script\"")
-            .expect("release must run the factory container deployer");
-        let storage_enforcement = release
-            .find("ensure-persistent-data.sh")
-            .expect("release must restore persistent SQLite storage");
-        let replica_enforcement = release
+        assert!(safe_template.contains("storageType:\"AzureFile\""));
+        assert!(safe_template.contains(".minReplicas = 1"));
+        assert!(safe_template.contains(".maxReplicas = 1"));
+        assert!(safe_template.contains("volumeMounts"));
+        assert!(safe_template.contains("Safe template verification failed"));
+        let build = release
+            .find("az acr build")
+            .expect("release must build the exact image in ACR");
+        let storage_preparation = release
+            .find("PREPARE_STORAGE_ONLY=1")
+            .expect("release must register Azure Files before publishing the image");
+        let safe_publish = release
+            .find("apply-safe-template.sh")
+            .expect("release must publish the image with its safe template");
+        let initial_replica_enforcement = release
             .find("enforce-single-replica.sh")
             .expect("release must enforce the SQLite topology");
         assert!(
-            factory_deploy < storage_enforcement && storage_enforcement < replica_enforcement,
-            "persistent storage and single-replica enforcement must run after the factory deploy resets the template"
+            build < storage_preparation
+                && storage_preparation < initial_replica_enforcement
+                && initial_replica_enforcement < safe_publish,
+            "the image must be published only after Azure Files is ready and old traffic is converged to one replica"
+        );
+        assert!(
+            !release.contains("factory_deploy_script"),
+            "the unsafe generic max=3/no-volume publisher must not be part of this release path"
         );
     }
 
