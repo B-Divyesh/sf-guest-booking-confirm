@@ -77,6 +77,13 @@
     "sandbox": "temporary paid SQLite desk; create 31 active requests, then run cleanup over closed records aged 364 and 366 days"
   },
   {
+    "id": "panel-pro-checkout",
+    "claim": "Panel Pro is a $29 one-time license sold through the Sociobot hosted checkout.",
+    "where": "owner panel, terms page, README",
+    "test": "npm run test:billing",
+    "sandbox": "live Sociobot product catalog; assert the exact USD 29.00 product registration, 303 checkout redirect, Dodo hosted session, product name, and displayed price without completing a purchase"
+  },
+  {
     "id": "api-rate-limit",
     "claim": "Read API calls allow 40 requests per client in any rolling one-second window; later calls return 429 with Retry-After: 1.",
     "where": "README",

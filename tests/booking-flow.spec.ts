@@ -136,6 +136,49 @@ test('@claim:guest-no-account @claim:owner-approval-before-booking guest request
   expect({ consoleErrors, failedResponses }).toEqual({ consoleErrors: [], failedResponses: [] });
 });
 
+test('checkout return stores, strips, and verifies the Panel Pro license', async ({ page }) => {
+  await useTestOwner(page);
+  const returnedLicense = 'license_return_regression_token';
+  let submittedLicense = '';
+  await page.route('**/api/owner/status', route => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ configured: true, legacy_owner: false }),
+  }));
+  await page.route('**/api/owner/settings', route => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({
+      business_name: 'Signal Studio',
+      service_name: 'Consultation',
+      timezone: 'UTC',
+      duration_minutes: 30,
+      weekly_hours: { mon: ['09:00', '17:00'] },
+      welcome_note: '',
+      paid: false,
+    }),
+  }));
+  await page.route('**/api/owner/bookings', route => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ bookings: [] }),
+  }));
+  await page.route('**/api/license/verify', async route => {
+    submittedLicense = route.request().postDataJSON().license;
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ valid: false, reason: 'invalid' }) });
+  });
+  await page.goto(`/manage?license=${returnedLicense}`);
+
+  await expect(page.getByRole('link', { name: 'Buy Panel Pro · $29' })).toHaveAttribute(
+    'href',
+    'https://api.sociobot.in/api/v1/products/guest-booking-confirm/checkout',
+  );
+  await expect(page).toHaveURL(/\/manage$/);
+  await expect.poll(() => submittedLicense).toBe(returnedLicense);
+  expect(await page.evaluate(() => localStorage.getItem('sb_license:guest-booking-confirm'))).toBe(returnedLicense);
+  await expect(page.getByRole('alert')).toHaveText('This license is not active (invalid). Free features remain available.');
+});
+
 test('legal pages expose one h1 and a main landmark', async ({ page }) => {
   for (const path of ['/privacy', '/terms']) {
     await page.goto(path);
