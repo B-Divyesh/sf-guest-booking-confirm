@@ -13,7 +13,8 @@ const DEMO_KEY = 'demo:guest-booking-confirm:state';
 let ownerToken = sessionStorage.getItem(OWNER_TOKEN) || '';
 let moveFocusOnRoute = false;
 
-type DemoState = 'awaiting_confirmation' | 'confirmed';
+type DemoStatus = 'awaiting_confirmation' | 'confirmed' | 'reschedule_requested' | 'cancelled';
+type DemoState = { status: DemoStatus; startsAt?: string; reminderDone?: boolean };
 const demoSettings: Required<Pick<Settings, 'business_name' | 'service_name' | 'timezone' | 'duration_minutes'>> = {
   business_name: 'Northstar Barber', service_name: 'Precision cut', timezone: 'America/New_York', duration_minutes: 45
 };
@@ -100,22 +101,51 @@ async function bookingPage(): Promise<void> {
 function demoBanner(): string {
   return `<aside class="demo-banner" aria-label="Demo controls"><strong>Demo — sample data, nothing is saved</strong><span>Try the guest confirmation step safely.</span><button class="quiet" id="reset-demo">Reset demo</button><button class="secondary" id="start-real">Start for real</button></aside>`;
 }
-function demoState(): DemoState { return localStorage.getItem(DEMO_KEY) === 'confirmed' ? 'confirmed' : 'awaiting_confirmation'; }
-function resetDemo(): void { localStorage.setItem(DEMO_KEY, 'awaiting_confirmation'); route(); }
+function demoState(): DemoState {
+  const saved = localStorage.getItem(DEMO_KEY);
+  if (saved === 'confirmed') return { status: 'confirmed' };
+  try {
+    const state = JSON.parse(saved || '{}') as DemoState;
+    if (['awaiting_confirmation', 'confirmed', 'reschedule_requested', 'cancelled'].includes(state.status)) return state;
+  } catch { /* Reset malformed sample state below. */ }
+  return { status: 'awaiting_confirmation' };
+}
+function saveDemoState(state: DemoState): void { localStorage.setItem(DEMO_KEY, JSON.stringify(state)); demoPage(); }
+function resetDemo(): void { saveDemoState({ status: 'awaiting_confirmation' }); }
 function startForReal(): void { localStorage.removeItem(DEMO_KEY); history.pushState({}, '', '/'); route(); }
-function sampleStart(): string { const date = new Date(); date.setUTCDate(date.getUTCDate() + 5); date.setUTCHours(19, 0, 0, 0); return date.toISOString(); }
+function sampleStart(daysAhead = 5): string { const date = new Date(); date.setUTCDate(date.getUTCDate() + daysAhead); date.setUTCHours(19, 0, 0, 0); return date.toISOString(); }
 function demoBooking(): Booking {
-  const status = demoState();
-  return { id: 'demo-booking', reference: 'DEMO-482', guest_name: 'Maya Chen', email: 'maya@example.test', starts_at: sampleStart(), timezone: demoSettings.timezone, duration_minutes: demoSettings.duration_minutes, status, updated_at: new Date().toISOString() };
+  const state = demoState();
+  return { id: 'demo-booking', reference: 'DEMO-482', guest_name: 'Maya Chen', email: 'maya@example.test', starts_at: state.startsAt || sampleStart(), timezone: demoSettings.timezone, duration_minutes: demoSettings.duration_minutes, status: state.status, reminder_done: state.reminderDone ? 1 : 0, updated_at: new Date().toISOString() };
 }
 function demoPage(): void {
-  if (!localStorage.getItem(DEMO_KEY)) localStorage.setItem(DEMO_KEY, 'awaiting_confirmation');
-  const b = demoBooking(); const meta = statusMeta[b.status];
-  const action = b.status === 'awaiting_confirmation' ? '<button class="primary" id="demo-confirm">Confirm this time</button>' : '<a class="button primary" id="demo-calendar" download="demo-booking.ics">Download sample calendar (.ics)</a>';
-  shell(`<main id="main" class="guest-page"><section class="state-console state-${b.status}"><div class="state-heading"><p class="eyebrow">Sample private booking signal · ${b.reference}</p><h1>${e(meta.label)}</h1><p>${e(meta.note)}</p><p class="demo-explain">This sample has already been approved by the owner. Confirm it to see the final guest state.</p></div><div class="big-lamp amber" aria-hidden="true"><i></i></div></section><section class="booking-ticket" aria-labelledby="details-title"><div><p class="ticket-label">Sample appointment card</p><h2 id="details-title">${e(demoSettings.service_name)}</h2><dl><div><dt>Guest</dt><dd>${e(b.guest_name)}</dd></div><div><dt>Time</dt><dd>${e(formatDate(b.starts_at, b.timezone))}</dd></div><div><dt>Duration</dt><dd>${e(b.duration_minutes)} minutes</dd></div><div><dt>With</dt><dd>${e(demoSettings.business_name)}</dd></div></dl></div><div class="ticket-ref"><span>Reference</span><strong>${b.reference}</strong></div></section><section class="signal-rail" aria-labelledby="trail-title"><div class="section-heading"><p class="dial-number">02</p><h2 id="trail-title">Confirmation trail</h2></div><ol>${trail(b)}</ol></section><section class="guest-actions" aria-labelledby="actions-title"><h2 id="actions-title">Try the guest step</h2><p>Demo actions change only this browser’s sample state.</p><div class="action-row">${action}</div></section></main>`);
-  document.querySelector<HTMLButtonElement>('#demo-confirm')?.addEventListener('click', () => { localStorage.setItem(DEMO_KEY, 'confirmed'); demoPage(); });
+  if (!localStorage.getItem(DEMO_KEY)) localStorage.setItem(DEMO_KEY, JSON.stringify({ status: 'awaiting_confirmation' }));
+  const state = demoState(); const b = demoBooking(); const meta = statusMeta[b.status];
+  let action = '';
+  if (b.status === 'awaiting_confirmation') action = '<button class="primary" id="demo-confirm">Confirm this time</button><button class="secondary" id="demo-reschedule-open">Request another time</button><button class="text-danger" id="demo-cancel-open">Cancel request</button>';
+  else if (b.status === 'confirmed') action = '<a class="button primary" id="demo-calendar" download="demo-booking.ics">Download sample calendar (.ics)</a><button class="secondary" id="demo-reschedule-open">Request another time</button><button class="text-danger" id="demo-cancel-open">Cancel booking</button>';
+  else if (b.status === 'reschedule_requested') action = '<p>The new sample time is waiting for owner approval.</p><button class="primary" id="demo-approve-reschedule">Approve sample change</button>';
+  else action = '<p>No more action is needed on this cancelled sample booking.</p>';
+  const reminder = ['awaiting_confirmation', 'confirmed'].includes(b.status) ? `<section class="demo-owner-checklist" aria-labelledby="demo-reminder-title"><p class="eyebrow">Sample owner checklist</p><h2 id="demo-reminder-title">Record a manual reminder</h2><p>This is an owner step in the sample. It records that the owner contacted Maya; it sends no message.</p><div class="action-row">${state.reminderDone ? '<button class="quiet" id="demo-unremind">Undo sample reminder</button><p role="status">Sample reminder recorded.</p>' : '<button class="secondary" id="demo-reminder">Mark sample reminder sent</button>'}</div></section>` : '';
+  shell(`<main id="main" class="guest-page"><section class="state-console state-${b.status}"><div class="state-heading"><p class="eyebrow">Sample private booking signal · ${b.reference}</p><h1>${e(meta.label)}</h1><p>${e(meta.note)}</p><p class="demo-explain">This sample has already been approved by the owner. Try confirmation, another time, cancellation, and the owner reminder safely.</p></div><div class="big-lamp ${b.status === 'cancelled' ? 'red' : b.status === 'confirmed' ? 'green' : 'amber'}" aria-hidden="true"><i></i></div></section><section class="booking-ticket" aria-labelledby="details-title"><div><p class="ticket-label">Sample appointment card</p><h2 id="details-title">${e(demoSettings.service_name)}</h2><dl><div><dt>Guest</dt><dd>${e(b.guest_name)}</dd></div><div><dt>Time</dt><dd>${e(formatDate(b.starts_at, b.timezone))}</dd></div><div><dt>Duration</dt><dd>${e(b.duration_minutes)} minutes</dd></div><div><dt>With</dt><dd>${e(demoSettings.business_name)}</dd></div></dl></div><div class="ticket-ref"><span>Reference</span><strong>${b.reference}</strong></div></section><section class="signal-rail" aria-labelledby="trail-title"><div class="section-heading"><p class="dial-number">02</p><h2 id="trail-title">Confirmation trail</h2></div><ol>${trail(b)}</ol></section><section class="guest-actions" aria-labelledby="actions-title"><h2 id="actions-title">Try the guest step</h2><p>Demo actions change only this browser’s sample state.</p><div class="action-row">${action}</div><div id="demo-action-panel"></div></section>${reminder}</main>`);
+  document.querySelector<HTMLButtonElement>('#demo-confirm')?.addEventListener('click', () => saveDemoState({ ...state, status: 'confirmed' }));
+  document.querySelector<HTMLButtonElement>('#demo-approve-reschedule')?.addEventListener('click', () => saveDemoState({ ...state, status: 'awaiting_confirmation' }));
+  document.querySelector<HTMLButtonElement>('#demo-reschedule-open')?.addEventListener('click', () => {
+    const panel = document.querySelector('#demo-action-panel')!;
+    panel.innerHTML = `<div class="inline-confirm"><p><strong>Request the next sample time?</strong> It moves Maya’s sample appointment forward three days and asks the owner to approve it.</p><button class="primary" id="demo-reschedule">Request new sample time</button><button class="secondary" id="demo-action-back">Keep current time</button></div>`;
+    document.querySelector('#demo-action-back')?.addEventListener('click', () => panel.innerHTML = '');
+    document.querySelector<HTMLButtonElement>('#demo-reschedule')?.addEventListener('click', () => saveDemoState({ status: 'reschedule_requested', startsAt: sampleStart(8), reminderDone: false }));
+  });
+  document.querySelector<HTMLButtonElement>('#demo-cancel-open')?.addEventListener('click', () => {
+    const panel = document.querySelector('#demo-action-panel')!;
+    panel.innerHTML = `<div class="inline-confirm"><p><strong>Cancel sample booking ${b.reference}?</strong> This returns the sample time to the owner.</p><button class="danger" id="demo-cancel">Yes, cancel sample booking</button><button class="secondary" id="demo-action-back">Keep sample booking</button></div>`;
+    document.querySelector('#demo-action-back')?.addEventListener('click', () => panel.innerHTML = '');
+    document.querySelector<HTMLButtonElement>('#demo-cancel')?.addEventListener('click', () => saveDemoState({ ...state, status: 'cancelled' }));
+  });
+  document.querySelector<HTMLButtonElement>('#demo-reminder')?.addEventListener('click', () => saveDemoState({ ...state, reminderDone: true }));
+  document.querySelector<HTMLButtonElement>('#demo-unremind')?.addEventListener('click', () => saveDemoState({ ...state, reminderDone: false }));
   const calendar = document.querySelector<HTMLAnchorElement>('#demo-calendar');
-  if (calendar) calendar.href = `data:text/calendar;charset=utf-8,${encodeURIComponent('BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nSUMMARY:Precision cut — Northstar Barber\r\nSTATUS:CONFIRMED\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n')}`;
+  if (calendar) calendar.href = `data:text/calendar;charset=utf-8,${encodeURIComponent(`BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Guest Booking Confirm//Sample//EN\r\nBEGIN:VEVENT\r\nUID:demo-482@guest-booking-confirm.sociobot.in\r\nDTSTART:${b.starts_at.replace(/[-:]/g, '').replace('.000', '').replace('+00:00', 'Z')}\r\nDTEND:${new Date(new Date(b.starts_at).getTime() + b.duration_minutes * 60_000).toISOString().replace(/[-:]/g, '').replace('.000', '')}\r\nSUMMARY:Precision cut — Northstar Barber\r\nSTATUS:CONFIRMED\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n`)}`;
 }
 function notFoundPage(): void { shell(`<main id="main" class="center-page"><section class="not-ready"><p class="eyebrow">Signal not found</p><h1>That page is not on this desk</h1><p>Try the sample booking trail or return to the guest page.</p><div class="action-row"><a class="button primary" href="/demo" data-nav>Try sample data</a><a class="button secondary" href="/" data-nav>Return home</a></div></section></main>`); }
 
@@ -170,7 +200,7 @@ function trail(b: Booking): string {
     ['Guest confirmed', 'The appointment is agreed by both sides.'],
     ['Reminder checked', 'The owner can mark a manual reminder as sent.']
   ];
-  return items.map((item, index) => `<li class="${index < step ? 'done' : index === step ? 'current' : ''}"><span aria-hidden="true">${index < step ? '✓' : index + 1}</span><div><strong>${e(item[0])}</strong><p>${e(item[1])}</p></div></li>`).join('') + (cancelled ? '<li class="cancel-step"><span aria-hidden="true">×</span><div><strong>Booking cancelled</strong><p>This trail is closed.</p></div></li>' : '');
+  return items.map((item, index) => { const done = index < step || (index === 3 && Boolean(b.reminder_done)); return `<li class="${done ? 'done' : index === step ? 'current' : ''}"><span aria-hidden="true">${done ? '✓' : index + 1}</span><div><strong>${e(item[0])}</strong><p>${e(item[1])}</p></div></li>`; }).join('') + (cancelled ? '<li class="cancel-step"><span aria-hidden="true">×</span><div><strong>Booking cancelled</strong><p>This trail is closed.</p></div></li>' : '');
 }
 
 function bindGuestActions(token: string, booking: Booking): void {

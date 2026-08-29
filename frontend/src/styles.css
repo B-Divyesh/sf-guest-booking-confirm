@@ -64,7 +64,7 @@ footer nav { display: flex; gap: 20px; } footer a { min-width:44px; min-height:4
 .hero-demo { margin-top: 24px; color: var(--paper-light); background: transparent; border-color: #c8c7bb; }
 .hero-demo:hover { color: var(--ink); background: var(--paper-light); }
 .demo-banner { min-height: 52px; padding: 8px clamp(16px, 5vw, 72px); display:flex; flex-wrap:wrap; align-items:center; gap:12px 18px; color:var(--paper-light); background:#31584c; border-bottom:3px solid var(--green); font-size:.88rem; }
-.demo-banner span { flex:1; color:#e0eee5; }.demo-banner .quiet { min-height:36px; color:var(--paper-light); }.demo-banner .secondary { min-height:36px; padding:6px 12px; }
+.demo-banner span { flex:1; color:#e0eee5; }.demo-banner .quiet { min-height:48px; color:var(--paper-light); }.demo-banner .secondary { min-height:48px; padding:10px 12px; }
 
 .request-layout { max-width: 1240px; margin: 0 auto; padding: clamp(64px, 9vw, 128px) clamp(20px, 5vw, 72px); display: grid; grid-template-columns: 1fr 1.5fr; gap: clamp(40px, 8vw, 112px); }
 .request-intro { align-self: start; position: sticky; top: 28px; }
@@ -182,6 +182,7 @@ button:disabled { opacity: .58; cursor: wait; }
 .settings-drawer { position:relative; z-index:3; max-width:800px; margin:0 auto 56px; padding:32px; background:var(--paper-light); border:2px solid var(--ink); box-shadow:8px 9px 0 var(--paper-deep); }.drawer-head { display:flex; justify-content:space-between; align-items:start; }.drawer-head h2 { margin-bottom:28px; }
 
 .legal { max-width:760px; margin:0 auto; padding:72px 24px 120px; }.legal h1 { margin-bottom:28px; }.legal h2 { margin-top:48px; font-size:1.65rem; }.legal p { max-width:68ch; }
+.demo-owner-checklist { margin: 0 clamp(20px, 5vw, 72px) 72px; padding: 24px; background: var(--paper-deep); border-left: 4px solid var(--green); }.demo-owner-checklist h2 { margin-bottom: 8px; }.demo-owner-checklist p { max-width: 62ch; }.demo-owner-checklist .action-row { margin-top: 18px; }
 body.offline::before { content:"Offline — saved pages remain readable; updates will need a connection."; position:sticky; top:0; z-index:99; display:block; padding:8px 16px; color:#fff; background:#7b2a23; text-align:center; font-size:.82rem; }
 
 @media (max-width: 850px) {

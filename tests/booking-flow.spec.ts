@@ -63,6 +63,8 @@ test('legal pages expose one h1 and a main landmark', async ({ page }) => {
     await page.goto(path);
     await expect(page.locator('main')).toHaveCount(1);
     await expect(page.locator('h1')).toHaveCount(1);
+    const results = await new AxeBuilder({ page }).analyze();
+    expect(results.violations.filter(v => ['serious', 'critical'].includes(v.impact || ''))).toEqual([]);
   }
 });
 
@@ -76,6 +78,84 @@ test('@claim:demo-confirmation-trail demo starts approved and reaches guest conf
   await expect(page.getByRole('link', { name: /Download sample calendar/ })).toBeVisible();
   const results = await new AxeBuilder({ page }).analyze();
   expect(results.violations.filter(v => ['serious', 'critical'].includes(v.impact || ''))).toEqual([]);
+});
+
+test('@claim:guest-rescheduling demo lets a guest request another sample time', async ({ page }) => {
+  await page.goto('/demo');
+  const originalTime = await page.locator('.booking-ticket dd').nth(1).textContent();
+  await page.getByRole('button', { name: 'Request another time' }).click();
+  await page.getByRole('button', { name: 'Request new sample time' }).click();
+  await expect(page.getByRole('heading', { name: 'New time requested' })).toBeVisible();
+  await expect(page.locator('.booking-ticket dd').nth(1)).not.toHaveText(originalTime || '');
+  await expect(page.getByText('The new sample time is waiting for owner approval.')).toBeVisible();
+});
+
+test('@claim:guest-cancellation demo lets a guest cancel the sample booking', async ({ page }) => {
+  await page.goto('/demo');
+  await page.getByRole('button', { name: 'Cancel request' }).click();
+  await page.getByRole('button', { name: 'Yes, cancel sample booking' }).click();
+  await expect(page.getByRole('heading', { name: 'Cancelled' })).toBeVisible();
+  await expect(page.getByText('This booking is closed and the time is available again.')).toBeVisible();
+});
+
+test('@claim:confirmed-calendar-ics demo downloads a confirmed calendar file with appointment details', async ({ page }) => {
+  await page.goto('/demo');
+  await page.getByRole('button', { name: 'Confirm this time' }).click();
+  const calendar = page.getByRole('link', { name: 'Download sample calendar (.ics)' });
+  const [download] = await Promise.all([page.waitForEvent('download'), calendar.click()]);
+  expect(download.suggestedFilename()).toBe('demo-booking.ics');
+  const href = await calendar.getAttribute('href');
+  const contents = decodeURIComponent((href || '').split(',').slice(1).join(','));
+  expect(contents).toContain('BEGIN:VCALENDAR');
+  expect(contents).toContain('SUMMARY:Precision cut — Northstar Barber');
+  expect(contents).toContain('STATUS:CONFIRMED');
+  expect(contents).toContain('DTSTART:');
+  expect(contents).toContain('DTEND:');
+});
+
+test('@claim:manual-reminder-checklist demo records an owner manual reminder without sending a message', async ({ page }) => {
+  await page.goto('/demo');
+  await page.getByRole('button', { name: 'Mark sample reminder sent' }).click();
+  await expect(page.locator('.demo-owner-checklist [role="status"]')).toHaveText('Sample reminder recorded.');
+  await page.reload();
+  await expect(page.locator('.demo-owner-checklist [role="status"]')).toHaveText('Sample reminder recorded.');
+});
+
+test('persistent demo controls meet the 44px target at a 390px viewport', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/demo');
+  const targets = await page.locator('#reset-demo, #start-real').evaluateAll(nodes => nodes.map(node => {
+    const bounds = node.getBoundingClientRect();
+    return { id: node.id, width: bounds.width, height: bounds.height };
+  }));
+  expect(targets).toHaveLength(2);
+  for (const target of targets) {
+    expect(target.width, `${target.id} width`).toBeGreaterThanOrEqual(44);
+    expect(target.height, `${target.id} height`).toBeGreaterThanOrEqual(44);
+  }
+});
+
+test('demo controls are reachable and operable by keyboard', async ({ page }) => {
+  await page.goto('/demo');
+  await page.getByRole('button', { name: 'Confirm this time' }).click();
+  const tabbedIds: string[] = [];
+  for (let index = 0; index < 12; index += 1) {
+    await page.keyboard.press('Tab');
+    tabbedIds.push(await page.evaluate(() => document.activeElement?.id || ''));
+    if (tabbedIds.at(-1) === 'reset-demo') break;
+  }
+  expect(tabbedIds).toContain('reset-demo');
+  await page.keyboard.press('Space');
+  await expect(page.getByRole('heading', { name: 'Ready to confirm' })).toBeVisible();
+
+  for (let index = 0; index < 12; index += 1) {
+    await page.keyboard.press('Tab');
+    if (await page.evaluate(() => document.activeElement?.id) === 'start-real') break;
+  }
+  await expect(page.locator('#start-real')).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.locator('main h1')).toBeVisible();
 });
 
 test('@claim:demo-local-only demo does not call booking APIs and uses only its demo storage namespace', async ({ page }) => {

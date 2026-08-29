@@ -35,6 +35,34 @@
     "sandbox": "fresh browser context; create a request, assert its pending state, approve it as the owner, then expose the guest confirmation state"
   },
   {
+    "id": "guest-rescheduling",
+    "claim": "Guests can use their private booking link to request another available time.",
+    "where": "README, private booking page, demo",
+    "test": "npm run test:e2e -- --grep @claim:guest-rescheduling",
+    "sandbox": "fresh browser context at /demo; request the next sample time and assert the changed appointment card and waiting-for-approval state"
+  },
+  {
+    "id": "guest-cancellation",
+    "claim": "Guests can use their private booking link to cancel a booking.",
+    "where": "README, private booking page, demo",
+    "test": "npm run test:e2e -- --grep @claim:guest-cancellation",
+    "sandbox": "fresh browser context at /demo; cancel the approved sample booking and assert its closed cancellation state"
+  },
+  {
+    "id": "confirmed-calendar-ics",
+    "claim": "A confirmed booking downloads an ICS calendar file with its appointment details.",
+    "where": "README, private booking page, demo",
+    "test": "npm run test:e2e -- --grep @claim:confirmed-calendar-ics",
+    "sandbox": "fresh browser context at /demo; confirm the sample, trigger its calendar download, and assert filename plus VCALENDAR, summary, status, start, and end fields"
+  },
+  {
+    "id": "manual-reminder-checklist",
+    "claim": "Owners can record that a manual reminder was sent without the product sending a message.",
+    "where": "README, owner panel, demo",
+    "test": "npm run test:e2e -- --grep @claim:manual-reminder-checklist",
+    "sandbox": "fresh browser context at /demo; mark the sample reminder sent, reload, and assert the recorded state persists only in the demo namespace"
+  },
+  {
     "id": "free-desk-capacity-and-retention",
     "claim": "The free desk allows 30 active future bookings and deletes closed records after 30 days.",
     "where": "owner panel, privacy page, README",

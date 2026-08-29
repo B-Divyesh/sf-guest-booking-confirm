@@ -1344,8 +1344,7 @@ mod tests {
             .expect("Dockerfile must declare a Rust builder stage");
 
         assert_eq!(
-            builder,
-            "FROM rust:1-slim AS backend",
+            builder, "FROM rust:1-slim AS backend",
             "the factory build must use the unpinned current-stable Rust slim image"
         );
         assert!(
@@ -1459,6 +1458,127 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(status, "confirmed");
+        state.db.close().await;
+        std::fs::remove_file(path).unwrap();
+    }
+
+    #[tokio::test]
+    async fn real_booking_actions_reschedule_calendar_reminder_and_cancel() {
+        let (state, path) = test_state().await;
+        seed_test_settings(&state.db, None).await;
+        let initial_slot = test_slot(&state).await;
+        let (_, Json(created)) = create_test_booking(&state, &initial_slot, 1).await.unwrap();
+        let token = created["token"].as_str().unwrap().to_string();
+        let initial_booking = booking_by_token(&state.db, &token).await.unwrap();
+        let booking_id = initial_booking.id.clone();
+        assert!(approve_booking(&state.db, &booking_id).await.unwrap());
+
+        let reschedule_slot = public_slots(
+            State(state.clone()),
+            Query(SlotsQuery {
+                from: None,
+                days: Some(14),
+            }),
+        )
+        .await
+        .unwrap()
+        .0["slots"]
+            .as_array()
+            .unwrap()
+            .first()
+            .unwrap()["start"]
+            .as_str()
+            .unwrap()
+            .to_string();
+        assert_ne!(reschedule_slot, initial_slot);
+
+        let rescheduled = guest_reschedule(
+            State(state.clone()),
+            AxumPath(token.clone()),
+            Json(RescheduleInput {
+                starts_at: reschedule_slot.clone(),
+            }),
+        )
+        .await
+        .unwrap();
+        assert_eq!(rescheduled.0["status"], "reschedule_requested");
+        let changed_booking = booking_by_token(&state.db, &token).await.unwrap();
+        assert_eq!(changed_booking.status, "reschedule_requested");
+        assert_eq!(
+            DateTime::parse_from_rfc3339(&changed_booking.starts_at).unwrap(),
+            DateTime::parse_from_rfc3339(&reschedule_slot).unwrap()
+        );
+
+        assert!(approve_booking(&state.db, &booking_id).await.unwrap());
+        assert_eq!(
+            guest_confirm(State(state.clone()), AxumPath(token.clone()))
+                .await
+                .unwrap()
+                .0["status"],
+            "confirmed"
+        );
+        let calendar = guest_ics(State(state.clone()), AxumPath(token.clone()))
+            .await
+            .unwrap();
+        assert_eq!(
+            calendar
+                .headers()
+                .get(header::CONTENT_TYPE)
+                .unwrap()
+                .to_str()
+                .unwrap(),
+            "text/calendar; charset=utf-8"
+        );
+        assert_eq!(
+            calendar
+                .headers()
+                .get(header::CONTENT_DISPOSITION)
+                .unwrap()
+                .to_str()
+                .unwrap(),
+            "attachment; filename=booking.ics"
+        );
+        let calendar_body = http_body_util::BodyExt::collect(calendar.into_body())
+            .await
+            .unwrap()
+            .to_bytes();
+        let calendar_text = std::str::from_utf8(&calendar_body).unwrap();
+        assert!(calendar_text.contains("BEGIN:VCALENDAR"));
+        assert!(calendar_text.contains("SUMMARY:Consultation — Signal Studio"));
+        assert!(calendar_text.contains("STATUS:CONFIRMED"));
+
+        let owner_session = create_session(&state.db).await.unwrap();
+        let mut headers = HeaderMap::new();
+        headers.insert(
+            header::AUTHORIZATION,
+            HeaderValue::from_str(&format!("Bearer {owner_session}")).unwrap(),
+        );
+        assert_eq!(
+            owner_action(
+                State(state.clone()),
+                AxumPath((booking_id, "reminder".to_string())),
+                headers,
+            )
+            .await
+            .unwrap()
+            .0["saved"],
+            true
+        );
+        let reminded = booking_by_token(&state.db, &token).await.unwrap();
+        assert_eq!(reminded.reminder_done, 1);
+        assert!(reminded.reminder_done_at.is_some());
+
+        assert_eq!(
+            guest_cancel(State(state.clone()), AxumPath(token.clone()))
+                .await
+                .unwrap()
+                .0["status"],
+            "cancelled"
+        );
+        assert_eq!(
+            booking_by_token(&state.db, &token).await.unwrap().status,
+            "cancelled"
+        );
         state.db.close().await;
         std::fs::remove_file(path).unwrap();
     }
