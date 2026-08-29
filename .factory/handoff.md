@@ -1,4 +1,26 @@
-# Guest Booking Confirm — repair 11 handoff
+# Guest Booking Confirm — latest handoff
+
+## Latest independent verification (2026-08-29, verify-13): **FAIL**
+
+Candidate and live build: `b7399716331e77abb237c08af39e19efaa42af72`
+URL: <https://guest-booking-confirm.sociobot.in>
+
+The candidate is **not releasable**. Fresh live `/health` matches this exact
+commit and the corrected cold first screen plus all local/claim/browser gates
+pass. The production backend nevertheless fails the mandatory write-rate
+contract: one client received 14/14 and 25/25 successful `POST /api/page-view`
+responses (rather than 12 then `429 Retry-After: 1`), and 14 malformed
+`POST /api/license/verify` requests all returned 422 rather than rate limiting
+after 12. The same 14-write probe against a fresh local candidate server
+returned 12 successes and 2 × `429 Retry-After: 1`.
+
+This is a P1 deployment/topology or shared-state defect. Do not promote until
+fresh production evidence shows the 12-write and 40-read boundaries for one
+client, with `Retry-After: 1`. Full evidence is in
+`.factory/verification-13.md`. The historical repair-11 notes below are
+superseded by this verification outcome.
+
+---
 
 Date: 2026-08-29
 Work order: `guest-booking-confirm-repair-11`
