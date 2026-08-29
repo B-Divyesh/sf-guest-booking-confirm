@@ -7,6 +7,13 @@
     "sandbox": "fresh browser context at /demo; sample booking is owner-approved, guest confirms it, and the confirmed state is visible"
   },
   {
+    "id": "eight-week-release-board",
+    "claim": "The release board shows dates opened 8 weeks in advance and locked two weeks before the event.",
+    "where": "cold landing page",
+    "test": "npm run test:e2e -- --grep @claim:eight-week-release-board",
+    "sandbox": "fresh 390px browser at /; assert the 8-week and two-week copy, use Review availability, choose July 7, and observe its pending status"
+  },
+  {
     "id": "demo-local-only",
     "claim": "Demo data stays in this browser.",
     "where": "cold landing page, demo banner, README",

@@ -24,7 +24,7 @@ test('@desktop-only desktop landing, demo, and owner entry stay accessible', asy
   await expect(page.locator('.skip-link')).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(page.locator('main')).toBeFocused();
-  await page.getByRole('link', { name: 'Try it with sample data' }).click();
+  await page.getByRole('link', { name: 'Try it with sample data' }).first().click();
   await expect(page).toHaveURL(/\/demo$/);
   const demoAxe = await new AxeBuilder({ page }).analyze();
   expect(demoAxe.violations.filter(violation => ['serious', 'critical'].includes(violation.impact || ''))).toEqual([]);
@@ -65,16 +65,30 @@ test('@claim:owner-entra-identity owner access uses Sociobot Entra and mobile ho
   }
 });
 
-test('cold landing action does not overlap and reflows at 200% text on 390px', async ({ page }) => {
+test('@claim:eight-week-release-board cold landing schedule works and reflows at 200% text on 390px', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'Request and confirm guest appointments' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Release dates, finalized 8 weeks out.' })).toBeVisible();
+  await expect(page.getByText('We open the appointment calendar 8 weeks in advance and lock dates two weeks before the event.')).toBeVisible();
+  const navTargets = await page.locator('.topbar nav a').evaluateAll(nodes => nodes.map(node => {
+    const bounds = node.getBoundingClientRect();
+    return { width: bounds.width, height: bounds.height };
+  }));
+  for (const target of navTargets) {
+    expect(target.width).toBeGreaterThanOrEqual(44);
+    expect(target.height).toBeGreaterThanOrEqual(44);
+  }
   const spacing = await page.evaluate(() => {
-    const action = document.querySelector('.not-ready .button')!.getBoundingClientRect();
-    const note = document.querySelector('.not-ready .button-note')!.getBoundingClientRect();
-    return note.top - action.bottom;
+    const copy = document.querySelector('.release-lede')!.getBoundingClientRect();
+    const action = document.querySelector('.release-actions .button')!.getBoundingClientRect();
+    return action.top - copy.bottom;
   });
-  expect(spacing).toBeGreaterThanOrEqual(8);
+  expect(spacing).toBeGreaterThanOrEqual(20);
+  await page.getByRole('link', { name: 'Review availability' }).click();
+  await expect(page).toHaveURL(/#schedule$/);
+  await expect(page.getByRole('heading', { name: 'Review the date board' })).toBeVisible();
+  await page.locator('[data-release-date="Jul 7"]').click();
+  await expect(page.getByRole('status')).toHaveText('Jul 7 is pending in this sample schedule.');
   await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
   await expect.poll(() => page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, client: document.documentElement.clientWidth })))
     .toEqual({ scroll: 390, client: 390 });

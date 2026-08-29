@@ -40,9 +40,9 @@ async function api<T>(url: string, options: RequestInit = {}): Promise<T> {
 
 function shell(content: string, owner = false): void {
   app.innerHTML = `<header class="topbar">
-    <a class="wordmark" href="/" data-nav aria-label="Guest Booking Confirm home"><span class="brand-lamp" aria-hidden="true"></span><span>Guest Booking Confirm</span></a>
-    <nav aria-label="Main navigation"><a href="/demo" data-nav>Try sample</a><a href="${owner ? '/' : '/manage'}" data-nav>${owner ? 'Guest page' : 'Owner panel'}</a></nav>
-  </header>${location.pathname === '/demo' ? demoBanner() : ''}${content}<footer><p>Clear appointment state, no guest account. Generated artwork with recorded prompt provenance. No tracking cookies. Built by Param Factory · <a href="/health">build ID</a></p><nav aria-label="Legal"><a href="/privacy" data-nav>Privacy</a><a href="/terms" data-nav>Terms</a></nav></footer><p id="route-status" class="sr-only" aria-live="polite"></p>`;
+    <a class="wordmark" href="/" data-nav aria-label="Guest Booking Confirm home"><span aria-hidden="true">GBC</span><strong>Guest Booking<br>Confirm</strong></a>
+    <nav aria-label="Main navigation"><a href="/#schedule">Schedule</a><a href="/#guide">Guide</a><a href="/#request-booking">Request booking</a><a class="nav-cta" href="mailto:hello@sociobot.in?subject=Guest%20Booking%20Confirm%20waitlist">Join waitlist</a></nav>
+  </header>${location.pathname === '/demo' ? demoBanner() : ''}${content}<footer><p>Clear appointment state, no guest account. Generated artwork with recorded prompt provenance. No tracking cookies. Built by Param Factory · <a href="/health">build ID</a></p><nav aria-label="Product and legal"><a href="${owner ? '/' : '/manage'}" data-nav>${owner ? 'Guest page' : 'Owner panel'}</a><a href="/privacy" data-nav>Privacy</a><a href="/terms" data-nav>Terms</a></nav></footer><p id="route-status" class="sr-only" aria-live="polite"></p>`;
   document.querySelector('main')?.setAttribute('tabindex', '-1');
   document.querySelectorAll<HTMLAnchorElement>('[data-nav]').forEach(link => link.addEventListener('click', event => { if (link.origin === location.origin) { event.preventDefault(); moveFocusOnRoute = true; history.pushState({}, '', link.href); route(); } }));
   document.querySelector('#reset-demo')?.addEventListener('click', resetDemo);
@@ -76,7 +76,7 @@ async function bookingPage(): Promise<void> {
   try {
     const settings = await api<Settings>('/public/settings');
     if (!settings.configured) {
-      shell(`<main id="main" class="center-page"><section class="not-ready"><div class="instrument-icon" aria-hidden="true"><i class="on"></i><i></i><i></i></div><p class="eyebrow">Guest appointment desk</p><h1>Request and confirm guest appointments</h1><p>For small businesses that approve times before guests book.</p><a class="button primary" href="/demo" data-nav>Try it with sample data</a><p class="button-note">See a guest request, owner approval, and confirmation without saving anything.</p><ul class="plain-facts"><li>Guests need no account.</li><li>Demo data stays in this browser.</li><li>Owners approve requests before booking.</li></ul><p class="owner-start">Owners can <a href="/manage" data-nav>set up the booking desk</a> when ready.</p></section></main>`);
+      marketingLanding();
       return;
     }
     let slots: Slot[] = [];
@@ -102,6 +102,100 @@ async function bookingPage(): Promise<void> {
     bindBookingForm(settings);
     fetch('/api/page-view', { method: 'POST', keepalive: true }).catch(() => {});
   } catch (error) { errorPage(error instanceof Error ? error.message : 'Unknown error'); }
+}
+
+function monthGrid(): string {
+  const blanks = '<span aria-hidden="true"></span>'.repeat(4);
+  const days = Array.from({ length: 31 }, (_, index) => {
+    const day = index + 1;
+    return `<span class="${day === 5 ? 'picked' : ''}">${day}${day === 5 ? '<i aria-hidden="true"></i>' : ''}</span>`;
+  }).join('');
+  return `${blanks}${days}`;
+}
+
+function scheduleRow(month: string, days: Array<[string, string, string]>, tone: string): string {
+  return `<article class="release-month ${tone}"><h3>${month} <span>2025</span></h3><div class="release-days">${days.map(([day, date, state]) => `<button class="release-day" type="button" data-release-date="${month} ${date}" data-release-state="${state}" aria-pressed="false"><small>${day}</small><strong>${date}</strong><span aria-hidden="true">${tone === 'open' ? '✓' : tone === 'pending' ? '●' : '×'}</span><em>${state}</em></button>`).join('')}</div></article>`;
+}
+
+function marketingLanding(): void {
+  const weekdays: Array<[string, string, string]> = [['MON', '5', 'confirmed'], ['TUE', '6', 'confirmed'], ['WED', '7', 'confirmed'], ['THU', '8', 'confirmed']];
+  const pending: Array<[string, string, string]> = [['MON', '7', 'pending'], ['TUE', '8', 'pending'], ['WED', '9', 'pending'], ['THU', '10', 'pending']];
+  const paused: Array<[string, string, string]> = [['MON', '1', 'paused'], ['TUE', '2', 'paused'], ['WED', '3', 'paused'], ['THU', '4', 'paused']];
+  shell(`<main id="main" class="release-landing">
+    <section class="release-hero" aria-labelledby="release-title">
+      <div class="release-copy">
+        <p class="eyebrow">Appointment release board</p>
+        <h1 id="release-title">Release dates,<br><em>finalized 8 weeks out.</em></h1>
+        <p class="release-lede">We open the appointment calendar 8 weeks in advance and lock dates two weeks before the event.</p>
+        <div class="release-actions"><a class="button primary" href="#schedule">Review availability</a><a class="text-link" href="/demo" data-nav>Try it with sample data <span aria-hidden="true">↗</span></a></div>
+        <ul class="release-facts" aria-label="Booking facts"><li>Guests need no account</li><li>Owners approve every request</li><li>No tracking cookies</li></ul>
+      </div>
+      <figure class="calendar-collage" aria-label="May 2025 release date preview">
+        <img src="/assets/editorial-calendar-texture.webp" width="1536" height="1024" alt="" fetchpriority="high" decoding="async">
+        <div class="availability-slip"><span>Available</span><strong>Spring<br>preview</strong><small>Weekday slots</small></div>
+        <div class="date-slip"><span>Mon</span><strong>May 5</strong><small><i aria-hidden="true">✓</i> Confirmed</small></div>
+        <div class="month-slip"><header><span>May</span><strong>2025</strong></header><div class="week-row" aria-hidden="true"><b>S</b><b>M</b><b>T</b><b>W</b><b>T</b><b>F</b><b>S</b></div><div class="month-grid" aria-hidden="true">${monthGrid()}</div></div>
+      </figure>
+    </section>
+
+    <section class="release-facts-bar" aria-label="Release facts">
+      <p><span>Earliest start</span><strong>8 weeks</strong></p>
+      <p><span>Working days</span><strong>Mon—Thu</strong></p>
+      <p><span>Pause dates</span><strong>Holidays</strong></p>
+    </section>
+
+    <section class="cutoff-panel" aria-labelledby="cutoff-title">
+      <div class="cutoff-copy"><p class="eyebrow">Decision point</p><h2 id="cutoff-title">The cutoff</h2><p>Dates lock two weeks before each appointment. The owner confirms the time or suggests another one before then.</p></div>
+      <div class="cutoff-mark" aria-hidden="true"><span>14</span><small>days</small></div>
+      <svg class="cutoff-path" viewBox="0 0 600 190" aria-hidden="true"><path d="M15 145 C130 10, 260 205, 390 65 S555 85, 585 18"/><circle cx="15" cy="145" r="6"/><circle cx="585" cy="18" r="6"/></svg>
+    </section>
+
+    <section class="next-release" aria-labelledby="next-title">
+      <div class="next-intro"><p class="eyebrow">Next up</p><h2 id="next-title">May 5—8</h2><p>Four weekday dates move together from open request to owner approval.</p></div>
+      <div class="next-days" aria-label="Next release dates">${weekdays.map(([day, date]) => `<div><small>${day}</small><strong>${date}</strong><span aria-hidden="true">✓</span></div>`).join('')}</div>
+      <div class="locked-block"><strong>4 days,<br>locked.</strong><p>Guests see one clear status for every requested time.</p></div>
+    </section>
+
+    <div class="release-strip" aria-hidden="true"><span>Releases · 8 weeks out · Dates lock · 2 weeks out · Releases · 8 weeks out · Dates lock · 2 weeks out</span></div>
+
+    <section class="schedule-board" id="schedule" aria-labelledby="schedule-title">
+      <div class="schedule-heading"><p class="eyebrow">2025 release schedule</p><h2 id="schedule-title">Review the date board</h2><p>Select a date to hear its current sample status.</p></div>
+      <div class="month-list">
+        ${scheduleRow('May', weekdays, 'open')}
+        ${scheduleRow('Jul', pending, 'pending')}
+        ${scheduleRow('Dec', paused, 'paused')}
+      </div>
+      <p id="availability-status" class="availability-status" role="status">Monday, May 5 is confirmed in this sample schedule.</p>
+    </section>
+
+    <div class="release-strip reverse" aria-hidden="true"><span>Guests request · Owners approve · Guests confirm · One private link · Guests request · Owners approve</span></div>
+
+    <section class="landing-guide" id="guide" aria-labelledby="guide-title">
+      <div class="guide-heading"><p class="eyebrow">Simple by design</p><h2 id="guide-title">How booking works</h2></div>
+      <ol>
+        <li><span>01</span><h3>Request a time</h3><p>The guest chooses an available time and shares only needed contact details.</p></li>
+        <li><span>02</span><h3>Owner approves</h3><p>The owner approves the request before the appointment becomes ready to confirm.</p></li>
+        <li><span>03</span><h3>Guest confirms</h3><p>A private link keeps confirmation, changes, calendar export, and cancellation together.</p></li>
+      </ol>
+    </section>
+
+    <section class="bottom-details" aria-label="Product details">
+      <div><p class="eyebrow">Private by default</p><p>Demo data stays in this browser. Real desks store only booking details and consent.</p><a href="/privacy" data-nav>Read the privacy policy</a></div>
+      <div><p class="eyebrow">Clear limits</p><p>This is not a payment system, staff rota, CRM, or automatic message sender.</p><a href="/terms" data-nav>Read the terms</a></div>
+      <div><p class="eyebrow">Straightforward price</p><p>The free desk holds 30 active bookings. Panel Pro is a $29 one-time license.</p><a href="/manage" data-nav>Open the owner panel</a></div>
+    </section>
+
+    <section class="landing-cta" id="request-booking" aria-labelledby="request-title"><div><p class="eyebrow">Try the full trail</p><h2 id="request-title">Request. Approve. Confirm.</h2></div><div><a class="button primary" href="/demo" data-nav>Try it with sample data</a><p>Opens a ready-to-confirm sample. Nothing is saved to a real desk.</p></div></section>
+  </main>`);
+  bindReleaseBoard();
+}
+
+function bindReleaseBoard(): void {
+  const output = document.querySelector('#availability-status');
+  document.querySelectorAll<HTMLButtonElement>('[data-release-date]').forEach(button => button.addEventListener('click', () => {
+    document.querySelectorAll<HTMLButtonElement>('[data-release-date]').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+    if (output) output.textContent = `${button.dataset.releaseDate} is ${button.dataset.releaseState} in this sample schedule.`;
+  }));
 }
 
 function demoBanner(): string {

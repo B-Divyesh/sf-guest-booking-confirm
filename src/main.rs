@@ -1413,9 +1413,15 @@ mod tests {
         let app = include_str!("../frontend/src/app.ts");
         let design = include_str!("../.factory/design.md");
         let provenance = include_str!("../assets/src/confirmation-console.png.json");
+        let calendar_provenance = include_str!("../assets/src/editorial-calendar-texture.png.json");
         let original = include_bytes!("../assets/src/confirmation-console.png");
         let production = include_bytes!("../public/assets/confirmation-console.webp");
+        let calendar_original = include_bytes!("../assets/src/editorial-calendar-texture.png");
+        let calendar_production =
+            include_bytes!("../public/assets/editorial-calendar-texture.webp");
+        let paper_grain = include_bytes!("../public/assets/editorial-paper-grain.webp");
         let metadata: Value = serde_json::from_str(provenance).unwrap();
+        let calendar_metadata: Value = serde_json::from_str(calendar_provenance).unwrap();
 
         assert!(app.contains("Generated artwork with recorded prompt provenance."));
         assert!(
@@ -1428,6 +1434,15 @@ mod tests {
             .contains("appointment confirmation instrument"));
         assert!(original.len() > production.len());
         assert!(production.len() > 10_000);
+        assert!(design.contains("Generated with the factory image tool on 2026-08-29."));
+        assert_eq!(calendar_metadata["deployment"], "factory-image");
+        assert!(calendar_metadata["prompt"]
+            .as_str()
+            .unwrap()
+            .contains("editorial still life"));
+        assert!(calendar_original.len() > calendar_production.len());
+        assert!(calendar_production.len() > 10_000);
+        assert!(paper_grain.len() > 1_000);
     }
 
     #[tokio::test]

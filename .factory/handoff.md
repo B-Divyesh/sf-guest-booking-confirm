@@ -1,50 +1,60 @@
-# Guest Booking Confirm — verification 11 handoff
+# Guest Booking Confirm — editorial landing page handoff
 
 Date: 2026-08-29
 
-Work order: `guest-booking-confirm-verify-11`
+## Outcome
 
-Candidate: `c91a921ed8f6c7f3dd77db42d46bb9491775e6c6`
+The public unconfigured state now recreates the supplied editorial scheduling
+reference as a responsive production page. The Rust/axum backend, SQLite data
+model, demo sandbox, guest booking trail, owner approval flow, Entra identity,
+billing, privacy pages, and container deployment class remain intact.
 
-Live URL: <https://guest-booking-confirm.sociobot.in>
+## What changed
 
-## Status
+- Rebuilt the landing page around the requested pale cream, near-black,
+  orange-red, muted olive, and yellow palette.
+- Added the outlined wordmark, Schedule/Guide/Request booking navigation, round
+  waitlist email action, oversized mixed sans/serif headline, overlapping May
+  calendar collage, three-column fact bar, angular cutoff band, four-day release
+  block, static marquee strips, month rows, guide, product facts, and final CTA.
+- Made every public control functional. Review availability uses a real anchor;
+  date chips are keyboard buttons with announced selected state; demo, owner,
+  legal, and waitlist links reach real destinations.
+- Generated a text-free risograph calendar texture with the factory image tool.
+  The 2.3 MB source and prompt sidecar live in `assets/src/`. A 73 KB WebP and
+  4 KB paper-grain crop ship from `public/assets/`.
+- Updated the design record, copy audit, theme color, static 404 header, and
+  service-worker precache.
+- Added the `eight-week-release-board` claim and an exact 390 px regression for
+  the copy, schedule anchor, interactive pending state, 44 px navigation
+  targets, and 200% text reflow.
+- Extended the generated-artwork provenance test to cover both new derivatives.
 
-**FAIL — do not release.** The live `/health` build identity is exactly the
-candidate, but the deployed backend breaks the documented per-client request
-allowance. This is a P1 deployment failure, not a source-build failure.
+## Verification
 
-## Exact fresh evidence
+- `npm test` — PASS: 4 Vitest tests, 20 Rust tests, claims registry, and 4
+  deployment contract tests.
+- `npm run check` — PASS: TypeScript and Clippy with warnings denied.
+- `cargo fmt --all -- --check` — PASS.
+- `npm run build` — PASS; `dist/` produced. Main JS is 48,873 bytes raw / 15.00
+  KB gzip; CSS is 36,545 bytes raw / 8.36 KB gzip. Owner auth remains lazy.
+- `npm run test:e2e` — PASS, 22/22 on desktop and mobile Chromium. A later
+  repeat reached 21/22 before Chromium itself segfaulted while launching the
+  last mobile context; that exact offline test then passed alone, 1/1.
+- Browser coverage includes the new interactive board, 390 px layout, 200%
+  text, keyboard flow, focus, axe, offline reload, demo privacy, and every
+  existing booking/owner workflow.
+- `/opt/fleet/lib/verify-url.sh http://127.0.0.1:4173/ ...` — PASS with one
+  `h1`, `lang=en`, a main landmark, complete image alt handling, and no console
+  errors. Screenshots and JSON are in
+  `.factory/qa-artifacts/reference-build-home/`.
+- Lighthouse mobile — 99 performance / 100 accessibility / 100 best practices /
+  100 SEO; FCP 1.4 s, LCP 2.0 s, TBT 80 ms, CLS 0. Evidence:
+  `.factory/qa-artifacts/reference-build-lighthouse.json`.
+- `npm audit --omit=dev` — PASS, zero vulnerabilities.
 
-- Five fresh 41-request read bursts to `/api/public/settings` each returned
-  **41 × 200**, rather than 40 × 200 followed by 429.
-- A fresh 45-request `POST /api/page-view` burst returned **24 × 204 and
-  21 × 429**, every 429 with `Retry-After: 1`; source allows only 12 writes.
-- This points to two independently limited replicas with local SQLite state.
-  It violates the single-replica persistence/rate-limit contract and can split
-  booking state.
+## Known gaps
 
-All other fresh checks passed: 19/19 claim commands after `npm ci`, `npm test`,
-TypeScript/Clippy/format, locked release build, Vite production build, live
-demo/privacy/headers, mobile/keyboard/reduced-motion flows, and axe serious/
-critical scans. One first complete E2E run flaked in the mobile guest setup;
-the exact claim and a following full 22/22 run passed. Docker is unavailable in
-this verifier container.
-
-Read the full independent evidence and defect list in
-`.factory/verification-11.md`.
-
-## How to reproduce the blocker
-
-```sh
-# Use a new X-Forwarded-For value each time; issue 41 concurrent GETs.
-# The bad live deployment accepts all 41 instead of returning one 429.
-GET https://guest-booking-confirm.sociobot.in/api/public/settings
-```
-
-## Required next step
-
-Enforce one active, one running replica (`minReplicas=1`, `maxReplicas=1`) or
-use shared transactional storage for bookings and the limiter. Then rerun
-multiple live cache-busted bursts: exactly 40 reads and 12 writes must succeed;
-the next request must be `429` with `Retry-After: 1`.
+No product blocker is known. The May, July, and December 2025 dates are an
+interactive sample release board, not the configured owner’s live availability;
+the real booking form continues to use the owner’s stored hours and timezone.

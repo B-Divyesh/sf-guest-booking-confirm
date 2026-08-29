@@ -1,25 +1,25 @@
-# Visual thesis — the calm signal desk
+# Visual thesis — the editorial date board
 
 ## Direction and rationale
 
-Guest Booking Confirm is a **mid-century instrument panel**, not a generic scheduler. A booking is shown as a signal moving through a small control desk: request, owner approval, guest confirmation, reminder, complete. This makes the otherwise invisible state legible to a busy sole operator. Physical details—engraved labels, a signal lamp, numbered rails, inset paper, and restrained hardware—explain status rather than decorate it.
+Guest Booking Confirm is an **editorial date board**, not a generic scheduler. The public page pairs oversized magazine typography with overlapping calendar slips, colored confirmation marks, and angular notched panels. The composition makes timing and approval feel concrete before a guest opens the booking flow. The darker signal desk remains inside the working guest and owner views, where state matters more than explanation.
 
-The interface is deliberately single-mode. A warm paper background and dark charcoal console are painted explicitly; this is closer to a dependable daytime workshop instrument than an ambient consumer app. It avoids a second theme whose color remapping could weaken the semantic lamp system.
+The interface is deliberately single-mode. A pale cream canvas, near-black ink, vivid orange-red action color, and muted olive confirmations echo marked-up paper calendars without imitating a paper form. Fine grain and angular section edges provide texture; shadows are short and crisp, and gradients are not used.
 
 ## Palette
 
 | Token | Value | Role |
 | --- | --- | --- |
-| paper | `#F3EBDD` | page background, like an appointment card |
-| paper-deep | `#E4D8C5` | inset tracks and dividers |
-| panel | `#202A28` | primary console surface |
-| ink | `#17201E` | text |
-| muted | `#5F665F` | secondary text; remains 4.5:1 on paper |
-| cream | `#FFF9EE` | text on panel |
-| signal | `#E85D3F` | primary action and live signal |
-| signal-dark | `#A83422` | pressed state / accessible text |
+| paper | `#F4F0E6` | pale cream page canvas |
+| paper-deep | `#DED8C8` | calendar slips and inset tracks |
+| panel | `#171814` | near-black hero and workflow panel |
+| ink | `#181914` | primary text |
+| muted | `#5D6253` | secondary text; remains 4.5:1 on cream |
+| cream | `#FFFDF6` | text on dark panels |
+| signal | `#F0522D` | vivid orange-red primary action and confirmation mark |
+| signal-dark | `#A93218` | pressed state / accessible text |
 | amber | `#D89A2B` | waiting state, always paired with words/icons |
-| green | `#2C7559` | confirmed state, always paired with words/icons |
+| green | `#65734B` | muted olive confirmation, always paired with words/icons |
 | red | `#A33B32` | cancel/error, always paired with words/icons |
 | focus | `#146D87` | 3px keyboard focus ring |
 | focus-dark | `#FFD166` | 3px keyboard focus ring on charcoal and green surfaces |
@@ -28,20 +28,22 @@ Contrast targets are at least 4.5:1 for body copy and 3:1 for controls and large
 
 ## Typography
 
-- Display: `Georgia`, `Iowan Old Style`, serif—bookish, human, and reminiscent of printed instrument manuals.
+- Display: `Arial Black`, `Arial Narrow`, `Helvetica Neue`, system sans—condensed, uppercase, and poster-like for the main statement.
+- Accent: `Georgia`, `Iowan Old Style`, serif in italic for the final word of display headings and date-card annotations.
 - Interface: `Arial`, `Helvetica Neue`, system sans—neutral and exceptionally legible. No fonts are downloaded.
-- Scale: 16px body, 18px lead, 22px section, 32–56px display. Numbers and dates use `font-variant-numeric: tabular-nums`.
+- Scale: 16px body, 18px lead, 22px section, and a 56–112px landing display. Numbers and dates use `font-variant-numeric: tabular-nums`.
 - Text measures stay between 45 and 72 characters where possible.
 
 ## Spacing and form
 
 An 8px base rhythm (`4, 8, 12, 16, 24, 32, 48, 64`). Corners are restrained: 2px paper panels, 8px control surfaces, pill shapes only for state indicators. Dense owner information sits on ruled rows; independent booking records are allowed to be cards. Controls are at least 44px high with 8px between adjacent targets.
 
-Desktop pages use an asymmetric 12-column console with the workflow instrument to the right. At 390px it becomes one column, secondary explanation shortens, owner tables become stacked records, and the primary action remains in normal document flow above the fold.
+Desktop uses an asymmetric editorial grid: copy occupies the left five columns and the date collage fills the right seven. Full-width bands use angular clipped corners rather than rounded cards. At 390px the copy and calendar stack, navigation wraps cleanly, and the primary action stays in normal document flow above the fold.
 
 ## Interaction grammar
 
-- A status change illuminates one lamp and advances one position on the state rail.
+- Landing date chips move one quiet selection mark across the calendar collage and update the visible selection note.
+- A status change in the product illuminates one lamp and advances one position on the state rail.
 - Buttons depress by 1px with a shorter shadow; async actions change their verb to a progress phrase.
 - Dialogs are avoided. Destructive cancellation uses an inline, named confirmation step with a safe return.
 - Loading uses a static engraved “Checking the signal…” panel; offline state keeps entered form values and offers Retry.
@@ -49,11 +51,21 @@ Desktop pages use an asymmetric 12-column console with the workflow instrument t
 
 ## Motion policy
 
-State transitions use 180–240ms opacity and transform movement, as if a physical indicator has slid to its next detent. The live lamp receives one short 600ms glow after a state change; nothing loops. With `prefers-reduced-motion: reduce`, transforms and smooth scrolling are removed and state changes are immediate opacity swaps.
+Landing cards settle by 6–10px over 220ms when a date is selected; the movement reads as paper being placed on a desk. Product state transitions use 180–240ms opacity and transform movement. Nothing loops. With `prefers-reduced-motion: reduce`, transforms and smooth scrolling are removed and state changes are immediate opacity swaps.
 
-## Original asset plan and provenance
+## Editorial calendar texture
 
-One generated hero still-life anchors the public page: a small 1960s appointment signal console, seen three-quarter overhead, with a blank cream card, coral confirmation lamp, dark green metal case, brass toggle, tactile paper texture, and generous quiet negative space. It illustrates “state you can see” without pretending to show product UI.
+The landing date collage uses one generated, text-free image as a low-contrast paper and ink texture behind the HTML calendar cards. All dates, labels, statuses, and controls remain real accessible text.
+
+Prompt sheet:
+
+> Use case: stylized-concept. Asset type: subtle landing-page calendar collage backing texture. Primary request: an abstract editorial still life of overlapping blank appointment ledger sheets, crop marks, a single orange-red painted circle, one muted olive paper tab, and small black registration marks. Scene/backdrop: pale warm cream paper. Style/medium: tactile risograph print and cut-paper collage with fine natural grain. Composition/framing: wide landscape, broad quiet negative space, graphic shapes near the right and lower edges, no central subject. Lighting/mood: flat studio light, calm, precise, operational. Color palette: pale cream, near-black, vivid orange-red, muted olive. Constraints: no words, no letters, no numbers, no logos, no watermark, no gradients, no people, no devices. Avoid: legible calendar content, generic SaaS graphics, glossy 3D, rounded interface cards, decorative clutter.
+
+Generated with the factory image tool on 2026-08-29. The original PNG and prompt sidecar are kept under `assets/src/`; the optimized WebP and a 4 KB quiet-grain crop under `public/assets/` are used on the landing page.
+
+## Configured-desk asset provenance
+
+The existing generated signal-console still life remains in the configured guest page. Its dark green case and illuminated coral lamp connect the new editorial landing page to the working booking-state interface. It illustrates “state you can see” without pretending to show product UI.
 
 Prompt sheet:
 
