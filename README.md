@@ -45,7 +45,7 @@ docker run --rm -p 8080:8080 -v gbc-data:/data guest-booking-confirm
 
 Read API calls allow 40 requests per client in any rolling one-second window. Later calls return `429` with `Retry-After: 1`. Write limits are stricter. `/health` is exempt and returns the compiled build SHA.
 
-The container contract sets UID 10001, `PORT=8080`, SQLite under `/data`, and one serving replica. It handles `SIGTERM` for a graceful shutdown. After the standard factory container deployment, run `deploy/enforce-single-replica.sh`; it applies and verifies the checked-in SQLite deployment policy. Mount persistent storage at `/data` outside the factory deployment.
+The container contract sets UID 10001, `PORT=8080`, SQLite under `/data`, and one serving replica. It handles `SIGTERM` for a graceful shutdown. After the standard factory container deployment, run `deploy/enforce-single-replica.sh`. It applies and verifies the checked-in SQLite deployment policy. Mount persistent storage at `/data` outside the factory deployment.
 
 ## Privacy and billing
 
