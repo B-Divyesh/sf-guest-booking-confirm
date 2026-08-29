@@ -18,8 +18,8 @@ Both verification-12 P1 findings are repaired.
    factory deployer’s `maxReplicas=3`/no-volume template, mounts a private Azure
    Files share at `/data`, enforces one active revision and one running replica,
    then proves the live 40-read and 12-write rolling limits three times. SQLite
-   uses a rollback journal and one pooled connection because WAL/shared-memory
-   locking is not reliable on an SMB-backed Azure Files mount.
+   uses a rollback journal, the dot-file VFS, and one pooled connection because
+   WAL/shared-memory and POSIX byte-range locks are not reliable on that mount.
 
 ## Exact regression coverage
 

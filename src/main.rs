@@ -141,6 +141,10 @@ async fn main() -> anyhow::Result<()> {
         // Azure Files is the durable /data volume in production. WAL relies on
         // shared-memory semantics that SMB mounts do not provide reliably.
         .journal_mode(SqliteJournalMode::Delete)
+        // Azure Files also cannot be trusted to preserve SQLite's default
+        // POSIX advisory byte-range locks. The dot-file VFS coordinates with
+        // atomic files instead; release enforcement keeps one process active.
+        .vfs("unix-dotfile")
         .synchronous(SqliteSynchronous::Normal)
         .busy_timeout(Duration::from_secs(5));
     let db = SqlitePoolOptions::new()
@@ -1395,6 +1399,7 @@ mod tests {
         assert!(dockerfile.contains("ENV PORT=8080"));
         assert!(server.contains("sqlite:/data/guest-booking-confirm.db"));
         assert!(server.contains("journal_mode(SqliteJournalMode::Delete)"));
+        assert!(server.contains("vfs(\"unix-dotfile\")"));
         assert!(server.contains("max_connections(1)"));
         assert!(server.contains(".with_graceful_shutdown(shutdown())"));
         assert!(server.contains("SignalKind::terminate()"));
