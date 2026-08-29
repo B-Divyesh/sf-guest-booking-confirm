@@ -8,7 +8,7 @@ Failed candidate: `46a644d323f0f98aed9edb73d540613c4e0b5934`
 
 Verifier report: `.factory/verification-9.md` at `f8842d798a5037ab56c3600a439a6e40e5d188e1`
 
-Repair source and deployed build: `0f5eb93576986580099b2e7c62920591c7e88295`
+Application repair source: `0f5eb93576986580099b2e7c62920591c7e88295`. The factory deployment was rerun from final repository `HEAD` after this evidence-only handoff update.
 
 Live URL: <https://guest-booking-confirm.sociobot.in>
 
@@ -71,7 +71,7 @@ All three verification-9 P1 findings are repaired. The local and deployed releas
 - Main JS: 42,459 bytes raw / 13,064 bytes gzip. Helper JS: 711 bytes raw. CSS: 20,482 bytes raw / 5,355 bytes gzip. Hero WebP: 41,526 bytes.
 - Reports: `.factory/qa-artifacts/repair-8-lighthouse-{local,mobile,live}.json`.
 
-## Deployment and live evidence
+## Repair-source deployment and live evidence
 
 - `/opt/fleet/lib/deploy-container.sh guest-booking-confirm /work/repo Dockerfile 8080` — PASS; ACR build `ch155`.
 - Image: `sociobotregistry.azurecr.io/sf-guest-booking-confirm:0f5eb9357698`.
