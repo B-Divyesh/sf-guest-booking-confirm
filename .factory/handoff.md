@@ -12,7 +12,7 @@ Artifact: Rust/axum + SQLite backend serving the Vite/TypeScript frontend from o
 
 ## Status
 
-All verifier findings are repaired with regression coverage. Clean local quality gates pass. The source commit and production rollout evidence are recorded below after deployment.
+**DEPLOYED.** All verifier findings are repaired with regression coverage. Clean local gates and production checks pass. The live container reports repair source `18ee7792d9dbc6f21a668aded8da00499156eee5`.
 
 ## Repairs
 
@@ -41,11 +41,23 @@ All verifier findings are repaired with regression coverage. Clean local quality
 - `/opt/fleet/lib/verify-url.sh` on local `/` and `/demo` — PASS: title, `lang=en`, one `h1`, `<main>`, alt labels, and zero console/page errors at desktop and 390 px.
 - Lighthouse 12.8.2 on local production `/demo` — performance 100, accessibility 100, best practices 100, SEO 100; LCP 1.335 s, CLS 0, total blocking time 66 ms.
 - Live identity preflight — PASS: OIDC discovery returned the expected issuer, authorization endpoint, and JWKS URI. The production `/auth/callback` authorize request returned the provider sign-in page without `AADSTS50011` redirect mismatch.
-- Docker is unavailable in the worker image. The Azure Container Registry remote build is the package/container-consumer gate and is recorded after rollout.
+- Docker is unavailable in the worker image. ACR run `ch11c` completed the multi-stage Docker build and pushed digest `sha256:7009c619d4591b516423e2177b06b5b10d9cdad1a5bee484f9a6d1e2df0a74c4`; this is the package/container-consumer gate.
+
+## Live verification
+
+- `/health` returns `{"build_sha":"18ee7792d9dbc6f21a668aded8da00499156eee5","status":"ok"}`.
+- The deployed revision is `sf-guest-booking-confirm--0000009`, image `sociobotregistry.azurecr.io/sf-guest-booking-confirm:18ee7792d9db`, with `minReplicas=1` and `maxReplicas=1`.
+- Live rate checks match policy: 41 concurrent reads produced 40 × 200 and 1 × 429; 13 concurrent writes produced 12 × 204 and 1 × 429. Both limited responses had `Retry-After: 1`; 45 concurrent health checks produced 45 × 200.
+- Live 390 px Chromium measured an 8 px action/note gap, normal and 200% widths of `390/390`, no owner-password field, the Entra notice, and a real request to the required tenant discovery URL after activating **Sign in with Sociobot**.
+- The live demo reached **Confirmed**, set no cookie, wrote only `demo:guest-booking-confirm:state`, made no cross-origin request, and reloaded as **Confirmed** while offline.
+- Live axe found zero serious/critical issues. `verify-url.sh` passed `/` and `/demo` at desktop and 390 px with zero console/page errors.
+- Live response checks passed for CSP, `nosniff`, framing denial, referrer/permissions policies, shell `no-cache`, immutable hashed assets, real 404, `robots.txt`, and `sitemap.xml`.
+- Live and local main JS SHA-256 both equal `20d0ae86747d38e562c23f30982c08c47bc9fcca210e8c366c66fddd9278d9e5`; live and local CSS both equal `6a8924dd79939048cc0104482b3cb49746e1d37bbbbce46c7583d591503016d8`.
+- Lighthouse 12.8.2 on the live landing page: performance 100, accessibility 100, best practices 100, SEO 100; LCP 1.218 s, CLS 0, total blocking time 0 ms.
 
 ## Deployment
 
-Pending in this source commit. Target: Azure Container App `sf-guest-booking-confirm` in resource group `sociobot`, built by ACR `sociobotregistry`, custom domain <https://guest-booking-confirm.sociobot.in>, min/max replicas `1/1`.
+Deployed repair source `18ee7792d9dbc6f21a668aded8da00499156eee5` to Azure Container App `sf-guest-booking-confirm` in resource group `sociobot`. ACR `sociobotregistry` built the source tar with `.git` excluded. Revision `0000009` serves <https://guest-booking-confirm.sociobot.in> at 100% traffic with one replica.
 
 ## Known gaps
 
