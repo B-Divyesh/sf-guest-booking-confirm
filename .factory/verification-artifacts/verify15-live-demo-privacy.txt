@@ -1,0 +1,14 @@
+{
+  "origins": [
+    "https://guest-booking-confirm.sociobot.in"
+  ],
+  "apiRequests": [],
+  "cookies": [],
+  "documentCookie": "",
+  "storage": [
+    [
+      "demo:guest-booking-confirm:state",
+      "{\"status\":\"confirmed\"}"
+    ]
+  ]
+}

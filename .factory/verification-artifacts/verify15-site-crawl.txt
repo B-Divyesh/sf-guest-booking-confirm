@@ -1,0 +1,30 @@
+--- robots.txt
+User-agent: *
+Allow: /
+
+Sitemap: https://guest-booking-confirm.sociobot.in/sitemap.xml
+
+status=200
+--- sitemap.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://guest-booking-confirm.sociobot.in/</loc></url>
+  <url><loc>https://guest-booking-confirm.sociobot.in/demo</loc></url>
+  <url><loc>https://guest-booking-confirm.sociobot.in/privacy</loc></url>
+  <url><loc>https://guest-booking-confirm.sociobot.in/terms</loc></url>
+  <url><loc>https://guest-booking-confirm.sociobot.in/manage</loc></url>
+</urlset>
+
+status=200
+--- sitemap route statuses
+/ 200
+/demo 200
+/privacy 200
+/terms 200
+/manage 200
+--- assets
+/assets/favicon.svg 200 328
+/assets/apple-touch-icon.png 200 5669
+/assets/social-card.jpg 200 94723
+/assets/editorial-calendar-texture.webp 200 73738
+/sw.js 200 931

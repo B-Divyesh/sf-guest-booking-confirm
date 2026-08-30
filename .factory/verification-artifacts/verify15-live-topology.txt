@@ -1,0 +1,40 @@
+--- app scale/topology ---
+{
+  "image": "sociobotregistry.azurecr.io/sf-guest-booking-confirm:84b4436fb024",
+  "latestReadyRevision": "sf-guest-booking-confirm--0000042",
+  "maxReplicas": 3,
+  "minReplicas": 1,
+  "provisioningState": "Succeeded",
+  "revisionMode": "Single",
+  "volumeMounts": null,
+  "volumes": null
+}
+--- revisions ---
+[
+  {
+    "active": true,
+    "created": "2026-08-30T01:23:57+00:00",
+    "health": "Healthy",
+    "name": "sf-guest-booking-confirm--0000042",
+    "replicas": 3,
+    "traffic": 100
+  }
+]
+--- latest replicas ---
+[
+  {
+    "created": "2026-08-30T02:00:12Z",
+    "name": "sf-guest-booking-confirm--0000042-556c887d7c-4697p",
+    "state": "Running"
+  },
+  {
+    "created": "2026-08-30T02:01:12Z",
+    "name": "sf-guest-booking-confirm--0000042-556c887d7c-dhdm7",
+    "state": "Running"
+  },
+  {
+    "created": "2026-08-30T01:23:58Z",
+    "name": "sf-guest-booking-confirm--0000042-556c887d7c-x86zv",
+    "state": "Running"
+  }
+]

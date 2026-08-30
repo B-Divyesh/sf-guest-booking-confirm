@@ -1,0 +1,11 @@
+{
+  "performance": 98,
+  "accessibility": 100,
+  "bestPractices": 100,
+  "seo": 100,
+  "LCP": 1755,
+  "CLS": 0,
+  "TBT": 153,
+  "INP": null,
+  "transfer": 170570
+}

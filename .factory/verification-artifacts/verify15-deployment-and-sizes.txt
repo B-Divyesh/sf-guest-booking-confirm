@@ -1,0 +1,79 @@
+--- identities and hashes ---
+{"build_sha":"84b4436fb02452d71b09daaedfa0e86cc4cdf1db","status":"ok"}7fa824f129655873dcc7b3ee4b5ca360064526c4e8f74bd392ccdd5edec83565  dist/index.html
+7fa824f129655873dcc7b3ee4b5ca360064526c4e8f74bd392ccdd5edec83565  /tmp/verify15-live-assets/index.html
+b6c58bc48c7048c7babce83b84099e9e2a266d29847ea96647b47bbb7347439d  dist/assets/main-Dyoa_kh1.js
+b6c58bc48c7048c7babce83b84099e9e2a266d29847ea96647b47bbb7347439d  /tmp/verify15-live-assets/main.js
+62df8ce96b58a0dd594da10cb0c869ccde177aae7c2a6677749c8f938ea9bec2  dist/assets/styles-Bz4AkY4Z.css
+62df8ce96b58a0dd594da10cb0c869ccde177aae7c2a6677749c8f938ea9bec2  /tmp/verify15-live-assets/styles.css
+--- live headers root ---
+HTTP/2 200
+content-type: text/html; charset=utf-8
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: same-origin
+permissions-policy: camera=(), microphone=(), geolocation=()
+content-security-policy: default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-src https://sociobotcustomers.ciamlogin.com; base-uri 'self'; form-action 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-ancestors 'none'
+cache-control: no-cache
+content-length: 1938
+date: Sun, 30 Aug 2026 02:01:20 GMT
+
+--- live headers hashed JS ---
+HTTP/2 200
+content-type: text/javascript
+accept-ranges: bytes
+last-modified: Sun, 30 Aug 2026 01:19:02 GMT
+content-length: 51530
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: same-origin
+permissions-policy: camera=(), microphone=(), geolocation=()
+content-security-policy: default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-src https://sociobotcustomers.ciamlogin.com; base-uri 'self'; form-action 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-ancestors 'none'
+cache-control: public, max-age=31536000, immutable
+date: Sun, 30 Aug 2026 02:01:20 GMT
+
+--- live headers service worker ---
+HTTP/2 200
+content-type: text/javascript
+accept-ranges: bytes
+last-modified: Sun, 30 Aug 2026 01:19:02 GMT
+content-length: 931
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: same-origin
+permissions-policy: camera=(), microphone=(), geolocation=()
+content-security-policy: default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-src https://sociobotcustomers.ciamlogin.com; base-uri 'self'; form-action 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-ancestors 'none'
+cache-control: no-cache
+date: Sun, 30 Aug 2026 02:01:20 GMT
+
+--- live headers unknown route ---
+HTTP/2 404
+content-type: text/html; charset=utf-8
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: same-origin
+permissions-policy: camera=(), microphone=(), geolocation=()
+content-security-policy: default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-src https://sociobotcustomers.ciamlogin.com; base-uri 'self'; form-action 'self' https://api.sociobot.in https://sociobotcustomers.ciamlogin.com; frame-ancestors 'none'
+content-length: 2758
+date: Sun, 30 Aug 2026 02:01:20 GMT
+
+--- bundle sizes ---
+apple-touch-icon.png 5669 bytes
+auth-DhJdp8tZ.js 260119 bytes
+confirmation-console-fallback.svg 2652 bytes
+confirmation-console.webp 41526 bytes
+editorial-calendar-texture.webp 73738 bytes
+editorial-paper-grain.webp 4158 bytes
+favicon.svg 328 bytes
+main-Dyoa_kh1.js 51530 bytes
+social-card.jpg 94723 bytes
+styles-Bz4AkY4Z.css 37150 bytes
+styles-DvVNZ0Tj.js 711 bytes
+15426
+8497
+apple-touch-icon.png 5669 bytes
+confirmation-console-fallback.svg 2652 bytes
+confirmation-console.webp 41526 bytes
+editorial-calendar-texture.webp 73738 bytes
+editorial-paper-grain.webp 4158 bytes
+favicon.svg 328 bytes
+social-card.jpg 94723 bytes

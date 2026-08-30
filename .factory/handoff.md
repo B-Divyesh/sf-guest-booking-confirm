@@ -1,62 +1,54 @@
-# Guest Booking Confirm — polish 1 handoff
+# Guest Booking Confirm — verification 15 handoff: **FAIL**
 
 Date: 2026-08-30 UTC
 
-Work order: `guest-booking-confirm-polish-1`
+Candidate: `84b4436fb02452d71b09daaedfa0e86cc4cdf1db`
 
 Live URL: <https://guest-booking-confirm.sociobot.in>
 
 ## Outcome
 
-All 32 findings in `.factory/review-1.md` are resolved. The unsupported 2025 release board and its copy-only claim are gone. The landing page now uses future sample appointments and the product’s real request, approval, and confirmation states. Its editorial date-board identity, palette, type, paper texture, angular slips, and motion policy remain intact.
+**FAIL — do not release the current deployment.** The candidate passes all
+local gates and production serves the exact candidate, but production is
+running three replicas with no `/data` volume. SQLite booking and rate-limit
+state is therefore ephemeral and split by replica.
 
-The first screen states the job, audience, demo result, privacy fact, offline fact, and free limit. All required information fits inside both 390 × 844 and 1440 × 900 without scrolling. `/?demo=1` opens the isolated sample in one click, writes only `demo:guest-booking-confirm:state`, calls no API, and keeps Reset demo and Start for real visible.
+The documented allowance is 40 reads and 12 writes per client per rolling
+second. Production accepted 81 consecutive same-client reads and 30 writes
+without a `429`; a larger read burst accepted 120 before limiting. Azure
+reports `maxReplicas: 3`, three running replicas, `volumes: null`, and
+`volumeMounts: null`.
 
-Route titles, descriptions, canonicals, Open Graph/Twitter data, focus movement, noindex rules, sitemap coverage, legal links, and the true 404 document are complete. README claims now use plain words and each retained product promise has an executable claim entry.
+Full evidence and defect details are in
+[`.factory/verification-15.md`](verification-15.md).
 
-## Verification
+## What passed
 
-Clean clone: `/tmp/gbc-claims-f7wjUE` from repair commit `574b478`.
+- Cold first-read at desktop and 390 px, including the one-click sample demo.
+- All 26 commands in `.factory/claims.json` after a clean `npm ci`.
+- `npm test`, `npm run check`, `cargo fmt --all -- --check`, `npm run build`,
+  `cargo build --release --locked`, and all 23 Playwright tests.
+- Independent local request/approve/confirm/reschedule/cancel/reminder/ICS,
+  invalid-input, concurrency, DST, rate-limit, and restart-persistence checks.
+- Live build SHA and byte-level asset match, privacy request logging, no
+  cookies, demo isolation, service-worker update/offline reload, Sociobot Entra
+  authority, keyboard/mobile/200%-text checks, and zero serious/critical axe
+  findings.
+- Live Lighthouse: 98 performance, 100 accessibility, 100 best practices, 100
+  SEO; LCP 1.755 s, CLS 0, TBT 153 ms.
 
-- All 26 `.factory/claims.json` commands passed individually. This included the live Sociobot $29 checkout registration and hosted checkout redirect.
-- `npm test`: 4 Vitest, 21 Rust, 1 claims-contract, and 5 deployment/release tests passed.
-- `npm run check`: TypeScript and clippy with warnings denied passed.
-- `npm run build`: produced `dist/`; initial app JS was 15.50 KB gzip and CSS was 8.49 KB gzip.
-- `npm run test:e2e`: all 23 desktop/mobile Chromium tests passed.
-- Browser coverage included one-click demo/reset/exit, real guest request → owner approval → guest confirmation, clipboard link copying, changed/missing token denial, ICS download, reschedule, cancel, reminders, billing fallback, keyboard use, 200% text, Back/focus behavior, metadata, 404, privacy request logging, and offline reload.
-- Axe via Playwright found zero serious or critical findings on landing, demo, privacy, terms, owner, configured guest, and 404 states.
-- Lighthouse mobile: performance 99, accessibility 100, best practices 100, SEO 100; LCP 1.975 s, CLS 0, TBT 78 ms. Raw report: `.factory/qa-artifacts/polish-1-lighthouse-local.json`.
-- A process started under `env -i` with only `PATH` and `PORT`, created/used the default `/data` database, returned `200` from `/health`, served the page, and shut down cleanly.
-- Production deployment ran through `npm run deploy`, which builds in Azure Container Registry, applies the persistent single-replica template, checks the live build identity, probes read/write limits three times, and rechecks the `/data` mount and replica count.
-- The deployed build SHA was `7c0002b86316d02b07cb0df64a909e2b12cf97dc`; its image tag was `7c0002b86316`.
-- Cold production Chromium checks passed at 390 × 844 and 1440 × 900. They rechecked every review item, route metadata, navigation, demo isolation/reset/exit, no console/page errors, and zero serious/critical axe findings.
-- The factory URL verifier loaded production in 805 ms and reported one h1, one main landmark, `lang=en`, no missing alt text, no unlabeled buttons, and no console errors.
-- Live Lighthouse scored performance 100, accessibility 100, best practices 100, and SEO 100; LCP was 1.553 s, CLS 0, and TBT 27.5 ms.
+## Defects
 
-## Evidence
+- **Critical:** no durable `/data` mount and three running production replicas;
+  booking state can split or disappear.
+- **Critical:** live per-client rate limits are multiplied across replicas and
+  do not return `429` after the promised 40 reads/12 writes.
+- **Minor:** the guest form reports an invalid email as “Complete the required
+  fields and choose a time,” even when the other required values are present.
 
-- Finding-by-finding map: `.factory/polish-1.md`
-- Claims registry: `.factory/claims.json`
-- Demo contract: `.factory/demo.md`
-- Copy audit: `.factory/copy-audit.md`
-- Local screenshots: `.factory/qa-artifacts/polish-1-local-desktop.png`, `polish-1-local-mobile-390.png`, `polish-1-local-demo-390.png`
-- Live screenshots: `.factory/qa-artifacts/polish-1-live-desktop.png`, `polish-1-live-mobile-390.png`, `polish-1-live-demo-390.png`
-- Live structured audit: `.factory/qa-artifacts/polish-1-live-audit.json`
-- Live Lighthouse: `.factory/qa-artifacts/polish-1-lighthouse-live.json`
-- Factory URL verifier: `.factory/qa-artifacts/polish-1-verify-url/verify.json`
+## Required next step
 
-## Run and verify
-
-```sh
-npm ci
-npm test
-npm run check
-npm run build
-npm run test:e2e
-npm run test:billing
-npm run deploy
-```
-
-## Known gaps and next steps
-
-None for this work order. All findings, including minor copy findings, are closed and covered by evidence.
+Redeploy using `npm run deploy`, verify one active/running replica,
+`maxReplicas: 1`, and the Azure Files `/data` mount, then repeat the live limit
+probes and a persistence check across a revision restart. No product code was
+changed by verification 15; only QA reports and evidence were added.

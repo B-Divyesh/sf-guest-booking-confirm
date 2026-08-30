@@ -1,0 +1,19 @@
+{
+  "initial": {
+    "url": "https://guest-booking-confirm.sociobot.in/manage",
+    "h1": "Sign in to manage appointments",
+    "passwordFields": 0,
+    "button": "Sign in with Sociobot"
+  },
+  "authority": {
+    "url": "https://sociobotcustomers.ciamlogin.com/35c6fe40-0ec0-46b6-98c6-213ad4de6650/oauth2/v2.0/authorize?client_id=25c704f4-465a-47af-80ab-2c489466b697&scope=openid%20profile%20email%20offline_access&redirect_uri=https%3A%2F%2Fguest-booking-confirm.sociobot.in%2Fauth%2Fcallback&client-request-id=01a05068-44fa-7da3-80a0-e45c24757e93&response_mode=fragment&client_info=1&nonce=01a05068-44fb-7dbb-8d1e-f656c40dd251&state=eyJpZCI6IjAxYTA1MDY4LTQ0ZmItNzQ0ZC1iYWM1LTEyNDNmNGEyN2IyNyIsIm1ldGEiOnsiaW50ZXJhY3Rpb25UeXBlIjoicmVkaXJlY3QifX0%3D&x-client-SKU=msal.js.browser&x-client-VER=4.18.0&response_type=code&code_challenge=Komc_F4EUWiE3Hq8Y49K11YrsnloJEQWb-beqTjg2hY&code_challenge_method=S256",
+    "host": "sociobotcustomers.ciamlogin.com",
+    "expectedHost": true,
+    "otherAuthOrigins": [
+      "https://aadcdn.msauth.net",
+      "https://login.live.com",
+      "https://aadcdn.msauthimages.net"
+    ],
+    "consoleErrors": []
+  }
+}

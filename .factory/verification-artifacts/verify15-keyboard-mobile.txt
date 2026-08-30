@@ -1,0 +1,43 @@
+{
+  "skip": {
+    "text": "Skip to main content",
+    "visible": true,
+    "rect": {
+      "x": 8,
+      "y": -76.4749984741211,
+      "width": 180.96875,
+      "height": 52.796875
+    },
+    "outline": "rgb(24, 25, 20) solid 0px",
+    "boxShadow": "none",
+    "background": "rgb(255, 253, 246)"
+  },
+  "skipTarget": {
+    "tag": "MAIN",
+    "id": "main"
+  },
+  "tabSequence": [
+    {
+      "text": "Try it with sample data",
+      "href": "/?demo=1"
+    }
+  ],
+  "routeFocus": {
+    "tag": "H1",
+    "text": "Ready to confirm"
+  },
+  "confirmTabs": [
+    {
+      "tag": "BUTTON",
+      "text": "Confirm this time",
+      "id": "demo-confirm"
+    }
+  ],
+  "confirmed": true,
+  "zoom": {
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "overflow": 0
+  },
+  "reducedScroll": "auto"
+}

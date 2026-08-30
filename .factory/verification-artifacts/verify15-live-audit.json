@@ -1,0 +1,253 @@
+{
+  "checkedAt": "2026-08-30T02:00:57.006Z",
+  "base": "https://guest-booking-confirm.sociobot.in",
+  "cold": {
+    "desktop": {
+      "status": 200,
+      "title": "Guest Booking Confirm — confirm guest appointments",
+      "h1": "Request and confirmguest appointments.",
+      "lead": "For microbusinesses that approve time requests before each guest gets a clear booking status.",
+      "primary": "Try it with sample data",
+      "primaryHref": "/?demo=1",
+      "primaryNote": "Opens Maya’s approved request at the guest confirmation step.",
+      "facts": [
+        "No tracking cookies",
+        "The demo works offline after the first visit",
+        "Free for 30 active bookings"
+      ],
+      "h1Count": 1,
+      "mainCount": 1,
+      "lang": "en",
+      "overflowPx": 0,
+      "factsBottom": 768.421875,
+      "viewportHeight": 900,
+      "reducedScrollBehavior": "auto",
+      "shortTargets": [],
+      "skip": {
+        "text": "Skip to main content",
+        "outlineWidth": "0px",
+        "outlineColor": "rgb(24, 25, 20)"
+      },
+      "requests": [
+        {
+          "method": "GET",
+          "url": "https://guest-booking-confirm.sociobot.in/"
+        },
+        {
+          "method": "GET",
+          "url": "https://guest-booking-confirm.sociobot.in/assets/main-Dyoa_kh1.js"
+        },
+        {
+          "method": "GET",
+          "url": "https://guest-booking-confirm.sociobot.in/assets/styles-DvVNZ0Tj.js"
+        },
+        {
+          "method": "GET",
+          "url": "https://guest-booking-confirm.sociobot.in/assets/styles-Bz4AkY4Z.css"
+        },
+        {
+          "method": "GET",
+          "url": "https://guest-booking-confirm.sociobot.in/api/public/settings"
+        },
+        {
+          "method": "GET",
+          "url": "https://guest-booking-confirm.sociobot.in/assets/editorial-calendar-texture.webp"
+        },
+        {
+          "method": "GET",
+          "url": "https://guest-booking-confirm.sociobot.in/assets/editorial-paper-grain.webp"
+        }
+      ],
+      "cookies": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "axeSeriousCritical": []
+    },
+    "mobile390": {
+      "status": 200,
+      "title": "Guest Booking Confirm — confirm guest appointments",
+      "h1": "Request and confirmguest appointments.",
+      "lead": "For microbusinesses that approve time requests before each guest gets a clear booking status.",
+      "primary": "Try it with sample data",
+      "primaryHref": "/?demo=1",
+      "primaryNote": "Opens Maya’s approved request at the guest confirmation step.",
+      "facts": [
+        "No tracking cookies",
+        "The demo works offline after the first visit",
+        "Free for 30 active bookings"
+      ],
+      "h1Count": 1,
+      "mainCount": 1,
+      "lang": "en",
+      "overflowPx": 0,
+      "factsBottom": 504.828125,
+      "viewportHeight": 844,
+      "reducedScrollBehavior": "auto",
+      "shortTargets": [],
+      "skip": {
+        "text": "Skip to main content",
+        "outlineWidth": "0px",
+        "outlineColor": "rgb(24, 25, 20)"
+      },
+      "requests": [
+        {
+          "method": "GET",
+          "url": "https://guest-booking-confirm.sociobot.in/"
+        },
+        {
+          "method": "GET",
+          "url": "https://guest-booking-confirm.sociobot.in/assets/main-Dyoa_kh1.js"
+        },
+        {
+          "method": "GET",
+          "url": "https://guest-booking-confirm.sociobot.in/assets/styles-DvVNZ0Tj.js"
+        },
+        {
+          "method": "GET",
+          "url": "https://guest-booking-confirm.sociobot.in/assets/styles-Bz4AkY4Z.css"
+        },
+        {
+          "method": "GET",
+          "url": "https://guest-booking-confirm.sociobot.in/api/public/settings"
+        },
+        {
+          "method": "GET",
+          "url": "https://guest-booking-confirm.sociobot.in/assets/editorial-calendar-texture.webp"
+        },
+        {
+          "method": "GET",
+          "url": "https://guest-booking-confirm.sociobot.in/assets/editorial-paper-grain.webp"
+        }
+      ],
+      "cookies": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "axeSeriousCritical": []
+    }
+  },
+  "routes": [
+    {
+      "path": "/?demo=1",
+      "status": 200,
+      "title": "Demo — Guest Booking Confirm",
+      "description": "Try an isolated sample appointment from owner approval through guest confirmation.",
+      "canonical": "https://guest-booking-confirm.sociobot.in/?demo=1",
+      "robots": "index,follow",
+      "h1": "Ready to confirm",
+      "h1Count": 1,
+      "mainCount": 1,
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "axeSeriousCritical": []
+    },
+    {
+      "path": "/privacy",
+      "status": 200,
+      "title": "Privacy — Guest Booking Confirm",
+      "description": "See which booking, owner, billing, and anonymous page-count data the service stores.",
+      "canonical": "https://guest-booking-confirm.sociobot.in/privacy",
+      "robots": "index,follow",
+      "h1": "Privacy",
+      "h1Count": 1,
+      "mainCount": 1,
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "axeSeriousCritical": []
+    },
+    {
+      "path": "/terms",
+      "status": 200,
+      "title": "Terms — Guest Booking Confirm",
+      "description": "Read the booking service terms, limits, and Panel Pro purchase conditions.",
+      "canonical": "https://guest-booking-confirm.sociobot.in/terms",
+      "robots": "index,follow",
+      "h1": "Terms",
+      "h1Count": 1,
+      "mainCount": 1,
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "axeSeriousCritical": []
+    },
+    {
+      "path": "/manage",
+      "status": 200,
+      "title": "Owner panel — Guest Booking Confirm",
+      "description": "Set up the booking desk, approve requests, and track manual reminders.",
+      "canonical": "https://guest-booking-confirm.sociobot.in/manage",
+      "robots": "index,follow",
+      "h1": "Sign in to manage appointments",
+      "h1Count": 1,
+      "mainCount": 1,
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "axeSeriousCritical": []
+    },
+    {
+      "path": "/verify15-missing-page",
+      "status": 404,
+      "title": "Page not found — Guest Booking Confirm",
+      "description": "This page is not part of the Guest Booking Confirm appointment desk.",
+      "canonical": "https://guest-booking-confirm.sociobot.in/404",
+      "robots": "noindex",
+      "h1": "That page is not on this desk",
+      "h1Count": 1,
+      "mainCount": 1,
+      "overflowPx": 0,
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 ()"
+      ],
+      "pageErrors": [],
+      "axeSeriousCritical": []
+    }
+  ],
+  "demo": {
+    "initial": {
+      "h1": "Ready to confirm",
+      "banner": "Demo — sample data, nothing is savedTry the guest confirmation step safely.Reset demoStart for real",
+      "storage": [
+        "demo:guest-booking-confirm:state"
+      ]
+    },
+    "confirmed": "Confirmed",
+    "reset": "Ready to confirm",
+    "download": {
+      "filename": "demo-booking.ics",
+      "hasCalendar": true,
+      "hasConfirmed": true
+    },
+    "storage": [
+      [
+        "demo:guest-booking-confirm:state",
+        "{\"status\":\"awaiting_confirmation\"}"
+      ]
+    ],
+    "cookies": [],
+    "origins": [
+      "https://guest-booking-confirm.sociobot.in"
+    ],
+    "apiRequests": [
+      {
+        "method": "GET",
+        "url": "https://guest-booking-confirm.sociobot.in/api/public/settings"
+      }
+    ],
+    "consoleErrors": [],
+    "pageErrors": [],
+    "axeSeriousCritical": []
+  },
+  "offline": {
+    "registration": {
+      "controlled": false,
+      "scope": "https://guest-booking-confirm.sociobot.in/",
+      "caches": [
+        "gbc-shell-v5"
+      ]
+    },
+    "h1": "Ready to confirm",
+    "url": "https://guest-booking-confirm.sociobot.in/?demo=1"
+  }
+}

@@ -1,0 +1,88 @@
+Verified live build identity 84b4436fb02452d71b09daaedfa0e86cc4cdf1db.
+read burst 1 violated the global allowance: expected 40 x 200 and 1 x 429; received [200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200]
+{
+  "label": "read-41-repeat-a",
+  "ip": "198.51.88.101",
+  "n": 41,
+  "elapsedMs": 268,
+  "counts": {
+    "200": 41
+  },
+  "retryAfter": []
+}
+{
+  "label": "read-41-repeat-b",
+  "ip": "198.51.88.102",
+  "n": 41,
+  "elapsedMs": 111,
+  "counts": {
+    "200": 41
+  },
+  "retryAfter": []
+}
+{
+  "label": "read-81-diagnostic",
+  "ip": "198.51.88.103",
+  "n": 81,
+  "elapsedMs": 274,
+  "counts": {
+    "200": 81
+  },
+  "retryAfter": []
+}
+{
+  "label": "write-13-pageview",
+  "ip": "198.51.88.104",
+  "n": 13,
+  "elapsedMs": 86,
+  "counts": {
+    "204": 13
+  },
+  "retryAfter": []
+}
+{
+  "label": "write-13-license",
+  "ip": "198.51.88.105",
+  "n": 13,
+  "elapsedMs": 51,
+  "counts": {
+    "422": 13
+  },
+  "retryAfter": []
+}
+{
+  "label": "read-200-diagnostic",
+  "ip": "198.51.89.103",
+  "n": 200,
+  "elapsedMs": 819,
+  "counts": {
+    "200": 120,
+    "429": 80
+  },
+  "retryAfter": [
+    "1"
+  ]
+}
+{
+  "label": "write-30-pageview-diagnostic",
+  "ip": "198.51.89.104",
+  "n": 30,
+  "elapsedMs": 156,
+  "counts": {
+    "204": 30
+  },
+  "retryAfter": []
+}
+{
+  "label": "write-37-diagnostic",
+  "ip": "198.51.89.105",
+  "n": 37,
+  "elapsedMs": 355,
+  "counts": {
+    "204": 35,
+    "429": 2
+  },
+  "retryAfter": [
+    "1"
+  ]
+}

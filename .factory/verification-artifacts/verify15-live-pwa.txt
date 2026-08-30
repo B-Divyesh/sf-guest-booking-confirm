@@ -1,0 +1,19 @@
+{
+  "before": {
+    "controller": false,
+    "scope": "https://guest-booking-confirm.sociobot.in/",
+    "caches": [
+      "gbc-shell-v5"
+    ]
+  },
+  "afterUpdate": {
+    "controller": true,
+    "state": "activated"
+  },
+  "offline": {
+    "url": "https://guest-booking-confirm.sociobot.in/?demo=1",
+    "h1": "Ready to confirm",
+    "banner": "Demo — sample data, nothing is savedTry the guest confirmation step safely.Reset demoStart for real",
+    "controller": true
+  }
+}
