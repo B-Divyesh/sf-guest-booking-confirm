@@ -81,7 +81,7 @@ Evidence screenshots and URL-verifier JSON are under
 
 ## External check
 
-`npm run test:billing` was retried twice after the product repair and both
+`npm run test:billing` was retried three times after the product repair and all
 no-purchase catalog requests received HTTP 503 from the Sociobot billing API.
 The existing hosted-checkout integration and its claim coverage were not
 changed; this is an external availability result, not a product regression.
