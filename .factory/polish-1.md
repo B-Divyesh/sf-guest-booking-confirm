@@ -56,3 +56,6 @@ Every finding is closed. Browser evidence is in `.factory/qa-artifacts/polish-1-
 - Lighthouse mobile: performance 99, accessibility 100, best practices 100, SEO 100, LCP 1.975 s, CLS 0, TBT 78 ms. Raw report: `.factory/qa-artifacts/polish-1-lighthouse-local.json`.
 - Production build: initial app JS 15.50 KB gzip and CSS 8.49 KB gzip.
 - A port-only process under `env -i` started with SQLite at `/data`, served the product, returned `/health`, and shut down cleanly on SIGINT.
+- Deployment published source `7c0002b86316d02b07cb0df64a909e2b12cf97dc`, then verified one active/running replica, the Azure Files `/data` mount, and all three rate boundaries three times.
+- `.factory/qa-artifacts/polish-1-live-audit.json` records clean 390 × 844 and 1440 × 900 first screens, unique metadata on every route, zero stale-copy matches, a true metadata-complete 404, all crawled links at 200, no console/page errors, no demo API calls before exit, an empty real namespace after exit, offline demo reload, and zero serious/critical axe findings.
+- Live Lighthouse scored 100/100/100/100 with LCP 1.553 s, CLS 0, and TBT 27.5 ms. Raw report: `.factory/qa-artifacts/polish-1-lighthouse-live.json`.

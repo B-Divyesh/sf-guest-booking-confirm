@@ -1,0 +1,230 @@
+{
+  "firstScreens": {
+    "desktop": {
+      "status": 200,
+      "title": "Guest Booking Confirm — confirm guest appointments",
+      "h1": "Request and confirmguest appointments.",
+      "thirdFactBottom": 768.421875,
+      "viewportHeight": 900,
+      "nav": [
+        {
+          "text": "Try the demo",
+          "href": "/?demo=1"
+        },
+        {
+          "text": "Owner panel",
+          "href": "/manage"
+        },
+        {
+          "text": "Privacy",
+          "href": "/privacy"
+        }
+      ],
+      "staleCopyCount": 0,
+      "overflow": 0,
+      "axeSeriousCritical": [],
+      "consoleErrors": [],
+      "pageErrors": []
+    },
+    "mobile-390": {
+      "status": 200,
+      "title": "Guest Booking Confirm — confirm guest appointments",
+      "h1": "Request and confirmguest appointments.",
+      "thirdFactBottom": 504.828125,
+      "viewportHeight": 844,
+      "nav": [
+        {
+          "text": "Try the demo",
+          "href": "/?demo=1"
+        },
+        {
+          "text": "Owner panel",
+          "href": "/manage"
+        },
+        {
+          "text": "Privacy",
+          "href": "/privacy"
+        }
+      ],
+      "staleCopyCount": 0,
+      "overflow": 0,
+      "axeSeriousCritical": [],
+      "consoleErrors": [],
+      "pageErrors": []
+    }
+  },
+  "routes": [
+    {
+      "path": "/",
+      "status": 200,
+      "title": "Guest Booking Confirm — confirm guest appointments",
+      "canonical": "https://guest-booking-confirm.sociobot.in/",
+      "description": "Request, approve, and confirm guest appointments without requiring a guest account.",
+      "ogTitle": "Guest Booking Confirm — confirm guest appointments",
+      "ogUrl": "https://guest-booking-confirm.sociobot.in/",
+      "twitterTitle": "Guest Booking Confirm — confirm guest appointments",
+      "h1Count": 1,
+      "mainCount": 1,
+      "legalLinks": 2,
+      "axeSeriousCritical": []
+    },
+    {
+      "path": "/?demo=1",
+      "status": 200,
+      "title": "Demo — Guest Booking Confirm",
+      "canonical": "https://guest-booking-confirm.sociobot.in/?demo=1",
+      "description": "Try an isolated sample appointment from owner approval through guest confirmation.",
+      "ogTitle": "Demo — Guest Booking Confirm",
+      "ogUrl": "https://guest-booking-confirm.sociobot.in/?demo=1",
+      "twitterTitle": "Demo — Guest Booking Confirm",
+      "h1Count": 1,
+      "mainCount": 1,
+      "legalLinks": 2,
+      "axeSeriousCritical": []
+    },
+    {
+      "path": "/privacy",
+      "status": 200,
+      "title": "Privacy — Guest Booking Confirm",
+      "canonical": "https://guest-booking-confirm.sociobot.in/privacy",
+      "description": "See which booking, owner, billing, and anonymous page-count data the service stores.",
+      "ogTitle": "Privacy — Guest Booking Confirm",
+      "ogUrl": "https://guest-booking-confirm.sociobot.in/privacy",
+      "twitterTitle": "Privacy — Guest Booking Confirm",
+      "h1Count": 1,
+      "mainCount": 1,
+      "legalLinks": 2,
+      "axeSeriousCritical": []
+    },
+    {
+      "path": "/terms",
+      "status": 200,
+      "title": "Terms — Guest Booking Confirm",
+      "canonical": "https://guest-booking-confirm.sociobot.in/terms",
+      "description": "Read the booking service terms, limits, and Panel Pro purchase conditions.",
+      "ogTitle": "Terms — Guest Booking Confirm",
+      "ogUrl": "https://guest-booking-confirm.sociobot.in/terms",
+      "twitterTitle": "Terms — Guest Booking Confirm",
+      "h1Count": 1,
+      "mainCount": 1,
+      "legalLinks": 2,
+      "axeSeriousCritical": []
+    },
+    {
+      "path": "/manage",
+      "status": 200,
+      "title": "Owner panel — Guest Booking Confirm",
+      "canonical": "https://guest-booking-confirm.sociobot.in/manage",
+      "description": "Set up the booking desk, approve requests, and track manual reminders.",
+      "ogTitle": "Owner panel — Guest Booking Confirm",
+      "ogUrl": "https://guest-booking-confirm.sociobot.in/manage",
+      "twitterTitle": "Owner panel — Guest Booking Confirm",
+      "h1Count": 1,
+      "mainCount": 1,
+      "legalLinks": 2,
+      "axeSeriousCritical": []
+    },
+    {
+      "path": "/polish-1-no-such-page",
+      "status": 404,
+      "hasDescription": true,
+      "hasCanonical": true,
+      "hasOg": true,
+      "hasTwitter": true,
+      "hasIcons": true,
+      "noindex": true
+    }
+  ],
+  "demo": {
+    "status": 200,
+    "initial": {
+      "title": "Demo — Guest Booking Confirm",
+      "canonical": "https://guest-booking-confirm.sociobot.in/?demo=1",
+      "h1": "Ready to confirm",
+      "banner": "Demo — sample data, nothing is savedTry the guest confirmation step safely.Reset demoStart for real",
+      "storage": [
+        "demo:guest-booking-confirm:state"
+      ],
+      "cookies": ""
+    },
+    "confirmed": "Confirmed",
+    "reset": "Ready to confirm",
+    "exit": {
+      "url": "https://guest-booking-confirm.sociobot.in/",
+      "storage": [],
+      "h1": "Request and confirmguest appointments."
+    },
+    "requestOrigins": [
+      "https://guest-booking-confirm.sociobot.in"
+    ],
+    "demoApiRequestsBeforeExit": [],
+    "apiRequestsAfterStartingRealDesk": [
+      "https://guest-booking-confirm.sociobot.in/api/public/settings"
+    ],
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  "offline": {
+    "controlled": true,
+    "h1": "Ready to confirm",
+    "banner": "Demo — sample data, nothing is savedTry the guest confirmation step safely.Reset demoStart for real"
+  },
+  "links": {
+    "sitemap": {
+      "status": 200,
+      "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n  <url><loc>https://guest-booking-confirm.sociobot.in/</loc></url>\n  <url><loc>https://guest-booking-confirm.sociobot.in/demo</loc></url>\n  <url><loc>https://guest-booking-confirm.sociobot.in/privacy</loc></url>\n  <url><loc>https://guest-booking-confirm.sociobot.in/terms</loc></url>\n  <url><loc>https://guest-booking-confirm.sociobot.in/manage</loc></url>\n</urlset>\n"
+    },
+    "statuses": [
+      {
+        "href": "https://guest-booking-confirm.sociobot.in/#main",
+        "status": 200
+      },
+      {
+        "href": "https://guest-booking-confirm.sociobot.in/",
+        "status": 200
+      },
+      {
+        "href": "https://guest-booking-confirm.sociobot.in/?demo=1",
+        "status": 200
+      },
+      {
+        "href": "https://guest-booking-confirm.sociobot.in/manage",
+        "status": 200
+      },
+      {
+        "href": "https://guest-booking-confirm.sociobot.in/privacy",
+        "status": 200
+      },
+      {
+        "href": "https://guest-booking-confirm.sociobot.in/#schedule",
+        "status": 200
+      },
+      {
+        "href": "https://guest-booking-confirm.sociobot.in/terms",
+        "status": 200
+      },
+      {
+        "href": "https://guest-booking-confirm.sociobot.in/health",
+        "status": 200
+      },
+      {
+        "href": "https://guest-booking-confirm.sociobot.in/?demo=1#main",
+        "status": 200
+      },
+      {
+        "href": "https://guest-booking-confirm.sociobot.in/privacy#main",
+        "status": 200
+      },
+      {
+        "href": "https://guest-booking-confirm.sociobot.in/terms#main",
+        "status": 200
+      },
+      {
+        "href": "https://guest-booking-confirm.sociobot.in/manage#main",
+        "status": 200
+      }
+    ],
+    "consoleErrors": [],
+    "pageErrors": []
+  }
+}

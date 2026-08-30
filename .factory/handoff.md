@@ -28,7 +28,10 @@ Clean clone: `/tmp/gbc-claims-f7wjUE` from repair commit `574b478`.
 - Lighthouse mobile: performance 99, accessibility 100, best practices 100, SEO 100; LCP 1.975 s, CLS 0, TBT 78 ms. Raw report: `.factory/qa-artifacts/polish-1-lighthouse-local.json`.
 - A process started under `env -i` with only `PATH` and `PORT`, created/used the default `/data` database, returned `200` from `/health`, served the page, and shut down cleanly.
 - Production deployment ran through `npm run deploy`, which builds in Azure Container Registry, applies the persistent single-replica template, checks the live build identity, probes read/write limits three times, and rechecks the `/data` mount and replica count.
+- The deployed build SHA was `7c0002b86316d02b07cb0df64a909e2b12cf97dc`; its image tag was `7c0002b86316`.
 - Cold production Chromium checks passed at 390 × 844 and 1440 × 900. They rechecked every review item, route metadata, navigation, demo isolation/reset/exit, no console/page errors, and zero serious/critical axe findings.
+- The factory URL verifier loaded production in 805 ms and reported one h1, one main landmark, `lang=en`, no missing alt text, no unlabeled buttons, and no console errors.
+- Live Lighthouse scored performance 100, accessibility 100, best practices 100, and SEO 100; LCP was 1.553 s, CLS 0, and TBT 27.5 ms.
 
 ## Evidence
 
@@ -38,6 +41,9 @@ Clean clone: `/tmp/gbc-claims-f7wjUE` from repair commit `574b478`.
 - Copy audit: `.factory/copy-audit.md`
 - Local screenshots: `.factory/qa-artifacts/polish-1-local-desktop.png`, `polish-1-local-mobile-390.png`, `polish-1-local-demo-390.png`
 - Live screenshots: `.factory/qa-artifacts/polish-1-live-desktop.png`, `polish-1-live-mobile-390.png`, `polish-1-live-demo-390.png`
+- Live structured audit: `.factory/qa-artifacts/polish-1-live-audit.json`
+- Live Lighthouse: `.factory/qa-artifacts/polish-1-lighthouse-live.json`
+- Factory URL verifier: `.factory/qa-artifacts/polish-1-verify-url/verify.json`
 
 ## Run and verify
 
