@@ -16,6 +16,9 @@ test('@desktop-only desktop landing, demo, and owner entry stay accessible', asy
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await expect(page.locator('main')).toHaveCount(1);
   await expect(page.locator('h1')).toHaveCount(1);
+  await expect(page.locator('.topbar nav a')).toHaveText(['Try the demo', 'Owner panel', 'Privacy']);
+  expect(await page.locator('.topbar nav a').evaluateAll(links => links.map(link => link.getAttribute('href')))).toEqual(['/?demo=1', '/manage', '/privacy']);
+  await expect(page.locator('a[href^="mailto:"]')).toHaveCount(0);
   const desktopThirdFactBottom = await page.getByText('Free for 30 active bookings', { exact: true }).evaluate(node => node.getBoundingClientRect().bottom);
   expect(desktopThirdFactBottom).toBeLessThanOrEqual(900);
   const landingAxe = await new AxeBuilder({ page }).analyze();
@@ -305,6 +308,8 @@ test('every route publishes its own title, canonical URL, and sharing metadata',
     await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', title);
     await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content', `https://guest-booking-confirm.sociobot.in${canonicalPath}`);
     await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute('content', title);
+    await expect(page.locator('footer a[href="/privacy"]')).toHaveCount(1);
+    await expect(page.locator('footer a[href="/terms"]')).toHaveCount(1);
   }
 });
 
@@ -505,6 +510,11 @@ test('unknown routes return the designed 404 and hashed assets are immutable', a
   for (const required of ['meta name="description"', 'rel="canonical"', 'property="og:title"', 'name="twitter:title"', 'rel="icon"', 'rel="apple-touch-icon"']) {
     expect(missingHtml).toContain(required);
   }
+  expect(missingHtml).toContain('meta name="robots" content="noindex"');
+  const sitemap = await request.get('/sitemap.xml');
+  expect(sitemap.status()).toBe(200);
+  const sitemapXml = await sitemap.text();
+  for (const route of ['/', '/demo', '/privacy', '/terms', '/manage']) expect(sitemapXml).toContain(`https://guest-booking-confirm.sociobot.in${route}`);
   await expect(page.goto('/this-route-does-not-exist')).resolves.toBeTruthy();
   await expect(page.getByRole('heading', { name: 'That page is not on this desk' })).toBeVisible();
   await page.goto('/demo');
