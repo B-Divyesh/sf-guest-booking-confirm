@@ -7,11 +7,11 @@
     "sandbox": "fresh browser context at /demo; sample booking is owner-approved, guest confirms it, and the confirmed state is visible"
   },
   {
-    "id": "eight-week-release-board",
-    "claim": "The release board shows dates opened 8 weeks in advance and locked two weeks before the event.",
+    "id": "appointment-status-preview",
+    "claim": "The landing page previews future sample appointments in requested, approved, and confirmed states.",
     "where": "cold landing page",
-    "test": "npm run test:e2e -- --grep @claim:eight-week-release-board",
-    "sandbox": "fresh 390px browser at /; assert the 8-week and two-week copy, use Review availability, choose July 7, and observe its pending status"
+    "test": "npm run test:e2e -- --grep @claim:appointment-status-preview",
+    "sandbox": "fresh 390px browser at /; assert all preview dates are in the future, select each state, and observe the matching status"
   },
   {
     "id": "demo-local-only",
@@ -42,6 +42,13 @@
     "sandbox": "temporary SQLite desk; send two page-view requests carrying an IP and user agent, assert no Set-Cookie, one daily count of two, and a page-count schema containing only day and count"
   },
   {
+    "id": "service-storage-inventory",
+    "claim": "Real desks store booking details, consent, owner settings, paid state, and an anonymous daily page-view count.",
+    "where": "landing page, privacy page",
+    "test": "cargo test --locked claim_service_storage_inventory",
+    "sandbox": "fresh temporary SQLite desk; create owner settings, paid state, a consented booking, and a page view, then assert the stored table columns and representative rows"
+  },
+  {
     "id": "guest-no-account",
     "claim": "Guests need no account.",
     "where": "landing page, README",
@@ -54,6 +61,20 @@
     "where": "landing page, guest request page, README",
     "test": "npm run test:e2e -- --grep @claim:owner-approval-before-booking",
     "sandbox": "fresh browser context; create a request, assert its pending state, approve it as the owner, then expose the guest confirmation state"
+  },
+  {
+    "id": "copy-private-booking-link",
+    "claim": "Owners can copy the exact private booking link to share with each guest.",
+    "where": "README, owner panel",
+    "test": "npm run test:e2e -- --grep @claim:copy-private-booking-link",
+    "sandbox": "fresh desk and browser; create and approve a request, use Copy guest link, and assert that the clipboard contains the exact working private URL"
+  },
+  {
+    "id": "private-booking-link-security",
+    "claim": "Anyone with a valid private booking link can use it without sign-in; a missing or changed token does not expose the booking.",
+    "where": "README, privacy page",
+    "test": "npm run test:e2e -- --grep @claim:private-booking-link-security",
+    "sandbox": "fresh desk and browser; approve a request, open its private link without owner identity, then change and omit the token and assert no booking details are exposed"
   },
   {
     "id": "guest-rescheduling",
@@ -133,11 +154,25 @@
     "sandbox": "fresh server and browser context; repeat three independent 41-request same-client read bursts and assert 40 successes plus one 429 with Retry-After: 1 each time, then assert 12 page views and 12 malformed license checks followed by 429 with Retry-After: 1; the Rust suite proves atomic counting across a wall-clock second boundary and the release contract proves one serving replica"
   },
   {
+    "id": "health-build-identity",
+    "claim": "The exempt /health endpoint stays available and returns the compiled build SHA.",
+    "where": "README",
+    "test": "npm run test:e2e -- --grep @claim:health-build-identity",
+    "sandbox": "fresh server; exhaust an API rate limit, then assert /health remains 200 and returns status ok with a non-empty compiled build SHA"
+  },
+  {
     "id": "owner-entra-identity",
     "claim": "Owners sign in through Sociobot Microsoft Entra External ID; the product has no owner password.",
     "where": "owner panel, privacy page, README",
     "test": "npm run test:e2e -- --grep @claim:owner-entra-identity",
     "sandbox": "fresh browser context; assert the Sociobot Entra sign-in screen has no password, unauthenticated setup is rejected, then use the test-only identity gate to reach setup"
+  },
+  {
+    "id": "first-owner-setup",
+    "claim": "The first signed-in owner creates the desk settings, and another identity cannot take over that desk.",
+    "where": "README, owner panel",
+    "test": "cargo test --locked claim_first_owner_setup_is_exclusive",
+    "sandbox": "fresh temporary SQLite desk; the first identity creates settings, then a different identity is denied status access and cannot repeat setup"
   },
   {
     "id": "container-runtime-contract",

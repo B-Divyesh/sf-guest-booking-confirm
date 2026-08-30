@@ -12,10 +12,12 @@ test('@desktop-only desktop landing, demo, and owner entry stay accessible', asy
   page.on('console', message => { if (message.type() === 'error') consoleErrors.push(message.text()); });
   expect(page.viewportSize()).toEqual({ width: 1440, height: 900 });
   await page.goto('/');
-  await expect(page).toHaveTitle('Guest Booking Confirm — clear appointment status');
+  await expect(page).toHaveTitle('Guest Booking Confirm — confirm guest appointments');
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await expect(page.locator('main')).toHaveCount(1);
   await expect(page.locator('h1')).toHaveCount(1);
+  const desktopThirdFactBottom = await page.getByText('Free for 30 active bookings', { exact: true }).evaluate(node => node.getBoundingClientRect().bottom);
+  expect(desktopThirdFactBottom).toBeLessThanOrEqual(900);
   const landingAxe = await new AxeBuilder({ page }).analyze();
   expect(landingAxe.violations.filter(violation => ['serious', 'critical'].includes(violation.impact || ''))).toEqual([]);
   await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -25,7 +27,7 @@ test('@desktop-only desktop landing, demo, and owner entry stay accessible', asy
   await page.keyboard.press('Enter');
   await expect(page.locator('main')).toBeFocused();
   await page.getByRole('link', { name: 'Try it with sample data' }).first().click();
-  await expect(page).toHaveURL(/\/demo$/);
+  await expect(page).toHaveURL(/\?demo=1$/);
   const demoAxe = await new AxeBuilder({ page }).analyze();
   expect(demoAxe.violations.filter(violation => ['serious', 'critical'].includes(violation.impact || ''))).toEqual([]);
   await page.goto('/manage');
@@ -65,7 +67,7 @@ test('@claim:owner-entra-identity owner access uses Sociobot Entra and mobile ho
   }
 });
 
-test('@claim:eight-week-release-board cold landing schedule works and reflows at 200% text on 390px', async ({ page }) => {
+test('@claim:appointment-status-preview cold landing uses future appointment states and keeps all facts above the fold', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'Request and confirm guest appointments.' })).toBeVisible();
@@ -75,8 +77,11 @@ test('@claim:eight-week-release-board cold landing schedule works and reflows at
   await expect(page.getByText('No tracking cookies', { exact: true })).toBeVisible();
   await expect(page.getByText('The demo works offline after the first visit', { exact: true })).toBeVisible();
   await expect(page.getByText('Free for 30 active bookings', { exact: true })).toBeVisible();
-  await expect(page.locator('.release-facts-bar')).toContainText('8 weeks');
-  await expect(page.getByText('Dates lock two weeks before each appointment.')).toBeVisible();
+  const thirdFactBottom = await page.getByText('Free for 30 active bookings', { exact: true }).evaluate(node => node.getBoundingClientRect().bottom);
+  expect(thirdFactBottom).toBeLessThanOrEqual(844);
+  await expect(page.locator('.release-facts-bar')).toContainText('Guest requests');
+  await expect(page.locator('.release-facts-bar')).toContainText('Owner approves');
+  await expect(page.locator('.release-facts-bar')).toContainText('Guest confirms');
   const navTargets = await page.locator('.topbar nav a').evaluateAll(nodes => nodes.map(node => {
     const bounds = node.getBoundingClientRect();
     return { width: bounds.width, height: bounds.height };
@@ -91,11 +96,19 @@ test('@claim:eight-week-release-board cold landing schedule works and reflows at
     return action.top - copy.bottom;
   });
   expect(spacing).toBeGreaterThanOrEqual(20);
-  await page.getByRole('link', { name: 'Review sample availability' }).click();
-  await expect(page).toHaveURL(/#schedule$/);
-  await expect(page.getByRole('heading', { name: 'Review the date board' })).toBeVisible();
-  await page.locator('[data-release-date="Jul 7"]').click();
-  await expect(page.getByRole('status')).toHaveText('Jul 7 is pending in this sample schedule.');
+  await page.evaluate(() => document.querySelector('#schedule')?.scrollIntoView());
+  await expect(page.getByRole('heading', { name: 'Review sample appointment statuses' })).toBeVisible();
+  const previews = await page.locator('[data-appointment-date]').evaluateAll(nodes => nodes.map(node => ({
+    date: node.getAttribute('data-appointment-date'),
+    state: node.getAttribute('data-appointment-state'),
+  })));
+  expect(previews).toHaveLength(12);
+  for (const preview of previews) expect(new Date(preview.date!).getTime()).toBeGreaterThan(Date.now());
+  for (const state of ['waiting for owner approval', 'ready for guest confirmation', 'confirmed by the guest']) {
+    const button = page.locator(`[data-appointment-state="${state}"]`).first();
+    await button.click();
+    await expect(page.getByRole('status')).toContainText(state);
+  }
   await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
   await expect.poll(() => page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, client: document.documentElement.clientWidth })))
     .toEqual({ scroll: 390, client: 390 });
@@ -114,7 +127,7 @@ test('owner setup explains an inverted opening-hours range before saving', async
   await expect(page.getByRole('heading', { name: 'Set up your booking desk' })).toBeVisible();
 });
 
-test('@claim:guest-no-account @claim:owner-approval-before-booking guest request reaches owner approval and guest confirmation', async ({ page, request }) => {
+test('@claim:guest-no-account @claim:owner-approval-before-booking @claim:copy-private-booking-link @claim:private-booking-link-security guest request reaches owner approval and guest confirmation', async ({ page, request, context }) => {
   await useTestOwner(page);
   const consoleErrors: string[] = [];
   const failedResponses: string[] = [];
@@ -146,15 +159,31 @@ test('@claim:guest-no-account @claim:owner-approval-before-booking guest request
   const approved = await request.patch(`/api/owner/bookings/${booking.id}/approve`, { headers: ownerHeaders });
   expect(approved.ok()).toBeTruthy();
 
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  await page.goto('/manage');
+  await page.getByRole('button', { name: 'Copy guest link' }).click();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(guestUrl);
+
+  await page.evaluate(() => sessionStorage.clear());
   await page.goto(guestUrl);
   await expect(page.getByRole('heading', { name: 'Ready to confirm' })).toBeVisible();
   await page.getByRole('button', { name: 'Confirm this time' }).click();
   await expect(page.getByRole('heading', { name: 'Confirmed', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: /Add to calendar/ })).toBeVisible();
 
+  expect({ consoleErrors, failedResponses }).toEqual({ consoleErrors: [], failedResponses: [] });
+  page.removeAllListeners('console');
+  page.removeAllListeners('response');
+
+  await page.goto(`${guestUrl}changed`);
+  await expect(page.getByRole('heading', { name: 'We couldn’t open the booking desk' })).toBeVisible();
+  await expect(page.getByText('Ada Guest')).toHaveCount(0);
+  await page.goto('/b/');
+  await expect(page.getByRole('heading', { name: 'That page is not on this desk' })).toBeVisible();
+  await expect(page.getByText('Ada Guest')).toHaveCount(0);
+
   const results = await new AxeBuilder({ page }).analyze();
   expect(results.violations.filter(v => ['serious', 'critical'].includes(v.impact || ''))).toEqual([]);
-  expect({ consoleErrors, failedResponses }).toEqual({ consoleErrors: [], failedResponses: [] });
 });
 
 test('@claim:browser-license-storage checkout return stores, strips, and verifies without blocking the free first paint', async ({ page }) => {
@@ -194,7 +223,7 @@ test('@claim:browser-license-storage checkout return stores, strips, and verifie
   await page.goto(`/manage?license=${returnedLicense}`);
 
   await expect(page.getByRole('heading', { name: 'Free desk · 30 active bookings' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Buy Panel Pro · $29' })).toHaveAttribute(
+  await expect(page.getByRole('link', { name: 'Buy Panel Pro · $29 at Sociobot' })).toHaveAttribute(
     'href',
     'https://api.sociobot.in/api/v1/products/guest-booking-confirm/checkout',
   );
@@ -261,8 +290,26 @@ test('legal pages expose one h1 and a main landmark', async ({ page }) => {
   }
 });
 
+test('every route publishes its own title, canonical URL, and sharing metadata', async ({ page }) => {
+  const routes = [
+    ['/', 'Guest Booking Confirm — confirm guest appointments', '/'],
+    ['/?demo=1', 'Demo — Guest Booking Confirm', '/?demo=1'],
+    ['/privacy', 'Privacy — Guest Booking Confirm', '/privacy'],
+    ['/terms', 'Terms — Guest Booking Confirm', '/terms'],
+    ['/manage', 'Owner panel — Guest Booking Confirm', '/manage'],
+  ];
+  for (const [path, title, canonicalPath] of routes) {
+    await page.goto(path);
+    await expect(page).toHaveTitle(title);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `https://guest-booking-confirm.sociobot.in${canonicalPath}`);
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', title);
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content', `https://guest-booking-confirm.sociobot.in${canonicalPath}`);
+    await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute('content', title);
+  }
+});
+
 test('@claim:demo-confirmation-trail demo starts approved and reaches guest confirmation', async ({ page }) => {
-  await page.goto('/demo');
+  await page.goto('/?demo=1');
   await expect(page.getByRole('complementary', { name: 'Demo controls' })).toContainText('Demo — sample data, nothing is saved');
   await expect(page.getByRole('heading', { name: 'Ready to confirm' })).toBeVisible();
   await expect(page.getByText('Maya Chen')).toBeVisible();
@@ -391,7 +438,7 @@ test('demo controls are reachable and operable by keyboard', async ({ page }) =>
 test('@claim:demo-local-only demo does not call booking APIs and uses only its demo storage namespace', async ({ page }) => {
   const requests: string[] = [];
   page.on('request', request => requests.push(request.url()));
-  await page.goto('/demo');
+  await page.goto('/?demo=1');
   await page.getByRole('button', { name: 'Confirm this time' }).click();
   await expect(page.getByRole('heading', { name: 'Confirmed', exact: true })).toBeVisible();
   expect(requests.some(url => new URL(url).pathname.startsWith('/api/'))).toBeFalsy();
@@ -401,13 +448,13 @@ test('@claim:demo-local-only demo does not call booking APIs and uses only its d
 test('@claim:no-tracking-cookies demo sends no cross-origin request and writes no cookie', async ({ page }) => {
   const requests: string[] = [];
   page.on('request', request => requests.push(request.url()));
-  await page.goto('/demo');
+  await page.goto('/?demo=1');
   await page.getByRole('button', { name: 'Confirm this time' }).click();
   expect(await page.evaluate(() => document.cookie)).toBe('');
   expect(requests.every(url => new URL(url).origin === 'http://127.0.0.1:4173')).toBeTruthy();
 });
 
-test('@claim:api-rate-limit API responses enforce a deployment-wide rolling limit with Retry-After', async ({ page, request }, testInfo) => {
+test('@claim:api-rate-limit @claim:health-build-identity API limits traffic while health stays available', async ({ page, request }, testInfo) => {
   await page.goto('/demo');
   for (let attempt = 0; attempt < 3; attempt += 1) {
     const client = `claims-rate-limit-${testInfo.workerIndex}-${attempt}-${Date.now()}`;
@@ -441,6 +488,9 @@ test('@claim:api-rate-limit API responses enforce a deployment-wide rolling limi
   expect(licenses.filter(response => response.status === 422)).toHaveLength(12);
   expect(licenses.filter(response => response.status === 429)).toHaveLength(2);
   expect(licenses.filter(response => response.status === 429).every(response => response.retryAfter === '1')).toBeTruthy();
+  const health = await request.get('/health');
+  expect(health.status()).toBe(200);
+  expect(await health.json()).toEqual({ status: 'ok', build_sha: expect.stringMatching(/\S+/) });
 });
 
 test('unknown routes return the designed 404 and hashed assets are immutable', async ({ page, request }) => {
@@ -451,6 +501,10 @@ test('unknown routes return the designed 404 and hashed assets are immutable', a
   expect(callbackShell.headers()['cache-control']).toBe('no-cache');
   const missing = await request.get('/this-route-does-not-exist');
   expect(missing.status()).toBe(404);
+  const missingHtml = await missing.text();
+  for (const required of ['meta name="description"', 'rel="canonical"', 'property="og:title"', 'name="twitter:title"', 'rel="icon"', 'rel="apple-touch-icon"']) {
+    expect(missingHtml).toContain(required);
+  }
   await expect(page.goto('/this-route-does-not-exist')).resolves.toBeTruthy();
   await expect(page.getByRole('heading', { name: 'That page is not on this desk' })).toBeVisible();
   await page.goto('/demo');
@@ -471,7 +525,7 @@ test('@claim:offline-reload service worker leaves identity callbacks uncached an
     return requests.map(request => request.url);
   });
   expect(cachedUrls.some(url => new URL(url).pathname === '/auth/callback')).toBe(false);
-  await page.goto('/demo');
+  await page.goto('/?demo=1');
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Ready to confirm' })).toBeVisible();
   await context.setOffline(true);

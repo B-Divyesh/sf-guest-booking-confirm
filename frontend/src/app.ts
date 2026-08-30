@@ -9,6 +9,7 @@ type Booking = { id: string; reference: string; guest_name: string; email?: stri
 const app = document.querySelector<HTMLDivElement>('#app')!;
 const LICENSE_KEY = 'sb_license:guest-booking-confirm';
 const DEMO_KEY = 'demo:guest-booking-confirm:state';
+const ORIGIN = 'https://guest-booking-confirm.sociobot.in';
 let moveFocusOnRoute = false;
 const identity = () => import('./auth');
 
@@ -38,11 +39,13 @@ async function api<T>(url: string, options: RequestInit = {}): Promise<T> {
   return body as T;
 }
 
+function isDemoRoute(): boolean { return location.pathname === '/demo' || (location.pathname === '/' && new URLSearchParams(location.search).get('demo') === '1'); }
+
 function shell(content: string, owner = false): void {
   app.innerHTML = `<header class="topbar">
     <a class="wordmark" href="/" data-nav aria-label="Guest Booking Confirm home"><span aria-hidden="true">GBC</span><strong>Guest Booking<br>Confirm</strong></a>
-    <nav aria-label="Main navigation"><a href="/#schedule">Schedule</a><a href="/#guide">Guide</a><a href="/#request-booking">Request booking</a><a class="nav-cta" href="mailto:hello@sociobot.in?subject=Guest%20Booking%20Confirm%20waitlist">Join waitlist</a></nav>
-  </header>${location.pathname === '/demo' ? demoBanner() : ''}${content}<footer><p>Clear appointment state, no guest account. Generated artwork with recorded prompt provenance. No tracking cookies. Built by Param Factory · <a href="/health">build ID</a></p><nav aria-label="Product and legal"><a href="${owner ? '/' : '/manage'}" data-nav>${owner ? 'Guest page' : 'Owner panel'}</a><a href="/privacy" data-nav>Privacy</a><a href="/terms" data-nav>Terms</a></nav></footer><p id="route-status" class="sr-only" aria-live="polite"></p>`;
+    <nav aria-label="Main navigation"><a href="/?demo=1" data-nav>Try the demo</a><a href="/manage" data-nav>Owner panel</a><a href="/privacy" data-nav>Privacy</a></nav>
+  </header>${isDemoRoute() ? demoBanner() : ''}${content}<footer><p>Clear appointment state, no guest account. Generated artwork with recorded prompt provenance. No tracking cookies. Built by Param Factory · <a href="/health">build ID</a></p><nav aria-label="Product and legal"><a href="${owner ? '/' : '/manage'}" data-nav>${owner ? 'Guest page' : 'Owner panel'}</a><a href="/privacy" data-nav>Privacy</a><a href="/terms" data-nav>Terms</a></nav></footer><p id="route-status" class="sr-only" aria-live="polite"></p>`;
   document.querySelector('main')?.setAttribute('tabindex', '-1');
   document.querySelectorAll<HTMLAnchorElement>('[data-nav]').forEach(link => link.addEventListener('click', event => { if (link.origin === location.origin) { event.preventDefault(); moveFocusOnRoute = true; history.pushState({}, '', link.href); route(); } }));
   document.querySelector('#reset-demo')?.addEventListener('click', resetDemo);
@@ -59,9 +62,9 @@ function localBookingUrl(token: string): string { return `${location.origin}/b/$
 async function route(): Promise<void> {
   scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
   const path = location.pathname;
-  document.title = path === '/manage' || path === '/auth/callback' ? 'Owner panel — Guest Booking Confirm' : path === '/demo' ? 'Demo — Guest Booking Confirm' : path === '/privacy' ? 'Privacy — Guest Booking Confirm' : path === '/terms' ? 'Terms — Guest Booking Confirm' : path === '/404' ? 'Page not found — Guest Booking Confirm' : 'Guest Booking Confirm — clear appointment status';
+  updateMetadata(path);
   if (path === '/manage' || path === '/auth/callback') return ownerPage();
-  if (path === '/demo') return demoPage();
+  if (isDemoRoute()) return demoPage();
   if (path === '/privacy') return privacyPage();
   if (path === '/terms') return termsPage();
   if (path === '/404') return notFoundPage();
@@ -69,6 +72,29 @@ async function route(): Promise<void> {
   if (guest) return guestPage(decodeURIComponent(guest[1]));
   if (path !== '/') return notFoundPage();
   return bookingPage();
+}
+
+function updateMetadata(path: string): void {
+  const demo = isDemoRoute();
+  const routeName = demo ? 'demo' : path === '/manage' || path === '/auth/callback' ? 'manage' : path.slice(1) || 'home';
+  const metadata: Record<string, { title: string; description: string; canonical: string }> = {
+    home: { title: 'Guest Booking Confirm — confirm guest appointments', description: 'Request, approve, and confirm guest appointments without requiring a guest account.', canonical: '/' },
+    demo: { title: 'Demo — Guest Booking Confirm', description: 'Try an isolated sample appointment from owner approval through guest confirmation.', canonical: '/?demo=1' },
+    privacy: { title: 'Privacy — Guest Booking Confirm', description: 'See which booking, owner, billing, and anonymous page-count data the service stores.', canonical: '/privacy' },
+    terms: { title: 'Terms — Guest Booking Confirm', description: 'Read the booking service terms, limits, and Panel Pro purchase conditions.', canonical: '/terms' },
+    manage: { title: 'Owner panel — Guest Booking Confirm', description: 'Set up the booking desk, approve requests, and track manual reminders.', canonical: '/manage' },
+    '404': { title: 'Page not found — Guest Booking Confirm', description: 'This page is not part of the Guest Booking Confirm appointment desk.', canonical: '/404' },
+  };
+  const value = metadata[routeName] || metadata['404'];
+  document.title = value.title;
+  document.querySelector<HTMLMetaElement>('meta[name="description"]')?.setAttribute('content', value.description);
+  document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.setAttribute('href', `${ORIGIN}${value.canonical}`);
+  document.querySelector<HTMLMetaElement>('meta[property="og:title"]')?.setAttribute('content', value.title);
+  document.querySelector<HTMLMetaElement>('meta[property="og:description"]')?.setAttribute('content', value.description);
+  document.querySelector<HTMLMetaElement>('meta[property="og:url"]')?.setAttribute('content', `${ORIGIN}${value.canonical}`);
+  document.querySelector<HTMLMetaElement>('meta[name="twitter:title"]')?.setAttribute('content', value.title);
+  document.querySelector<HTMLMetaElement>('meta[name="twitter:description"]')?.setAttribute('content', value.description);
+  document.querySelector<HTMLMetaElement>('meta[name="robots"]')?.setAttribute('content', routeName === '404' || path.startsWith('/b/') || path === '/auth/callback' ? 'noindex,nofollow' : 'index,follow');
 }
 
 async function bookingPage(): Promise<void> {
@@ -104,74 +130,82 @@ async function bookingPage(): Promise<void> {
   } catch (error) { errorPage(error instanceof Error ? error.message : 'Unknown error'); }
 }
 
-function monthGrid(): string {
-  const blanks = '<span aria-hidden="true"></span>'.repeat(4);
-  const days = Array.from({ length: 31 }, (_, index) => {
+function monthGrid(date: Date): string {
+  const first = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+  const count = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  const blanks = '<span aria-hidden="true"></span>'.repeat(first);
+  const days = Array.from({ length: count }, (_, index) => {
     const day = index + 1;
-    return `<span class="${day === 5 ? 'picked' : ''}">${day}${day === 5 ? '<i aria-hidden="true"></i>' : ''}</span>`;
+    return `<span class="${day === date.getDate() ? 'picked' : ''}">${day}${day === date.getDate() ? '<i aria-hidden="true"></i>' : ''}</span>`;
   }).join('');
   return `${blanks}${days}`;
 }
 
-function scheduleRow(month: string, days: Array<[string, string, string]>, tone: string): string {
-  return `<article class="release-month ${tone}"><h3>${month} <span>2025</span></h3><div class="release-days">${days.map(([day, date, state]) => `<button class="release-day" type="button" data-release-date="${month} ${date}" data-release-state="${state}" aria-pressed="false"><small>${day}</small><strong>${date}</strong><span aria-hidden="true">${tone === 'open' ? '✓' : tone === 'pending' ? '●' : '×'}</span><em>${state}</em></button>`).join('')}</div></article>`;
+function futureDate(daysAhead: number): Date { const date = new Date(); date.setHours(12, 0, 0, 0); date.setDate(date.getDate() + daysAhead); return date; }
+function shortDate(date: Date): string { return new Intl.DateTimeFormat('en', { weekday: 'short', month: 'short', day: 'numeric' }).format(date); }
+function longDate(date: Date): string { return new Intl.DateTimeFormat('en', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }).format(date); }
+
+function scheduleRow(title: string, dates: Date[], state: string, tone: string): string {
+  return `<article class="release-month ${tone}"><h3>${e(title)} <span>Sample appointments</span></h3><div class="release-days">${dates.map(date => `<button class="release-day" type="button" data-appointment-date="${e(longDate(date))}" data-appointment-state="${e(state)}" aria-pressed="false"><small>${e(new Intl.DateTimeFormat('en', { weekday: 'short' }).format(date))}</small><strong>${date.getDate()}</strong><span aria-hidden="true">${tone === 'open' ? '✓' : tone === 'pending' ? '●' : '✓'}</span><em>${e(state)}</em></button>`).join('')}</div></article>`;
 }
 
 function marketingLanding(): void {
-  const weekdays: Array<[string, string, string]> = [['MON', '5', 'confirmed'], ['TUE', '6', 'confirmed'], ['WED', '7', 'confirmed'], ['THU', '8', 'confirmed']];
-  const pending: Array<[string, string, string]> = [['MON', '7', 'pending'], ['TUE', '8', 'pending'], ['WED', '9', 'pending'], ['THU', '10', 'pending']];
-  const paused: Array<[string, string, string]> = [['MON', '1', 'paused'], ['TUE', '2', 'paused'], ['WED', '3', 'paused'], ['THU', '4', 'paused']];
+  const approvedDate = futureDate(5);
+  const requestedDates = [2, 3, 4, 5].map(futureDate);
+  const approvedDates = [6, 7, 8, 9].map(futureDate);
+  const confirmedDates = [10, 11, 12, 13].map(futureDate);
+  const month = new Intl.DateTimeFormat('en', { month: 'long' }).format(approvedDate);
   shell(`<main id="main" class="release-landing">
     <section class="release-hero" aria-labelledby="release-title">
       <div class="release-copy">
         <p class="eyebrow">Guest booking for microbusinesses</p>
         <h1 id="release-title">Request and confirm<br><em>guest appointments.</em></h1>
         <p class="release-lede">For microbusinesses that approve time requests before each guest gets a clear booking status.</p>
-        <div class="release-actions"><a class="button primary" href="/demo" data-nav>Try it with sample data</a><span class="action-note">Opens Maya’s approved request at the guest confirmation step.</span><a class="text-link" href="#schedule">Review sample availability <span aria-hidden="true">↓</span></a></div>
+        <div class="release-actions"><a class="button primary" href="/?demo=1" data-nav>Try it with sample data</a><span class="action-note">Opens Maya’s approved request at the guest confirmation step.</span><a class="text-link" href="#schedule">Review sample appointment statuses <span aria-hidden="true">↓</span></a></div>
         <ul class="release-facts" aria-label="Booking facts"><li>No tracking cookies</li><li>The demo works offline after the first visit</li><li>Free for 30 active bookings</li></ul>
       </div>
-      <figure class="calendar-collage" aria-label="May 2025 release date preview">
+      <figure class="calendar-collage" aria-label="Future sample appointment ready for confirmation">
         <img src="/assets/editorial-calendar-texture.webp" width="1536" height="1024" alt="" fetchpriority="high" decoding="async">
-        <div class="availability-slip"><span>Available</span><strong>Spring<br>preview</strong><small>Weekday slots</small></div>
-        <div class="date-slip"><span>Mon</span><strong>May 5</strong><small><i aria-hidden="true">✓</i> Confirmed</small></div>
-        <div class="month-slip"><header><span>May</span><strong>2025</strong></header><div class="week-row" aria-hidden="true"><b>S</b><b>M</b><b>T</b><b>W</b><b>T</b><b>F</b><b>S</b></div><div class="month-grid" aria-hidden="true">${monthGrid()}</div></div>
+        <div class="availability-slip"><span>Sample appointment</span><strong>Owner<br>approved</strong><small>Guest confirmation next</small></div>
+        <div class="date-slip"><span>${e(new Intl.DateTimeFormat('en', { weekday: 'short' }).format(approvedDate))}</span><strong>${e(shortDate(approvedDate).replace(/^\w+,?\s*/, ''))}</strong><small><i aria-hidden="true">●</i> Ready to confirm</small></div>
+        <div class="month-slip"><header><span>${e(month)}</span><strong>${approvedDate.getFullYear()}</strong></header><div class="week-row" aria-hidden="true"><b>S</b><b>M</b><b>T</b><b>W</b><b>T</b><b>F</b><b>S</b></div><div class="month-grid" aria-hidden="true">${monthGrid(approvedDate)}</div></div>
       </figure>
     </section>
 
-    <section class="release-facts-bar" aria-label="Release facts">
-      <p><span>Earliest start</span><strong>8 weeks</strong></p>
-      <p><span>Working days</span><strong>Mon—Thu</strong></p>
-      <p><span>Pause dates</span><strong>Holidays</strong></p>
+    <section class="release-facts-bar" aria-label="Appointment steps">
+      <p><span>Step 1</span><strong>Guest requests</strong></p>
+      <p><span>Step 2</span><strong>Owner approves</strong></p>
+      <p><span>Step 3</span><strong>Guest confirms</strong></p>
     </section>
 
     <section class="cutoff-panel" aria-labelledby="cutoff-title">
-      <div class="cutoff-copy"><p class="eyebrow">Decision point</p><h2 id="cutoff-title">The cutoff</h2><p>Dates lock two weeks before each appointment. The owner confirms the time or suggests another one before then.</p></div>
-      <div class="cutoff-mark" aria-hidden="true"><span>14</span><small>days</small></div>
+      <div class="cutoff-copy"><h2 id="cutoff-title">Track each appointment status</h2><p>The owner approves the requested time. The guest then uses one private link to confirm, change, or cancel it.</p></div>
+      <div class="cutoff-mark" aria-hidden="true"><span>3</span><small>clear steps</small></div>
       <svg class="cutoff-path" viewBox="0 0 600 190" aria-hidden="true"><path d="M15 145 C130 10, 260 205, 390 65 S555 85, 585 18"/><circle cx="15" cy="145" r="6"/><circle cx="585" cy="18" r="6"/></svg>
     </section>
 
     <section class="next-release" aria-labelledby="next-title">
-      <div class="next-intro"><p class="eyebrow">Next up</p><h2 id="next-title">May 5—8</h2><p>Four weekday dates move together from open request to owner approval.</p></div>
-      <div class="next-days" aria-label="Next release dates">${weekdays.map(([day, date]) => `<div><small>${day}</small><strong>${date}</strong><span aria-hidden="true">✓</span></div>`).join('')}</div>
-      <div class="locked-block"><strong>4 days,<br>locked.</strong><p>Guests see one clear status for every requested time.</p></div>
+      <div class="next-intro"><h2 id="next-title">Sample appointments awaiting confirmation</h2><p>These future sample dates show the step after owner approval.</p></div>
+      <div class="next-days" aria-label="Future sample appointment dates">${approvedDates.map(date => `<div><small>${e(new Intl.DateTimeFormat('en', { weekday: 'short' }).format(date))}</small><strong>${date.getDate()}</strong><span aria-hidden="true">●</span></div>`).join('')}</div>
+      <div class="locked-block"><strong>One clear<br>status.</strong><p>Each guest sees what needs to happen next.</p></div>
     </section>
 
-    <div class="release-strip" aria-hidden="true"><span>Releases · 8 weeks out · Dates lock · 2 weeks out · Releases · 8 weeks out · Dates lock · 2 weeks out</span></div>
+    <div class="release-strip" aria-hidden="true"><span>Guests request · Owners approve · Guests confirm · One private link</span></div>
 
     <section class="schedule-board" id="schedule" aria-labelledby="schedule-title">
-      <div class="schedule-heading"><p class="eyebrow">2025 release schedule</p><h2 id="schedule-title">Review the date board</h2><p>Select a date to hear its current sample status.</p></div>
+      <div class="schedule-heading"><h2 id="schedule-title">Review sample appointment statuses</h2><p>Select a future sample date to hear its booking status.</p></div>
       <div class="month-list">
-        ${scheduleRow('May', weekdays, 'open')}
-        ${scheduleRow('Jul', pending, 'pending')}
-        ${scheduleRow('Dec', paused, 'paused')}
+        ${scheduleRow('Requested', requestedDates, 'waiting for owner approval', 'pending')}
+        ${scheduleRow('Approved', approvedDates, 'ready for guest confirmation', 'open')}
+        ${scheduleRow('Confirmed', confirmedDates, 'confirmed by the guest', 'confirmed')}
       </div>
-      <p id="availability-status" class="availability-status" role="status">Monday, May 5 is confirmed in this sample schedule.</p>
+      <p id="availability-status" class="availability-status" role="status">${e(longDate(requestedDates[0]))} is waiting for owner approval.</p>
     </section>
 
     <div class="release-strip reverse" aria-hidden="true"><span>Guests request · Owners approve · Guests confirm · One private link · Guests request · Owners approve</span></div>
 
     <section class="landing-guide" id="guide" aria-labelledby="guide-title">
-      <div class="guide-heading"><p class="eyebrow">Simple by design</p><h2 id="guide-title">How booking works</h2></div>
+      <div class="guide-heading"><h2 id="guide-title">How booking works</h2></div>
       <ol>
         <li><span>01</span><h3>Request a time</h3><p>The guest chooses an available time and shares only needed contact details.</p></li>
         <li><span>02</span><h3>Owner approves</h3><p>The owner approves the request before the appointment becomes ready to confirm.</p></li>
@@ -180,21 +214,21 @@ function marketingLanding(): void {
     </section>
 
     <section class="bottom-details" aria-label="Product details">
-      <div><p class="eyebrow">Private by default</p><p>Demo data stays in this browser. Real desks store only booking details and consent.</p><a href="/privacy" data-nav>Read the privacy policy</a></div>
-      <div><p class="eyebrow">Clear limits</p><p>This is not a payment system, staff rota, CRM, or automatic message sender.</p><a href="/terms" data-nav>Read the terms</a></div>
-      <div><p class="eyebrow">Straightforward price</p><p>The free desk holds 30 active bookings. Panel Pro is a $29 one-time license.</p><a href="/manage" data-nav>Open the owner panel</a></div>
+      <div><h2 class="detail-title">How booking data is stored</h2><p>Demo data stays in this browser. Real desks store booking details, consent, owner settings, paid state, and an anonymous daily page-view count.</p><a href="/privacy" data-nav>Read the privacy policy</a></div>
+      <div><h2 class="detail-title">What this does not do</h2><p>This is not a payment system, staff rota, CRM, or automatic message sender.</p><a href="/terms" data-nav>Read the terms</a></div>
+      <div><h2 class="detail-title">Price and booking limits</h2><p>The free desk holds 30 active bookings. Panel Pro is a $29 one-time license.</p><a href="/manage" data-nav>Open the owner panel</a></div>
     </section>
 
-    <section class="landing-cta" id="request-booking" aria-labelledby="request-title"><div><p class="eyebrow">Try the full trail</p><h2 id="request-title">Request. Approve. Confirm.</h2></div><div><a class="button primary" href="/demo" data-nav>Try it with sample data</a><p>Opens a ready-to-confirm sample. Nothing is saved to a real desk.</p></div></section>
+    <section class="landing-cta" id="request-booking" aria-labelledby="request-title"><div><h2 id="request-title">Try the sample booking flow</h2></div><div><a class="button primary" href="/?demo=1" data-nav>Try it with sample data</a><p>Opens a ready-to-confirm sample. Nothing is saved to a real desk.</p></div></section>
   </main>`);
-  bindReleaseBoard();
+  bindAppointmentPreview();
 }
 
-function bindReleaseBoard(): void {
+function bindAppointmentPreview(): void {
   const output = document.querySelector('#availability-status');
-  document.querySelectorAll<HTMLButtonElement>('[data-release-date]').forEach(button => button.addEventListener('click', () => {
-    document.querySelectorAll<HTMLButtonElement>('[data-release-date]').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
-    if (output) output.textContent = `${button.dataset.releaseDate} is ${button.dataset.releaseState} in this sample schedule.`;
+  document.querySelectorAll<HTMLButtonElement>('[data-appointment-date]').forEach(button => button.addEventListener('click', () => {
+    document.querySelectorAll<HTMLButtonElement>('[data-appointment-date]').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+    if (output) output.textContent = `${button.dataset.appointmentDate} is ${button.dataset.appointmentState}.`;
   }));
 }
 
@@ -211,7 +245,11 @@ function demoState(): DemoState {
   return { status: 'awaiting_confirmation' };
 }
 function saveDemoState(state: DemoState): void { localStorage.setItem(DEMO_KEY, JSON.stringify(state)); demoPage(); }
-function resetDemo(): void { saveDemoState({ status: 'awaiting_confirmation' }); }
+function resetDemo(): void {
+  localStorage.setItem(DEMO_KEY, JSON.stringify({ status: 'awaiting_confirmation' }));
+  demoPage();
+  requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('#reset-demo')?.focus());
+}
 function startForReal(): void { localStorage.removeItem(DEMO_KEY); history.pushState({}, '', '/'); route(); }
 function sampleStart(daysAhead = 5): string { const date = new Date(); date.setUTCDate(date.getUTCDate() + daysAhead); date.setUTCHours(19, 0, 0, 0); return date.toISOString(); }
 function demoBooking(): Booking {
@@ -363,7 +401,7 @@ async function ownerDashboard(licenseNotice = ''): Promise<void> {
   shell(`<main id="main" class="owner-main"><section class="owner-heading"><div><p class="eyebrow">${e(settings.business_name)} · control panel</p><h1>Booking signals</h1><p>Approve requests, share each private link, and record manual reminders.</p></div><div class="owner-actions"><button class="secondary" id="copy-public">Copy guest page</button><button class="secondary" id="owner-settings">Desk settings</button><button class="quiet" id="logout">Sign out</button></div></section>
     <section class="meters" aria-label="Booking summary"><div><span>Active</span><strong>${active.length}</strong><small>${settings.paid?'Unlimited plan':'of 30 free'}</small></div><div><span>Confirmed</span><strong>${confirmed.length}</strong><small>both sides agreed</small></div><div><span>Reminders due</span><strong>${reminders.length}</strong><small>manual checklist</small></div></section>
     <section class="owner-list" aria-labelledby="queue-title"><div class="section-heading"><p class="dial-number">03</p><div><h2 id="queue-title">Appointment queue</h2><p>Shown in each booking’s business timezone.</p></div><div class="filters" role="group" aria-label="Filter bookings"><button class="filter active" data-filter="active">Active</button><button class="filter" data-filter="all">All</button></div></div><div id="booking-list">${renderOwnerBookings(active)}</div><div id="dashboard-message"></div></section>
-    <section class="plan-panel"><div><p class="eyebrow">Calendar capacity</p><h2>${settings.paid?'Panel Pro is active':'Free desk · 30 active bookings'}</h2><p>${settings.paid?'Unlimited active bookings and 365-day closed-record retention are unlocked.':'The free desk includes the complete guest confirmation trail. Panel Pro adds unlimited active bookings and 365-day closed-record retention.'}</p></div>${settings.paid?'<span class="paid-stamp">Licensed</span>':'<div class="plan-actions"><a class="button primary" href="https://api.sociobot.in/api/v1/products/guest-booking-confirm/checkout">Buy Panel Pro · $29</a><button class="secondary" id="restore-license">Restore a license</button><small>$29 one-time purchase. Sociobot/Dodo is merchant of record; refunds are handled there.</small></div>'}<div id="license-panel">${licenseNotice?`<p class="form-message error" role="alert">${e(licenseNotice)}</p>`:''}</div></section>
+    <section class="plan-panel"><div><p class="eyebrow">Calendar capacity</p><h2>${settings.paid?'Panel Pro is active':'Free desk · 30 active bookings'}</h2><p>${settings.paid?'Unlimited active bookings and 365-day closed-record retention are unlocked.':'The free desk includes the complete guest confirmation trail. Panel Pro adds unlimited active bookings and 365-day closed-record retention.'}</p></div>${settings.paid?'<span class="paid-stamp">Licensed</span>':'<div class="plan-actions"><a class="button primary" href="https://api.sociobot.in/api/v1/products/guest-booking-confirm/checkout">Buy Panel Pro · $29 at Sociobot</a><button class="secondary" id="restore-license">Restore a license</button><small>$29 one-time purchase. Sociobot/Dodo is merchant of record; refunds are handled there. Read the <a href="/privacy" data-nav>privacy policy</a> and <a href="/terms" data-nav>terms</a>.</small></div>'}<div id="license-panel">${licenseNotice?`<p class="form-message error" role="alert">${e(licenseNotice)}</p>`:''}</div></section>
   </main>`,true);
   bindDashboard(bookings,active,settings);
   consumeLicenseFromUrl();

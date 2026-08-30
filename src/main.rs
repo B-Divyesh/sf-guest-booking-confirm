@@ -1512,6 +1512,61 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn claim_service_storage_inventory() {
+        let (state, path) = test_state().await;
+        seed_test_settings(
+            &state.db,
+            Some((Utc::now() + ChronoDuration::days(365)).to_rfc3339()),
+        )
+        .await;
+        let starts_at = (Utc::now() + ChronoDuration::days(3)).to_rfc3339();
+        seed_requested_booking(&state.db, "storage-claim", &starts_at).await;
+        let app = build_app(state.clone());
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/api/page-view")
+                    .header("x-forwarded-for", "storage-inventory")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::NO_CONTENT);
+
+        let settings: (String, String, String, Option<String>) = sqlx::query_as(
+            "SELECT business_name,service_name,owner_oid,paid_until FROM settings WHERE id=1",
+        )
+        .fetch_one(&state.db)
+        .await
+        .unwrap();
+        assert_eq!(settings.0, "Signal Studio");
+        assert_eq!(settings.1, "Consultation");
+        assert_eq!(settings.2, "test-owner");
+        assert!(settings.3.is_some());
+
+        let booking: (String, String, String, String) = sqlx::query_as(
+            "SELECT guest_name,email,status,consent_at FROM bookings WHERE id='storage-claim'",
+        )
+        .fetch_one(&state.db)
+        .await
+        .unwrap();
+        assert_eq!(booking.0, "Requested guest");
+        assert_eq!(booking.1, "storage-claim@example.test");
+        assert_eq!(booking.2, "requested");
+        assert!(DateTime::parse_from_rfc3339(&booking.3).is_ok());
+        let page_count: i64 = sqlx::query_scalar("SELECT count FROM page_counts")
+            .fetch_one(&state.db)
+            .await
+            .unwrap();
+        assert_eq!(page_count, 1);
+
+        state.db.close().await;
+        std::fs::remove_file(path).unwrap();
+    }
+
+    #[tokio::test]
     async fn legacy_database_migrates_to_sociobot_owner_identity() {
         let path = std::env::temp_dir().join(format!(
             "guest-booking-confirm-upgrade-{}-{}.db",
@@ -1625,7 +1680,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn owner_routes_require_and_isolate_sociobot_entra_identity() {
+    async fn claim_first_owner_setup_is_exclusive() {
         let (state, path) = test_state().await;
         let app = build_app(state.clone());
         let unauthenticated = app
@@ -1641,7 +1696,22 @@ mod tests {
             .unwrap();
         assert_eq!(unauthenticated.status(), StatusCode::UNAUTHORIZED);
 
-        seed_test_settings(&state.db, None).await;
+        let setup_body = r#"{"business_name":"Signal Studio","service_name":"Consultation","timezone":"UTC","duration_minutes":30,"weekly_hours":{"mon":["09:00","17:00"]}}"#;
+        let setup = app
+            .clone()
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/api/owner/setup")
+                    .header(header::CONTENT_TYPE, "application/json")
+                    .header("x-forwarded-for", "identity-first-owner-setup")
+                    .header("x-test-oid", "test-owner")
+                    .body(Body::from(setup_body))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(setup.status(), StatusCode::CREATED);
         let owner = app
             .clone()
             .oneshot(
@@ -1657,6 +1727,7 @@ mod tests {
         assert_eq!(owner.status(), StatusCode::OK);
 
         let other_owner = app
+            .clone()
             .oneshot(
                 Request::builder()
                     .uri("/api/owner/status")
@@ -1668,6 +1739,26 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(other_owner.status(), StatusCode::FORBIDDEN);
+
+        let takeover = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/api/owner/setup")
+                    .header(header::CONTENT_TYPE, "application/json")
+                    .header("x-forwarded-for", "identity-takeover")
+                    .header("x-test-oid", "different-owner")
+                    .body(Body::from(setup_body))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(takeover.status(), StatusCode::CONFLICT);
+        let stored_owner: String = sqlx::query_scalar("SELECT owner_oid FROM settings WHERE id=1")
+            .fetch_one(&state.db)
+            .await
+            .unwrap();
+        assert_eq!(stored_owner, "test-owner");
         state.db.close().await;
         std::fs::remove_file(path).unwrap();
     }

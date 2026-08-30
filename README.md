@@ -1,14 +1,14 @@
 # Guest Booking Confirm
 
-Guest Booking Confirm is a self-hosted appointment desk for businesses whose guests should not need accounts. A guest requests a time and the owner approves it. A private link then supports confirmation, rescheduling, cancellation, calendar download, and the owner’s manual reminder checklist.
+This repository contains an appointment desk for businesses whose guests should not need accounts. A guest requests a time and the owner approves it. A private link then supports confirmation, rescheduling, cancellation, calendar download, and the owner’s manual reminder checklist.
 
-It is deliberately not a staff rota, payment system, CRM, or automatic email/SMS sender. Owners copy the private booking link into the channel they already use.
+It is not a staff rota, payment system, CRM, or automatic email/SMS sender. Owners can copy the exact private booking link to share with each guest.
 
 Live: <https://guest-booking-confirm.sociobot.in>
 
 ## Try the sample desk
 
-Open <https://guest-booking-confirm.sociobot.in/demo> or select **Try it with sample data** on the first screen. It opens Maya Chen’s already-approved sample appointment, ready for the guest confirmation step. The demo is isolated in a `demo:` localStorage key; it never calls the booking API or writes to a real owner desk. Reset it from the persistent demo banner, or choose **Start for real** to discard the sample.
+Open <https://guest-booking-confirm.sociobot.in/?demo=1> or select **Try it with sample data** on the first screen. It opens Maya Chen’s already-approved sample appointment, ready for the guest confirmation step. The demo is isolated in a `demo:` localStorage key; it never calls the booking API or writes to a real owner desk. Reset it from the persistent demo banner, or choose **Start for real** to discard the sample.
 
 ## Who it is for
 
@@ -23,14 +23,14 @@ npm ci
 npm run dev
 ```
 
-`npm run dev` starts Vite and the Rust service. It creates `data/dev.db`; open `http://localhost:5173`. No environment variables are required in the container. For a direct Rust run, the defaults are `PORT=8080` and `DATABASE_URL=sqlite:/data/guest-booking-confirm.db`; override the database path for local write access:
+`npm run dev` starts Vite and the Rust service. It creates `data/dev.db`; open `http://localhost:5173`. The container defaults to `PORT=8080` and `DATABASE_URL=sqlite:/data/guest-booking-confirm.db`. Override the database path for local write access:
 
 ```sh
 npm run build
 DATABASE_URL=sqlite:./data/local.db cargo run
 ```
 
-Owners sign in at `/manage` through Sociobot Microsoft Entra External ID. The first signed-in owner creates the desk settings. Guest action links are bearer links and should be shared privately.
+Owners sign in at `/manage` through Sociobot Microsoft Entra External ID. The first signed-in owner creates the desk settings. Another identity cannot take over that desk. Anyone with a private booking link can use it, so share it only with the guest.
 
 ## Test and build
 
@@ -46,12 +46,12 @@ docker build --build-arg BUILD_SHA=$(git rev-parse HEAD) -t guest-booking-confir
 docker run --rm -p 8080:8080 -v gbc-data:/data guest-booking-confirm
 ```
 
-Read API calls allow 40 requests and write API calls allow 12 requests per client in any rolling one-second window. Later calls return `429` with `Retry-After: 1`. `/health` is exempt and returns the compiled build SHA.
+Read API calls allow 40 requests and write API calls allow 12 requests per client in any rolling one-second window. Later calls return `429` with `Retry-After: 1`. The exempt `/health` endpoint stays available and returns the compiled build SHA.
 
-The container contract sets UID 10001, `PORT=8080`, SQLite on a persistent Azure Files volume at `/data`, and one serving replica. It handles `SIGTERM` for a graceful shutdown. Factory releases must use `npm run deploy`. The gate builds the exact source in ACR, then publishes that image only in a template that already includes `/data` and `minReplicas=maxReplicas=1`. It proves the live build identity plus the 40-read, 12-page-view, and 12-license-check limits three times. It checks the topology and mount again as the final deployment action. A release fails if any check does not pass.
+The container contract sets UID 10001, `PORT=8080`, SQLite on a persistent Azure Files volume at `/data`, and one serving replica. It handles `SIGTERM` for a graceful shutdown. Factory releases must use `npm run deploy`. The deploy command builds the exact source in Azure Container Registry. It publishes one replica with `/data` mounted. It proves the live build identity and each documented rate limit three times. Before finishing, it confirms that one replica is running and `/data` is mounted. A release fails if any check does not pass.
 
 ## Privacy and billing
 
 `/privacy` and `/terms` describe retention and use. Panel Pro checkout and verification use `https://api.sociobot.in/api/v1/products/guest-booking-confirm/...`; no payment provider is embedded.
 
-The researched scope is in [.factory/brief.json](.factory/brief.json), the product-specific visual system and generated-asset provenance are in [.factory/design.md](.factory/design.md), and release verification is in [.factory/handoff.md](.factory/handoff.md).
+The opportunity brief is in [.factory/brief.json](.factory/brief.json). See [.factory/design.md](.factory/design.md) for the visual system. Release verification is in [.factory/handoff.md](.factory/handoff.md).
