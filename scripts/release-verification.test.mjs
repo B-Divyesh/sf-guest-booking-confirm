@@ -7,7 +7,7 @@ import test from 'node:test';
 const verifier = fileURLToPath(new URL('./verify-release.mjs', import.meta.url));
 const buildSha = '0123456789abcdef0123456789abcdef01234567';
 
-function startFixture({ split = false } = {}) {
+function startFixture({ splitReplicas = 1 } = {}) {
   const counters = new Map();
   let nextReplica = 0;
   const server = createServer((request, response) => {
@@ -18,7 +18,7 @@ function startFixture({ split = false } = {}) {
     }
     const limit = request.method === 'GET' ? 40 : 12;
     const acceptedStatus = request.method === 'GET' ? 200 : request.url === '/api/license/verify' ? 422 : 204;
-    const replica = split ? nextReplica++ % 2 : 0;
+    const replica = nextReplica++ % splitReplicas;
     const key = `${request.headers['x-forwarded-for']}:${request.method}:${replica}`;
     const count = counters.get(key) || 0;
     counters.set(key, count + 1);
@@ -61,8 +61,8 @@ test('release verification proves all read and write boundaries repeatedly', asy
   assert.equal((result.stdout.match(/Verified license verification burst/g) || []).length, 3);
 });
 
-test('release verification rejects the two-replica doubled allowance signature', async t => {
-  const server = await startFixture({ split: true });
+test('release verification rejects the verifier’s three-replica multiplied allowance signature', async t => {
+  const server = await startFixture({ splitReplicas: 3 });
   t.after(() => server.close());
   const address = server.address();
   assert.ok(address && typeof address === 'object');

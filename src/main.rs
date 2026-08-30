@@ -1394,6 +1394,7 @@ mod tests {
         let deployment = include_str!("../deploy/enforce-single-replica.sh");
         let persistent_data = include_str!("../deploy/ensure-persistent-data.sh");
         let safe_template = include_str!("../deploy/apply-safe-template.sh");
+        let live_topology = include_str!("../deploy/verify-live-topology.sh");
         let release = include_str!("../deploy/release.sh");
         assert!(dockerfile.contains("useradd --uid 10001"));
         assert!(dockerfile.contains("USER app"));
@@ -1418,6 +1419,8 @@ mod tests {
         assert!(safe_template.contains(".maxReplicas = 1"));
         assert!(safe_template.contains("volumeMounts"));
         assert!(safe_template.contains("Safe template verification failed"));
+        assert!(live_topology.contains("containerapp revision show"));
+        assert!(live_topology.contains("Serving topology verification failed"));
         let build = release
             .find("az acr build")
             .expect("release must build the exact image in ACR");
@@ -1439,6 +1442,10 @@ mod tests {
         assert!(
             !release.contains("factory_deploy_script"),
             "the unsafe generic max=3/no-volume publisher must not be part of this release path"
+        );
+        assert!(
+            release.contains("verify-live-topology.sh"),
+            "the serving revision, not merely the desired template, must be verified before release completes"
         );
     }
 

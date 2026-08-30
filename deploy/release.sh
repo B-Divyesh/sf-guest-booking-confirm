@@ -47,9 +47,11 @@ PREPARE_STORAGE_ONLY=1 "$repo_dir/deploy/ensure-persistent-data.sh" "$resource_g
 "$repo_dir/deploy/enforce-single-replica.sh" "$resource_group" "$app_name"
 "$repo_dir/deploy/apply-safe-template.sh" "$resource_group" "$app_name" "$image"
 "$repo_dir/deploy/enforce-single-replica.sh" "$resource_group" "$app_name"
+"$repo_dir/deploy/verify-live-topology.sh" "$resource_group" "$app_name" "$image"
 "$release_verify_script" "$public_url" "$source_sha"
 # Make the topology checks the final deployment actions as well. This closes
 # only after the live limiter probe and protects against a concurrent template
 # change while verification runs.
 "$repo_dir/deploy/enforce-single-replica.sh" "$resource_group" "$app_name"
 SAFE_TEMPLATE_VERIFY_ONLY=1 "$repo_dir/deploy/apply-safe-template.sh" "$resource_group" "$app_name"
+"$repo_dir/deploy/verify-live-topology.sh" "$resource_group" "$app_name" "$image"

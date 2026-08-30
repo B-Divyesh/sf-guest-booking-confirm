@@ -130,6 +130,36 @@ test('owner setup explains an inverted opening-hours range before saving', async
   await expect(page.getByRole('heading', { name: 'Set up your booking desk' })).toBeVisible();
 });
 
+test('guest request identifies an invalid email without blaming a chosen time', async ({ page }) => {
+  let bookingPosts = 0;
+  const start = new Date(Date.now() + 86_400_000).toISOString();
+  await page.route('**/api/public/settings', route => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ configured: true, business_name: 'Signal Studio', service_name: 'Consultation', timezone: 'UTC', duration_minutes: 30, welcome_note: '' }),
+  }));
+  await page.route('**/api/public/slots?**', route => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ slots: [{ start, local: '10:00', date: start.slice(0, 10) }] }),
+  }));
+  await page.route('**/api/bookings', route => {
+    bookingPosts += 1;
+    return route.fulfill({ status: 500, contentType: 'application/json', body: JSON.stringify({ error: 'The invalid form must not be submitted.' }) });
+  });
+
+  await page.goto('/');
+  await page.locator('input[name="starts_at"]').check();
+  await page.getByLabel('Full name').fill('Ada Guest');
+  await page.getByLabel('Email').fill('not-an-email');
+  await page.getByRole('checkbox', { name: /I agree/ }).check();
+  await page.getByRole('button', { name: /Send time request/ }).click();
+
+  await expect(page.getByRole('alert')).toHaveText('Enter a valid email address.');
+  await expect(page.locator('input[name="starts_at"]')).toBeChecked();
+  expect(bookingPosts).toBe(0);
+});
+
 test('@claim:guest-no-account @claim:owner-approval-before-booking @claim:copy-private-booking-link @claim:private-booking-link-security guest request reaches owner approval and guest confirmation', async ({ page, request, context }) => {
   await useTestOwner(page);
   const consoleErrors: string[] = [];

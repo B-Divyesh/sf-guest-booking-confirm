@@ -298,13 +298,24 @@ function bindBookingForm(settings: Settings): void {
   const form = document.querySelector<HTMLFormElement>('#booking-form')!;
   form.addEventListener('submit', async event => {
     event.preventDefault(); const output = document.querySelector('#booking-message')!;
-    if (!form.reportValidity()) { message(output, 'Complete the required fields and choose a time.'); return; }
+    if (!form.reportValidity()) { message(output, bookingValidationMessage(form)); return; }
     const data = new FormData(form); const button = form.querySelector<HTMLButtonElement>('button[type=submit]')!; setBusy(button, true, 'Sending request…');
     try {
       const result = await api<{ token: string; reference: string }>('/bookings', { method: 'POST', body: JSON.stringify({ guest_name: data.get('guest_name'), email: data.get('email'), phone: data.get('phone') || null, starts_at: data.get('starts_at'), consent: data.get('consent') === 'on' }) });
       history.pushState({}, '', `/b/${encodeURIComponent(result.token)}`); await guestPage(result.token, true);
     } catch (error) { message(output, error instanceof Error ? error.message : 'Could not send request.'); setBusy(button, false); }
   });
+}
+
+function bookingValidationMessage(form: HTMLFormElement): string {
+  const invalid = form.querySelector<HTMLInputElement>(':invalid');
+  switch (invalid?.name) {
+    case 'starts_at': return 'Choose an available time.';
+    case 'guest_name': return invalid.validity.valueMissing ? 'Enter your full name.' : 'Enter at least two characters for your full name.';
+    case 'email': return invalid.validity.valueMissing ? 'Enter your email address.' : 'Enter a valid email address.';
+    case 'consent': return 'Agree to the booking data notice before sending your request.';
+    default: return 'Check the highlighted booking details and try again.';
+  }
 }
 
 async function guestPage(token: string, justCreated = false): Promise<void> {

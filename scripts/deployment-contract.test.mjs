@@ -90,6 +90,15 @@ if (args[0] === 'storage' && args[1] === 'share-rm' && args[2] === 'show') {
   state.mode = args[args.indexOf('--mode') + 1];
   state.active = state.mode === 'single' ? 1 : 2;
   fs.writeFileSync(statePath, JSON.stringify(state));
+} else if (args[0] === 'containerapp' && args[1] === 'revision' && args[2] === 'show') {
+  process.stdout.write(JSON.stringify({ properties: {
+    active: state.active === 1,
+    template: {
+      containers: [{ image: state.image, volumeMounts: state.persistent ? [{ volumeName: 'gbc-data', mountPath: '/data' }] : null }],
+      volumes: state.persistent ? [{ name: 'gbc-data', storageType: 'AzureFile', storageName: 'guest-booking-confirm-data' }] : null,
+      scale: { minReplicas: state.min, maxReplicas: state.max }
+    }
+  }}));
 } else if (args[0] === 'containerapp' && args[1] === 'show' && !args.includes('--query')) {
   let provisioningState = state.provisioning;
   if (state.provisioning === 'Updating') {
@@ -178,6 +187,7 @@ test('release publishes the image only with the persistent one-replica template'
   assert.ok(calls.some(call => /^az storage share-rm create /.test(call)));
   assert.ok(calls.some(call => /^az containerapp env storage set /.test(call)));
   assert.ok(calls.some(call => /^az rest --method patch /.test(call)));
+  assert.ok(calls.some(call => /^az containerapp revision show /.test(call)), 'the serving revision must be inspected, not only the desired template');
   assert.ok(
     calls.filter(call => /^az containerapp show /.test(call) && !call.includes('--query')).length >= 3,
     'the combined image/mount/scale template must be polled until Azure reports provisioning Succeeded and checked again at release close'
