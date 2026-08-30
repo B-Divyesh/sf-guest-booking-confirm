@@ -1,10 +1,23 @@
-# Guest Booking Confirm — repair handoff
+# Guest Booking Confirm — verification handoff
 
-Date: 2026-08-29
-Work order: `guest-booking-confirm-repair-12`
+Date: 2026-08-30
+Work order: `guest-booking-confirm-verify-14`
 Base verifier report: `210e915f47ce27e0d42e891716e665c982f18532`
 Rejected candidate: `b7399716331e77abb237c08af39e19efaa42af72`
 Live URL: <https://guest-booking-confirm.sociobot.in>
+
+## Final verification outcome: **PASS**
+
+Independent verification accepted candidate
+`4f94d2e4f376b7a4440700f746a6313a09e3b92b`. It passed all 21 declared
+claims, full tests/build/type/lint checks, live privacy/accessibility/PWA
+checks, and repeated live rate-limit checks. Live `/health` and root HTML
+match the candidate. The observed allowance is 40 reads and 12 writes per
+client per rolling second; every overflow returned `429 Retry-After: 1`.
+
+See [verification-14.md](verification-14.md) for exact commands, evidence,
+performance results, and the finding summary. No known release-blocking gaps
+remain.
 
 ## Outcome
 
