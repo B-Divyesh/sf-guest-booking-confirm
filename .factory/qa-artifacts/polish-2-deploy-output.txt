@@ -1,0 +1,34 @@
+
+> guest-booking-confirm@1.0.0 deploy
+> ./deploy/release.sh
+
+== container app name: sf-guest-booking-confirm (slug guest-booking-confirm)
+== acr build sf-guest-booking-confirm:571c44e2ddb2
+  git: {}
+
+Run ID: ch1uj was successful after 5m18s
+== durable share sf-guest-booking-confirm-data for /data
+== container app sf-guest-booking-confirm
+   app exists: PATCH (volumes, secrets, env and probes preserved)
+   durable /data <- sf-guest-booking-confirm-data (single replica)
+   app: InProgress
+   app: InProgress
+   fqdn sf-guest-booking-confirm.orangepond-1638693f.eastus2.azurecontainerapps.io
+== dns
+== register hostname on the app (required before a managed certificate can be issued)
+== managed certificate + binding
+   cert: Succeeded
+   https://guest-booking-confirm.sociobot.in -> 000
+   https://guest-booking-confirm.sociobot.in -> 200
+Verified serving revision sf-guest-booking-confirm--0000048: image=sociobotregistry.azurecr.io/sf-guest-booking-confirm:571c44e2ddb2, Azure Files /data, one active revision, one running replica.
+Verified live build identity 571c44e2ddb25bdf6d825a8ce8d5b9b1f1848b1a.
+Verified read burst 1: 40 accepted, then 429 with Retry-After: 1.
+Verified write burst 1: 12 accepted, then 429 with Retry-After: 1.
+Verified license verification burst 1: 12 accepted, then 429 with Retry-After: 1.
+Verified read burst 2: 40 accepted, then 429 with Retry-After: 1.
+Verified write burst 2: 12 accepted, then 429 with Retry-After: 1.
+Verified license verification burst 2: 12 accepted, then 429 with Retry-After: 1.
+Verified read burst 3: 40 accepted, then 429 with Retry-After: 1.
+Verified write burst 3: 12 accepted, then 429 with Retry-After: 1.
+Verified license verification burst 3: 12 accepted, then 429 with Retry-After: 1.
+Verified serving revision sf-guest-booking-confirm--0000048: image=sociobotregistry.azurecr.io/sf-guest-booking-confirm:571c44e2ddb2, Azure Files /data, one active revision, one running replica.
