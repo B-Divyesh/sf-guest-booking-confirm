@@ -41,14 +41,14 @@ npm run test:claims # registry integrity and exact claim-to-test mapping
 npm run test:e2e # desktop and 390px Chromium workflows + axe accessibility scans
 npm run test:billing # live catalog and hosted checkout smoke test; no purchase
 npm run build     # reproducible frontend output in dist/
-npm run deploy    # ACR build plus persistent single-replica live gate
+npm run deploy    # Factory-only deployment plus topology and rate-limit gates
 docker build --build-arg BUILD_SHA=$(git rev-parse HEAD) -t guest-booking-confirm .
-docker run --rm -p 8080:8080 -v gbc-data:/data guest-booking-confirm
+docker run --rm -p 8080:8080 -v "$(pwd)/data:/data" guest-booking-confirm
 ```
 
 Read API calls allow 40 requests and write API calls allow 12 requests per client in any rolling one-second window. Later calls return `429` with `Retry-After: 1`. The exempt `/health` endpoint stays available and returns the compiled build SHA.
 
-The container contract sets UID 10001, `PORT=8080`, SQLite on a persistent Azure Files volume at `/data`, and one serving replica. It handles `SIGTERM` for a graceful shutdown. Factory releases must use `npm run deploy`. The deploy command builds the exact source in Azure Container Registry. It publishes one replica with `/data` mounted. It proves the live build identity and each documented rate limit three times. Before finishing, it confirms that one replica is running and `/data` is mounted. A release fails if any check does not pass.
+The container contract sets UID 10001, `PORT=8080`, SQLite at `/data`, and graceful SIGTERM handling. Factory releases set `deploy.data_dir: /data`; the fleet then creates or adopts its managed `sf-guest-booking-confirm-data` share, mounts it at `/data`, and limits the app to one replica. The product never creates storage or patches a Container App template. `npm run deploy` is factory-only: it requires that work-order setting, delegates deployment to the fleet, then proves the live build identity, fleet-managed `/data` mount, one active revision/replica, and each documented rate limit three times.
 
 ## Privacy and billing
 

@@ -1391,9 +1391,6 @@ mod tests {
         let dockerfile = include_str!("../Dockerfile");
         let server = include_str!("main.rs");
         let service_worker = include_str!("../public/sw.js");
-        let deployment = include_str!("../deploy/enforce-single-replica.sh");
-        let persistent_data = include_str!("../deploy/ensure-persistent-data.sh");
-        let safe_template = include_str!("../deploy/apply-safe-template.sh");
         let live_topology = include_str!("../deploy/verify-live-topology.sh");
         let release = include_str!("../deploy/release.sh");
         assert!(dockerfile.contains("useradd --uid 10001"));
@@ -1406,46 +1403,20 @@ mod tests {
         assert!(server.contains(".with_graceful_shutdown(shutdown())"));
         assert!(server.contains("SignalKind::terminate()"));
         assert!(service_worker.contains("path === '/auth/callback'"));
-        assert!(deployment.contains("--min-replicas 1"));
-        assert!(deployment.contains("--max-replicas 1"));
-        assert!(deployment.contains("properties.template.scale.minReplicas"));
-        assert!(deployment.contains("one active revision and one running replica"));
-        assert!(persistent_data.contains("storageType:\"AzureFile\""));
-        assert!(persistent_data.contains("mount_path=\"/data\""));
-        assert!(persistent_data.contains("PREPARE_STORAGE_ONLY"));
-        assert!(persistent_data.contains("Persistent data mount verification failed"));
-        assert!(safe_template.contains("storageType:\"AzureFile\""));
-        assert!(safe_template.contains(".minReplicas = 1"));
-        assert!(safe_template.contains(".maxReplicas = 1"));
-        assert!(safe_template.contains("volumeMounts"));
-        assert!(safe_template.contains("Safe template verification failed"));
         assert!(live_topology.contains("containerapp revision show"));
         assert!(live_topology.contains("Serving topology verification failed"));
-        let build = release
-            .find("az acr build")
-            .expect("release must build the exact image in ACR");
-        let storage_preparation = release
-            .find("PREPARE_STORAGE_ONLY=1")
-            .expect("release must register Azure Files before publishing the image");
-        let safe_publish = release
-            .find("apply-safe-template.sh")
-            .expect("release must publish the image with its safe template");
-        let initial_replica_enforcement = release
-            .find("enforce-single-replica.sh")
-            .expect("release must enforce the SQLite topology");
+        assert!(live_topology
+            .contains("storage_name=\"${AZURE_ENV_STORAGE_NAME:-sf-guest-booking-confirm-data}\""));
+        assert!(live_topology.contains("volume_name=\"data\""));
+        assert!(live_topology.contains("total_volumes"));
+        assert!(release.contains("WO_DATA_DIR:-}"));
+        assert!(release.contains("deploy.data_dir to /data"));
+        assert!(release.contains("/opt/fleet/lib/deploy-container.sh"));
+        assert!(release.contains("verify-live-topology.sh"));
+        assert!(release.contains("scripts/verify-release.mjs"));
         assert!(
-            build < storage_preparation
-                && storage_preparation < initial_replica_enforcement
-                && initial_replica_enforcement < safe_publish,
-            "the image must be published only after Azure Files is ready and old traffic is converged to one replica"
-        );
-        assert!(
-            !release.contains("factory_deploy_script"),
-            "the unsafe generic max=3/no-volume publisher must not be part of this release path"
-        );
-        assert!(
-            release.contains("verify-live-topology.sh"),
-            "the serving revision, not merely the desired template, must be verified before release completes"
+            !release.contains("az acr build") && !release.contains("az storage") && !release.contains("az rest"),
+            "the product must not create storage or patch Container App templates; the fleet owns that topology"
         );
     }
 

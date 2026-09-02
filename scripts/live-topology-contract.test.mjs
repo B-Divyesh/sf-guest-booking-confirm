@@ -10,16 +10,17 @@ const repo = fileURLToPath(new URL('../', import.meta.url));
 const script = join(repo, 'deploy/verify-live-topology.sh');
 const image = 'sociobotregistry.azurecr.io/sf-guest-booking-confirm:0123456789ab';
 
-async function fixture({ unsafeServingRevision = false } = {}) {
+async function fixture({ unsafeServingRevision = false, extraStorage = false } = {}) {
   const directory = await mkdtemp(join(tmpdir(), 'gbc-topology-contract-'));
   const azPath = join(directory, 'az');
   await writeFile(azPath, `#!/usr/bin/env node
 const args = process.argv.slice(2);
 const image = ${JSON.stringify(image)};
 const unsafe = ${JSON.stringify(unsafeServingRevision)};
+const extraStorage = ${JSON.stringify(extraStorage)};
 const mounted = value => ({
-  containers: [{ image, volumeMounts: value ? [{ volumeName: 'gbc-data', mountPath: '/data' }] : null }],
-  volumes: value ? [{ name: 'gbc-data', storageName: 'guest-booking-confirm-data', storageType: 'AzureFile' }] : null,
+  containers: [{ image, volumeMounts: value ? [{ volumeName: 'data', mountPath: '/data' }, ...(extraStorage ? [{ volumeName: 'product-storage', mountPath: '/product-storage' }] : [])] : null }],
+  volumes: value ? [{ name: 'data', storageName: 'sf-guest-booking-confirm-data', storageType: 'AzureFile' }, ...(extraStorage ? [{ name: 'product-storage', storageName: 'product-created', storageType: 'AzureFile' }] : [])] : null,
   scale: { minReplicas: value ? 1 : 1, maxReplicas: value ? 1 : 3 }
 });
 if (args[0] === 'containerapp' && args[1] === 'show') {
@@ -54,11 +55,20 @@ test('serving topology gate accepts the mounted one-replica revision', async t =
   assert.match(result.stdout, /Azure Files \/data, one active revision, one running replica/);
 });
 
-test('serving topology gate rejects the verifier’s max=3 revision without /data', async t => {
+test('serving topology gate reproduces and rejects the verifier’s max=3 revision without /data', async t => {
   const mock = await fixture({ unsafeServingRevision: true });
   t.after(() => rm(mock.directory, { recursive: true, force: true }));
 
   const result = verify(mock.env);
   assert.equal(result.status, 1);
-  assert.match(result.stderr, /revision\(name=safe-revision active=true image=.* min=1 max=3 volumes=0 mounts=0\)/);
+  assert.match(result.stderr, /revision\(name=safe-revision active=true image=.* min=1 max=3 matching_volumes=0 matching_mounts=0 total_volumes=0 total_mounts=0\)/);
+});
+
+test('serving topology gate rejects product-created additional storage', async t => {
+  const mock = await fixture({ extraStorage: true });
+  t.after(() => rm(mock.directory, { recursive: true, force: true }));
+
+  const result = verify(mock.env);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /matching_volumes=1 matching_mounts=1 total_volumes=2 total_mounts=2/);
 });

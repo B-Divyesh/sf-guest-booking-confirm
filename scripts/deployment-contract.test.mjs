@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import { chmod, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { access, chmod, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { constants } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -7,209 +8,86 @@ import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 
 const repo = fileURLToPath(new URL('../', import.meta.url));
+const release = join(repo, 'deploy/release.sh');
 
-test('the repository deploy command cannot bypass the single-replica release gate', async () => {
+test('the repository deploy command uses the guarded fleet release wrapper', async () => {
   const packageJson = JSON.parse(await readFile(join(repo, 'package.json'), 'utf8'));
   assert.equal(packageJson.scripts.deploy, './deploy/release.sh');
 });
 
-async function fixture({ stuck = false } = {}) {
+async function fixture() {
   const directory = await mkdtemp(join(tmpdir(), 'gbc-deploy-contract-'));
-  const statePath = join(directory, 'state.json');
-  const logPath = join(directory, 'calls.log');
-  const azPath = join(directory, 'az');
-  const verifyPath = join(directory, 'verify-release');
+  const callsPath = join(directory, 'calls.log');
+  const fleetPath = join(directory, 'fleet-deploy');
+  const topologyPath = join(directory, 'verify-topology');
+  const ratePath = join(directory, 'verify-rate-limits');
+  const sourceSha = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: repo, encoding: 'utf8' }).stdout.trim();
+  const expectedImage = `sociobotregistry.azurecr.io/sf-guest-booking-confirm:${sourceSha.slice(0, 12)}`;
 
-  await writeFile(statePath, JSON.stringify({
-    min: 1, max: 3, mode: 'single', active: 1, running: stuck ? 2 : 1,
-    share: false, environmentStorage: false, persistent: false,
-    image: 'registry.test/unsafe:old', built: false,
-    provisioning: 'Succeeded', provisioningChecks: 0,
-  }));
-  await writeFile(azPath, `#!/usr/bin/env node
+  await writeFile(fleetPath, `#!/usr/bin/env node
 const fs = require('node:fs');
 const args = process.argv.slice(2);
-const statePath = process.env.MOCK_AZ_STATE;
-const logPath = process.env.MOCK_AZ_LOG;
-const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
-fs.appendFileSync(logPath, 'az ' + args.join(' ') + '\\n');
-const query = args[args.indexOf('--query') + 1];
-if (args[0] === 'storage' && args[1] === 'share-rm' && args[2] === 'show') {
-  process.exit(state.share ? 0 : 1);
-} else if (args[0] === 'storage' && args[1] === 'share-rm' && args[2] === 'create') {
-  state.share = true;
-  fs.writeFileSync(statePath, JSON.stringify(state));
-} else if (args[0] === 'storage' && args[1] === 'account' && args[2] === 'keys') {
-  process.stdout.write('mock-storage-key');
-} else if (args[0] === 'containerapp' && args[1] === 'env' && args[2] === 'storage' && args[3] === 'show') {
-  process.exit(state.environmentStorage ? 0 : 1);
-} else if (args[0] === 'containerapp' && args[1] === 'env' && args[2] === 'storage' && args[3] === 'set') {
-  state.environmentStorage = true;
-  fs.writeFileSync(statePath, JSON.stringify(state));
-} else if (args[0] === 'acr' && args[1] === 'build') {
-  const image = args[args.indexOf('--image') + 1];
-  if (!/^sf-guest-booking-confirm:[0-9a-f]{12}$/.test(image) || !args.includes('BUILD_SHA=' + process.env.MOCK_SOURCE_SHA)) {
-    process.stderr.write('ACR build did not use the source identity image tag\\n');
-    process.exit(3);
-  }
-  state.built = true;
-  fs.writeFileSync(statePath, JSON.stringify(state));
-} else if (args[0] === 'rest') {
-  const body = JSON.parse(args[args.indexOf('--body') + 1]);
-  if ('cooldownPeriod' in body.properties.template.scale || 'pollingInterval' in body.properties.template.scale || 'ephemeralStorage' in body.properties.template.containers[0].resources) {
-    process.stderr.write('read-only fields leaked into the Azure template patch\\n');
-    process.exit(3);
-  }
-  const template = body.properties?.template || {};
-  const volumes = template.volumes || [];
-  const mounts = template.containers?.[0]?.volumeMounts || [];
-  const port = template.containers?.[0]?.env?.find(item => item.name === 'PORT')?.value;
-  const image = template.containers?.[0]?.image;
-  const mounted = volumes.some(item => item.name === 'gbc-data' && item.storageName === 'guest-booking-confirm-data' && item.storageType === 'AzureFile') && mounts.some(item => item.volumeName === 'gbc-data' && item.mountPath === '/data');
-  if (!state.built || !mounted || template.scale?.minReplicas !== 1 || template.scale?.maxReplicas !== 1 || port !== '8080' || !/^sociobotregistry\\.azurecr\\.io\\/sf-guest-booking-confirm:[0-9a-f]{12}$/.test(image)) {
-    process.stderr.write('image was not published with the safe SQLite template\\n');
-    process.exit(3);
-  }
-  state.persistent = true;
-  state.min = 1;
-  state.max = 1;
-  state.image = image;
-  state.provisioning = 'Updating';
-  state.provisioningChecks = 0;
-  fs.writeFileSync(statePath, JSON.stringify(state));
-} else if (args[0] === 'containerapp' && args[1] === 'update') {
-  if (state.provisioning !== 'Succeeded') {
-    process.stderr.write('ContainerAppOperationInProgress\\n');
-    process.exit(1);
-  }
-  state.min = Number(args[args.indexOf('--min-replicas') + 1]);
-  state.max = Number(args[args.indexOf('--max-replicas') + 1]);
-  if (process.env.MOCK_AZ_STUCK !== '1') state.running = state.max;
-  fs.writeFileSync(statePath, JSON.stringify(state));
-} else if (args[0] === 'containerapp' && args[1] === 'revision' && args[2] === 'set-mode') {
-  state.mode = args[args.indexOf('--mode') + 1];
-  state.active = state.mode === 'single' ? 1 : 2;
-  fs.writeFileSync(statePath, JSON.stringify(state));
-} else if (args[0] === 'containerapp' && args[1] === 'revision' && args[2] === 'show') {
-  process.stdout.write(JSON.stringify({ properties: {
-    active: state.active === 1,
-    template: {
-      containers: [{ image: state.image, volumeMounts: state.persistent ? [{ volumeName: 'gbc-data', mountPath: '/data' }] : null }],
-      volumes: state.persistent ? [{ name: 'gbc-data', storageType: 'AzureFile', storageName: 'guest-booking-confirm-data' }] : null,
-      scale: { minReplicas: state.min, maxReplicas: state.max }
-    }
-  }}));
-} else if (args[0] === 'containerapp' && args[1] === 'show' && !args.includes('--query')) {
-  let provisioningState = state.provisioning;
-  if (state.provisioning === 'Updating') {
-    state.provisioningChecks += 1;
-    if (state.provisioningChecks >= 2) {
-      state.provisioning = 'Succeeded';
-      provisioningState = 'Succeeded';
-    }
-    fs.writeFileSync(statePath, JSON.stringify(state));
-  }
-  process.stdout.write(JSON.stringify({
-    id: '/subscriptions/mock/resourceGroups/sociobot/providers/Microsoft.App/containerApps/sf-guest-booking-confirm',
-    properties: { provisioningState, template: {
-      containers: [{ name: 'app', image: state.image, resources: { cpu: 0.5, memory: '1Gi', ephemeralStorage: '2Gi' }, env: [{ name: 'PORT', value: '8080' }], volumeMounts: state.persistent ? [{ volumeName: 'gbc-data', mountPath: '/data' }] : null }],
-      volumes: state.persistent ? [{ name: 'gbc-data', storageType: 'AzureFile', storageName: 'guest-booking-confirm-data' }] : null,
-      scale: { minReplicas: state.min, maxReplicas: state.max, cooldownPeriod: 300, pollingInterval: 30 }
-    } }
-  }));
-} else if (args[0] === 'containerapp' && args[1] === 'show') {
-  const values = {
-    'properties.template.scale.minReplicas': state.min,
-    'properties.template.scale.maxReplicas': state.max,
-    'properties.latestReadyRevisionName': 'mock-revision',
-    "properties.template.volumes[?name == 'gbc-data' && storageName == 'guest-booking-confirm-data' && storageType == 'AzureFile'] | length(@)": state.persistent ? 1 : 0,
-    "properties.template.containers[0].volumeMounts[?volumeName == 'gbc-data' && mountPath == '/data'] | length(@)": state.persistent ? 1 : 0
-  };
-  process.stdout.write(String(values[query]));
-} else if (args[0] === 'containerapp' && args[1] === 'revision' && args[2] === 'list') {
-  process.stdout.write(String(state.active));
-} else if (args[0] === 'containerapp' && args[1] === 'replica' && args[2] === 'list') {
-  process.stdout.write(String(state.running));
-} else {
-  process.stderr.write('Unexpected az command: ' + args.join(' ') + '\\n');
-  process.exit(3);
-}
+if (process.env.WO_DATA_DIR !== '/data' || args.length !== 4 || args[0] !== 'guest-booking-confirm' || args[2] !== 'Dockerfile' || args[3] !== '8080') process.exit(3);
+fs.appendFileSync(process.env.MOCK_CALLS, 'fleet ' + args.join(' ') + '\\n');
 `);
-  await writeFile(verifyPath, `#!/usr/bin/env node
+  await writeFile(topologyPath, `#!/usr/bin/env node
 const fs = require('node:fs');
-const state = JSON.parse(fs.readFileSync(process.env.MOCK_AZ_STATE, 'utf8'));
-if (state.min !== 1 || state.max !== 1 || state.mode !== 'single' || state.active !== 1 || state.running !== 1 || !state.persistent || !state.built) {
-  process.stderr.write('live verification started before safe topology: ' + JSON.stringify(state) + '\\n');
-  process.exit(4);
-}
-fs.appendFileSync(process.env.MOCK_AZ_LOG, 'verify-release ' + process.argv.slice(2).join(' ') + '\\n');
+const args = process.argv.slice(2);
+if (args.join(' ') !== ${JSON.stringify(`sociobot sf-guest-booking-confirm ${expectedImage}`)}) process.exit(3);
+fs.appendFileSync(process.env.MOCK_CALLS, 'topology ' + args.join(' ') + '\\n');
 `);
-  await Promise.all([chmod(azPath, 0o755), chmod(verifyPath, 0o755)]);
+  await writeFile(ratePath, `#!/usr/bin/env node
+const fs = require('node:fs');
+const args = process.argv.slice(2);
+if (args.join(' ') !== ${JSON.stringify(`https://release.test ${sourceSha}`)}) process.exit(3);
+fs.appendFileSync(process.env.MOCK_CALLS, 'rate ' + args.join(' ') + '\\n');
+`);
+  await Promise.all([chmod(fleetPath, 0o755), chmod(topologyPath, 0o755), chmod(ratePath, 0o755)]);
 
   return {
     directory,
-    statePath,
-    logPath,
+    callsPath,
+    sourceSha,
     env: {
       ...process.env,
-      PATH: `${directory}:${process.env.PATH}`,
-      RELEASE_VERIFY_SCRIPT: verifyPath,
+      WO_DATA_DIR: '/data',
+      FLEET_DEPLOY_CONTAINER: fleetPath,
+      TOPOLOGY_VERIFY_SCRIPT: topologyPath,
+      RELEASE_VERIFY_SCRIPT: ratePath,
       PUBLIC_URL: 'https://release.test',
-      MOCK_AZ_STATE: statePath,
-      MOCK_AZ_LOG: logPath,
-      MOCK_AZ_STUCK: stuck ? '1' : '0',
-      MOCK_SOURCE_SHA: spawnSync('git', ['rev-parse', 'HEAD'], { cwd: repo, encoding: 'utf8' }).stdout.trim(),
-      STORAGE_WAIT_ATTEMPTS: '3',
-      STORAGE_WAIT_SECONDS: '0',
-      REPLICA_WAIT_ATTEMPTS: '1',
-      REPLICA_WAIT_SECONDS: '0'
-    }
+      MOCK_CALLS: callsPath,
+    },
   };
 }
 
-test('release publishes the image only with the persistent one-replica template', async t => {
+test('release delegates the managed /data topology to the fleet and verifies it before and after rate checks', async t => {
   const mock = await fixture();
   t.after(() => rm(mock.directory, { recursive: true, force: true }));
 
-  const result = spawnSync(join(repo, 'deploy/release.sh'), { cwd: repo, env: mock.env, encoding: 'utf8' });
+  const result = spawnSync(release, { cwd: repo, env: mock.env, encoding: 'utf8' });
   assert.equal(result.status, 0, result.stderr);
 
-  const state = JSON.parse(await readFile(mock.statePath, 'utf8'));
-  assert.deepEqual(state, {
-    min: 1, max: 1, mode: 'single', active: 1, running: 1,
-    share: true, environmentStorage: true, persistent: true,
-    image: `sociobotregistry.azurecr.io/sf-guest-booking-confirm:${mock.env.MOCK_SOURCE_SHA.slice(0, 12)}`,
-    built: true, provisioning: 'Succeeded', provisioningChecks: 2,
-  });
+  const calls = (await readFile(mock.callsPath, 'utf8')).trim().split('\n');
+  const expectedImage = `sociobotregistry.azurecr.io/sf-guest-booking-confirm:${mock.sourceSha.slice(0, 12)}`;
+  assert.equal(calls.length, 4);
+  assert.match(calls[0], /^fleet guest-booking-confirm .+ Dockerfile 8080$/);
+  assert.equal(calls[1], `topology sociobot sf-guest-booking-confirm ${expectedImage}`);
+  assert.equal(calls[2], `rate https://release.test ${mock.sourceSha}`);
+  assert.equal(calls[3], `topology sociobot sf-guest-booking-confirm ${expectedImage}`);
 
-  const calls = (await readFile(mock.logPath, 'utf8')).trim().split('\n');
-  assert.match(calls[0], /^az acr build --registry sociobotregistry --image sf-guest-booking-confirm:[0-9a-f]{12} --file Dockerfile /);
-  assert.ok(calls.some(call => /^az storage share-rm create /.test(call)));
-  assert.ok(calls.some(call => /^az containerapp env storage set /.test(call)));
-  assert.ok(calls.some(call => /^az rest --method patch /.test(call)));
-  assert.ok(calls.some(call => /^az containerapp revision show /.test(call)), 'the serving revision must be inspected, not only the desired template');
-  assert.ok(
-    calls.filter(call => /^az containerapp show /.test(call) && !call.includes('--query')).length >= 3,
-    'the combined image/mount/scale template must be polled until Azure reports provisioning Succeeded and checked again at release close'
-  );
-  assert.ok(calls.some(call => /^verify-release https:\/\/release\.test [0-9a-f]{40}$/.test(call)));
-  assert.equal(calls.filter(call => /^az containerapp update /.test(call)).length, 3);
-  assert.equal(calls.filter(call => /^az containerapp revision set-mode /.test(call)).length, 3);
-  assert.equal(calls.filter(call => /^factory-deploy /.test(call)).length, 0);
-  assert.match(result.stdout, /one active revision and one running replica/);
+  const script = await readFile(release, 'utf8');
+  assert.doesNotMatch(script, /\baz (?:acr|storage|rest|containerapp)\b/);
+  await assert.rejects(access(join(repo, 'deploy/ensure-persistent-data.sh'), constants.F_OK));
+  await assert.rejects(access(join(repo, 'deploy/apply-safe-template.sh'), constants.F_OK));
+  await assert.rejects(access(join(repo, 'deploy/enforce-single-replica.sh'), constants.F_OK));
 });
 
-test('release fails instead of claiming success while two replicas still serve', async t => {
-  const mock = await fixture({ stuck: true });
+test('release refuses to publish when the fleet work order does not declare /data', async t => {
+  const mock = await fixture();
   t.after(() => rm(mock.directory, { recursive: true, force: true }));
 
-  const result = spawnSync(join(repo, 'deploy/release.sh'), { cwd: repo, env: mock.env, encoding: 'utf8' });
-  assert.equal(result.status, 1);
-  assert.match(result.stderr, /running_replicas=2/);
-
-  const state = JSON.parse(await readFile(mock.statePath, 'utf8'));
-  assert.equal(state.max, 1, 'the desired scale is corrected even if convergence stalls');
-  assert.equal(state.running, 2, 'the test preserves the unsafe serving state that must block release');
-  assert.equal(state.persistent, false, 'the new image is never published while an unsafe serving topology remains');
-  assert.equal(state.built, true, 'an image build alone cannot expose a new revision');
+  const result = spawnSync(release, { cwd: repo, env: { ...mock.env, WO_DATA_DIR: '' }, encoding: 'utf8' });
+  assert.equal(result.status, 2);
+  assert.match(result.stderr, /deploy\.data_dir to \/data/);
+  await assert.rejects(access(mock.callsPath, constants.F_OK));
 });

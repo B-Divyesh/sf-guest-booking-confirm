@@ -1,0 +1,2 @@
+Serving topology verification failed for sf-guest-booking-confirm: template(image=sociobotregistry.azurecr.io/sf-guest-booking-confirm:995591b2dd52 min=1 max=3 volumes=0 mounts=0 provisioning=Succeeded); revision(name=sf-guest-booking-confirm--0000045 active=true image=sociobotregistry.azurecr.io/sf-guest-booking-confirm:995591b2dd52 min=1 max=3 volumes=0 mounts=0); active_revisions=1 running_replicas=3.
+topology_gate_exit=1
