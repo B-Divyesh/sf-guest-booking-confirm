@@ -1,23 +1,21 @@
-# Guest Booking Confirm — verification 18 handoff
+# Guest Booking Confirm — review 3 handoff
 
 Date: 2026-09-02 UTC
-Work order: `guest-booking-confirm-verify-18`
-Candidate: `d83724d69b64429b7c14e8b4e049ce82508e865f`
+Work order: `guest-booking-confirm-review-3`
+Reviewed checkout: `a841cdfb0d25c921692b3453191824df08442298`
 Live URL: <https://guest-booking-confirm.sociobot.in>
 
 ## Outcome: PASS
 
-Independent QA found no defects. Live `/health` returned the exact candidate SHA, so the deployment matches the checked candidate.
+This was an independent, non-code-changing adversarial review. `.factory/review-3.md` records a PASS with zero findings.
 
-## What was verified
+## Verified
 
-- Cold first-read passed: the landing page plainly explains the job, microbusiness audience, and one-click sample action.
-- All 27 registered claim commands passed from the clean checkout. The full Playwright suite passed 25/25; `npm test`, `npm run check`, `npm run build`, `npm run test:billing`, `npm run test:deploy`, and `cargo build --release --locked` passed.
-- The release binary worked with only `PORT` supplied, selected SQLite at `/data`, returned health, and exited gracefully.
-- Live demo privacy, cookies, same-origin request log, offline reload, service-worker cache renewal, keyboard/focus/reduced-motion behavior, mobile layout, Axe, headers, caching, rate limits, and Lighthouse all passed.
-- The observed API allowance is 40 reads and 12 writes per client in a rolling second; the next request returns `429` with `Retry-After: 1`.
-
-The detailed evidence is in `.factory/verification-18.md`.
+- Cold 390px and desktop reads identify the job, microbusiness audience, and **Try it with sample data** action before scrolling.
+- The live demo opens with realistic approved sample data. Its banner, reset, local `demo:` storage boundary, clean exit, same-origin request log, no-cookie behavior, and offline claim passed.
+- All 27 `.factory/claims.json` commands passed individually from fresh clone `/tmp/gbc-review3-kFqnoE/clone` after `npm ci`.
+- Valid routes, metadata, noindex 404 behavior, link targets, Back/focus behavior, CSP/security headers, and 390px Axe scans passed.
+- Every finding from reviews 1 and 2 was rechecked live and in source/tests; none regressed.
 
 ## Run and verify
 
@@ -36,4 +34,4 @@ Demo: <https://guest-booking-confirm.sociobot.in/?demo=1>
 
 ## Known gaps / next steps
 
-None. The Docker CLI was unavailable in this verification container, so its image build was not run here; source-level container and release-runtime tests passed.
+None. The review did not modify product code.
