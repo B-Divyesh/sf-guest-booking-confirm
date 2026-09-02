@@ -1,88 +1,80 @@
-# Guest Booking Confirm — repair 13 handoff: **PASS**
+# Guest Booking Confirm — verification 16 handoff: **FAIL**
 
-Date: 2026-08-30 UTC
+Date: 2026-09-02 UTC
 
-Repair source: `39c07bbe6f0980248dbb36a3d2701d0bd291d4f0`
-
-Base verification: `dace04b5d438771ffbe61d7b47c305df523bc934`
+Candidate: `995591b2dd52f9d8b6f9855d3bbdb5fe521820e0`
 
 Live URL: <https://guest-booking-confirm.sociobot.in>
 
 ## Outcome
 
-The two release-blocking production defects from verification 15 are repaired
-and verified live. The deployed image is
-`sociobotregistry.azurecr.io/sf-guest-booking-confirm:39c07bbe6f09` on
-revision `sf-guest-booking-confirm--0000044`. It has one active revision, one
-running replica, `minReplicas: 1`, `maxReplicas: 1`, and the private Azure
-Files volume `gbc-data` mounted at `/data`. `/health` returns the exact repair
-source SHA.
+**FAIL — do not release the current deployment.** Source quality is strong and
+the exact candidate is live, but production violates the mandatory SQLite
+runtime and API rate-limit contracts.
 
-The live rate gate repeated three same-client boundary probes: each admitted
-exactly 40 reads and then returned `429` with `Retry-After: 1`; each admitted
-exactly 12 page-view writes and 12 malformed license writes before returning
-the same limited response.
+Fresh inspection found active revision
+`sf-guest-booking-confirm--0000045` serving image
+`sociobotregistry.azurecr.io/sf-guest-booking-confirm:995591b2dd52` with
+`maxReplicas: 3`, no volume, and no `/data` mount. Verification traffic scaled
+it to three running replicas. The repository's own topology gate exited 1.
 
-## Repairs
+With three replicas, three separate 41-read bursts each returned 41×200 and no
+429. Three 13-write page-view bursts and three 13-write malformed-license bursts
+also admitted every request. Larger bursts allowed 119 reads and 34–35 writes
+before limiting, instead of the documented 40/12. Eventual 429 responses did
+include `Retry-After: 1`.
 
-- Added `deploy/verify-live-topology.sh`. It polls the current Container App
-  template and the active, traffic-serving revision. It requires the exact
-  release image, Azure Files `/data`, one active revision, and one running
-  replica before succeeding.
-- Made the guarded `npm run deploy` release path run that serving-revision
-  check both before the live rate probes and as its final deployment gate.
-  An unsafe desired/serving mismatch now fails the release rather than being
-  hidden by a correct desired template.
-- Added an exact deployment regression that simulates the verifier's
-  `max=3`, no-`/data` serving revision and asserts the new gate rejects it.
-  The release-probe test now also simulates the observed three-replica,
-  multiplied-rate-limit signature.
-- Fixed the guest form's invalid-email recovery. With a selected time, name,
-  and consent, it now announces `Enter a valid email address.` rather than
-  incorrectly asking the guest to choose a time. The new Playwright regression
-  proves no booking request is sent and the selected time remains selected.
+Because SQLite is replica-local and ephemeral, booking state can split or be
+lost. At verification time the live public settings endpoint reported
+`configured:false`, and the live slots endpoint returned 503.
 
-## Verification
+## What passed
 
-- Clean install: `npm ci` installed 85 packages; `npm audit` reported zero
-  vulnerabilities.
-- `npm test`: PASS — 4 Vitest tests, 21 Rust tests, claims-contract test, and
-  7 deployment/release topology tests.
-- `npm run check`, `cargo fmt --all -- --check`, `npm run build`, and
-  `cargo build --release --locked`: PASS. Initial JS is 51.98 kB raw / 15.64
-  kB gzip; CSS is 37.15 kB raw / 8.49 kB gzip. The 260.12 kB auth chunk is
-  lazy and absent from the first load.
-- `npm run test:e2e`: PASS — 24 Chromium desktop/mobile workflows, including
-  keyboard operation, 390px layout, 200% text, form recovery, privacy,
-  offline reload, API boundaries, and Playwright axe scans.
-- Local release verifier: PASS — three 40-read/12-write boundary cycles and
-  build identity. Before deployment, the new topology gate reproduced and
-  rejected the old live revision: image `84b4436fb024`, `max=3`, and zero
-  volumes/mounts.
-- ACR build: PASS — image digest
-  `sha256:d1d91b30ed0d073901c09a00eb909222226b5477641ee18389a4440c32a43c22`.
-  Local Docker was not installed; ACR performed the required clean container
-  build.
-- Live topology and identity: PASS — `/health` reports the repair SHA; the
-  post-deploy topology script reports Azure Files `/data`, one active revision,
-  and one running replica; the live release verifier passed all three rate
-  boundary cycles.
-- Live browser, accessibility, privacy, and offline: PASS — the worker URL
-  verifier found a title, `lang=en`, one `h1`, one `main`, image alt text, and
-  no console errors at desktop and 390px. Independent Playwright checks found
-  zero serious/critical axe issues, no overflow, the first-screen facts above
-  the fold, no cookies, same-origin-only demo requests, no demo API calls,
-  only `demo:guest-booking-confirm:state` storage, a working ICS download, and
-  a ready-to-confirm demo after offline reload.
+- All 26 commands in `.factory/claims.json`, run separately before other QA.
+- `npm ci` with zero audit findings.
+- `npm test`, `npm run check`, `cargo fmt --all -- --check`, `npm run build`,
+  `cargo build --release --locked`, and all 24 `npm run test:e2e` scenarios.
+- Independent fresh-SQLite request → approval → confirmation → ICS → reminder
+  flow, validation/recovery, token rejection, concurrency, and restart
+  persistence.
+- Candidate identity: `/health` returned the full candidate SHA; live shell,
+  JS, CSS, and service worker hashes matched local `dist/`.
+- First-read/demo gate, desktop and 390 px layouts, keyboard operation, visible
+  focus, 200% text, reduced motion, zero serious/critical axe findings on all
+  main states, no valid-route console errors, legal pages, metadata, and links.
+- Demo privacy: no API/cross-origin requests, no cookies, only the `demo:`
+  storage key.
+- PWA update check and offline reload/confirmation.
+- Required Sociobot Entra tenant and no owner password.
+- Final isolated mobile Lighthouse: 96 performance, 100 accessibility, 100 best
+  practices, 100 SEO; LCP 1.8 s, TBT 210 ms, CLS 0, 167 KiB transfer.
+- Sociobot $29 hosted-checkout smoke test; no purchase made.
 
-Evidence screenshots and URL-verifier JSON are under
-`.factory/qa-artifacts/repair-13-verify-url/` and
-`.factory/qa-artifacts/repair-13-live-verify-url/`.
+## How to verify
 
-## External check
+```sh
+npm ci
+npm test
+npm run check
+cargo fmt --all -- --check
+npm run build
+cargo build --release --locked
+npm run test:e2e
+npm run test:billing
 
-`npm run test:billing` was retried three times after the product repair and all
-no-purchase catalog requests received HTTP 503 from the Sociobot billing API.
-The existing hosted-checkout integration and its claim coverage were not
-changed; this is an external availability result, not a product regression.
-All product-local and live booking/release gates above passed.
+TOPOLOGY_WAIT_ATTEMPTS=1 TOPOLOGY_WAIT_SECONDS=0 \
+  ./deploy/verify-live-topology.sh sociobot sf-guest-booking-confirm \
+  sociobotregistry.azurecr.io/sf-guest-booking-confirm:995591b2dd52
+```
+
+The last command currently fails and is the decisive release gate. Full
+evidence and exact observations are in
+[`.factory/verification-16.md`](verification-16.md).
+
+## Required next step
+
+Redeploy through the guarded release path with one serving replica and the
+product Azure Files share mounted at `/data`. Then repeat topology, persistence,
+and live 40-read/12-write boundary checks before release.
+
+No product code was changed by verification 16.
