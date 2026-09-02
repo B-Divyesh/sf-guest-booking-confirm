@@ -175,6 +175,13 @@
     "sandbox": "fresh temporary SQLite desk; the first identity creates settings, then a different identity is denied status access and cannot repeat setup"
   },
   {
+    "id": "fleet-managed-release",
+    "claim": "Factory releases give the app a managed /data volume and one running replica. The repository does not create production storage. The release checks the live build, mounted data, one replica, and each rate limit three times.",
+    "where": "README",
+    "test": "npm run test:deploy",
+    "sandbox": "mock fleet release plus live-topology and HTTP verification contracts; assert deployment delegates once without product storage commands, /data is mounted, one replica serves, the expected build is live, and every rate boundary passes three independent bursts"
+  },
+  {
     "id": "container-runtime-contract",
     "claim": "The container contract sets UID 10001, PORT 8080, SQLite under /data, one serving replica, and graceful SIGTERM handling.",
     "where": "README",

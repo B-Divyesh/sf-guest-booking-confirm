@@ -48,7 +48,7 @@ docker run --rm -p 8080:8080 -v "$(pwd)/data:/data" guest-booking-confirm
 
 Read API calls allow 40 requests and write API calls allow 12 requests per client in any rolling one-second window. Later calls return `429` with `Retry-After: 1`. The exempt `/health` endpoint stays available and returns the compiled build SHA.
 
-The container contract sets UID 10001, `PORT=8080`, SQLite at `/data`, and graceful SIGTERM handling. Factory releases set `deploy.data_dir: /data`; the fleet then creates or adopts its managed `sf-guest-booking-confirm-data` share, mounts it at `/data`, and limits the app to one replica. The product never creates storage or patches a Container App template. `npm run deploy` is factory-only: it requires that work-order setting, delegates deployment to the fleet, then proves the live build identity, fleet-managed `/data` mount, one active revision/replica, and each documented rate limit three times.
+The container contract sets UID 10001, `PORT=8080`, SQLite at `/data`, and graceful SIGTERM handling. Factory releases give the app a managed `/data` volume and one running replica. The repository does not create production storage. `npm run deploy` requires `deploy.data_dir: /data`. It checks the live build, mounted data, one replica, and each rate limit three times.
 
 ## Privacy and billing
 

@@ -76,13 +76,15 @@ async function route(): Promise<void> {
 
 function updateMetadata(path: string): void {
   const demo = isDemoRoute();
-  const routeName = demo ? 'demo' : path === '/manage' || path === '/auth/callback' ? 'manage' : path.slice(1) || 'home';
+  const privateBooking = /^\/b\/[^/]+$/.test(path);
+  const routeName = demo ? 'demo' : privateBooking ? 'private-booking' : path === '/manage' || path === '/auth/callback' ? 'manage' : path.slice(1) || 'home';
   const metadata: Record<string, { title: string; description: string; canonical: string }> = {
     home: { title: 'Guest Booking Confirm — confirm guest appointments', description: 'Request, approve, and confirm guest appointments without requiring a guest account.', canonical: '/' },
     demo: { title: 'Demo — Guest Booking Confirm', description: 'Try an isolated sample appointment from owner approval through guest confirmation.', canonical: '/?demo=1' },
     privacy: { title: 'Privacy — Guest Booking Confirm', description: 'See which booking, owner, billing, and anonymous page-count data the service stores.', canonical: '/privacy' },
     terms: { title: 'Terms — Guest Booking Confirm', description: 'Read the booking service terms, limits, and Panel Pro purchase conditions.', canonical: '/terms' },
     manage: { title: 'Owner panel — Guest Booking Confirm', description: 'Set up the booking desk, approve requests, and track manual reminders.', canonical: '/manage' },
+    'private-booking': { title: 'Private booking — Guest Booking Confirm', description: 'View and manage one appointment through its private booking link.', canonical: path },
     '404': { title: 'Page not found — Guest Booking Confirm', description: 'This page is not part of the Guest Booking Confirm appointment desk.', canonical: '/404' },
   };
   const value = metadata[routeName] || metadata['404'];
@@ -319,6 +321,7 @@ function bookingValidationMessage(form: HTMLFormElement): string {
 }
 
 async function guestPage(token: string, justCreated = false): Promise<void> {
+  updateMetadata(`/b/${encodeURIComponent(token)}`);
   loading('Reading your private booking link…');
   try {
     const data = await api<{ booking: Booking; business_name: string; service_name: string }>(`/guest/${encodeURIComponent(token)}`);

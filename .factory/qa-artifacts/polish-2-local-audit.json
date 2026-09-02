@@ -1,0 +1,165 @@
+{
+  "base": "http://127.0.0.1:4173",
+  "firstScreens": {
+    "desktop": {
+      "status": 200,
+      "title": "Guest Booking Confirm — confirm guest appointments",
+      "h1": "Request and confirmguest appointments.",
+      "thirdFactBottom": 768.421875,
+      "viewportHeight": 900,
+      "overflow": 0,
+      "axeSeriousCritical": [],
+      "consoleErrors": [],
+      "pageErrors": []
+    },
+    "mobile-390": {
+      "status": 200,
+      "title": "Guest Booking Confirm — confirm guest appointments",
+      "h1": "Request and confirmguest appointments.",
+      "thirdFactBottom": 504.828125,
+      "viewportHeight": 844,
+      "overflow": 0,
+      "axeSeriousCritical": [],
+      "consoleErrors": [],
+      "pageErrors": []
+    }
+  },
+  "routes": [
+    {
+      "path": "/",
+      "status": 200,
+      "title": "Guest Booking Confirm — confirm guest appointments",
+      "description": "Request, approve, and confirm guest appointments without requiring a guest account.",
+      "canonical": "https://guest-booking-confirm.sociobot.in/",
+      "ogTitle": "Guest Booking Confirm — confirm guest appointments",
+      "ogUrl": "https://guest-booking-confirm.sociobot.in/",
+      "twitterTitle": "Guest Booking Confirm — confirm guest appointments",
+      "robots": "index,follow",
+      "h1Count": 1,
+      "mainCount": 1,
+      "axeSeriousCritical": []
+    },
+    {
+      "path": "/?demo=1",
+      "status": 200,
+      "title": "Demo — Guest Booking Confirm",
+      "description": "Try an isolated sample appointment from owner approval through guest confirmation.",
+      "canonical": "https://guest-booking-confirm.sociobot.in/?demo=1",
+      "ogTitle": "Demo — Guest Booking Confirm",
+      "ogUrl": "https://guest-booking-confirm.sociobot.in/?demo=1",
+      "twitterTitle": "Demo — Guest Booking Confirm",
+      "robots": "index,follow",
+      "h1Count": 1,
+      "mainCount": 1,
+      "axeSeriousCritical": []
+    },
+    {
+      "path": "/privacy",
+      "status": 200,
+      "title": "Privacy — Guest Booking Confirm",
+      "description": "See which booking, owner, billing, and anonymous page-count data the service stores.",
+      "canonical": "https://guest-booking-confirm.sociobot.in/privacy",
+      "ogTitle": "Privacy — Guest Booking Confirm",
+      "ogUrl": "https://guest-booking-confirm.sociobot.in/privacy",
+      "twitterTitle": "Privacy — Guest Booking Confirm",
+      "robots": "index,follow",
+      "h1Count": 1,
+      "mainCount": 1,
+      "axeSeriousCritical": []
+    },
+    {
+      "path": "/terms",
+      "status": 200,
+      "title": "Terms — Guest Booking Confirm",
+      "description": "Read the booking service terms, limits, and Panel Pro purchase conditions.",
+      "canonical": "https://guest-booking-confirm.sociobot.in/terms",
+      "ogTitle": "Terms — Guest Booking Confirm",
+      "ogUrl": "https://guest-booking-confirm.sociobot.in/terms",
+      "twitterTitle": "Terms — Guest Booking Confirm",
+      "robots": "index,follow",
+      "h1Count": 1,
+      "mainCount": 1,
+      "axeSeriousCritical": []
+    },
+    {
+      "path": "/manage",
+      "status": 200,
+      "title": "Owner panel — Guest Booking Confirm",
+      "description": "Set up the booking desk, approve requests, and track manual reminders.",
+      "canonical": "https://guest-booking-confirm.sociobot.in/manage",
+      "ogTitle": "Owner panel — Guest Booking Confirm",
+      "ogUrl": "https://guest-booking-confirm.sociobot.in/manage",
+      "twitterTitle": "Owner panel — Guest Booking Confirm",
+      "robots": "index,follow",
+      "h1Count": 1,
+      "mainCount": 1,
+      "axeSeriousCritical": []
+    },
+    {
+      "path": "/polish-2-no-such-page",
+      "status": 404,
+      "completeMetadata": true,
+      "noindex": true
+    }
+  ],
+  "privateBooking": {
+    "title": "Private booking — Guest Booking Confirm",
+    "description": "View and manage one appointment through its private booking link.",
+    "canonical": "https://guest-booking-confirm.sociobot.in/b/polish-2-valid-token",
+    "ogTitle": "Private booking — Guest Booking Confirm",
+    "ogDescription": "View and manage one appointment through its private booking link.",
+    "ogUrl": "https://guest-booking-confirm.sociobot.in/b/polish-2-valid-token",
+    "twitterTitle": "Private booking — Guest Booking Confirm",
+    "twitterDescription": "View and manage one appointment through its private booking link.",
+    "robots": "noindex,nofollow",
+    "h1": "Ready to confirm",
+    "axeSeriousCritical": []
+  },
+  "demo": {
+    "initial": {
+      "title": "Demo — Guest Booking Confirm",
+      "canonical": "https://guest-booking-confirm.sociobot.in/?demo=1",
+      "h1": "Ready to confirm",
+      "banner": "Demo — sample data, nothing is savedTry the guest confirmation step safely.Reset demoStart for real",
+      "storage": {
+        "keys": [
+          "demo:guest-booking-confirm:state",
+          "real:polish-2-sentinel"
+        ],
+        "sentinel": "untouched",
+        "demo": "{\"status\":\"awaiting_confirmation\"}"
+      },
+      "cookies": ""
+    },
+    "confirmed": "Confirmed",
+    "reset": "Ready to confirm",
+    "requestsBeforeExit": [
+      "http://127.0.0.1:4173/?demo=1",
+      "http://127.0.0.1:4173/assets/main-BcEDh8Gt.js",
+      "http://127.0.0.1:4173/assets/styles-DvVNZ0Tj.js",
+      "http://127.0.0.1:4173/assets/styles-Bz4AkY4Z.css"
+    ],
+    "apiRequestsBeforeExit": [],
+    "crossOriginRequestsBeforeExit": [],
+    "afterExit": {
+      "url": "http://127.0.0.1:4173/",
+      "storage": {
+        "keys": [
+          "real:polish-2-sentinel"
+        ],
+        "sentinel": "untouched",
+        "demo": null
+      }
+    }
+  },
+  "offline": {
+    "controlled": true,
+    "h1": "Ready to confirm",
+    "banner": "Demo — sample data, nothing is savedTry the guest confirmation step safely.Reset demoStart for real"
+  },
+  "sitemap": {
+    "status": 200,
+    "canonicalDemoListed": true,
+    "aliasDemoAbsent": true
+  }
+}

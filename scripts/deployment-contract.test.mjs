@@ -60,7 +60,7 @@ fs.appendFileSync(process.env.MOCK_CALLS, 'rate ' + args.join(' ') + '\\n');
   };
 }
 
-test('release delegates the managed /data topology to the fleet and verifies it before and after rate checks', async t => {
+test('@claim:fleet-managed-release release delegates the managed /data topology to the fleet and verifies it before and after rate checks', async t => {
   const mock = await fixture();
   t.after(() => rm(mock.directory, { recursive: true, force: true }));
 

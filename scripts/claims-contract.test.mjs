@@ -6,6 +6,11 @@ const claims = JSON.parse(readFileSync(new URL('../.factory/claims.json', import
 const browserTests = readFileSync(new URL('../tests/booking-flow.spec.ts', import.meta.url), 'utf8');
 const rustTests = readFileSync(new URL('../src/main.rs', import.meta.url), 'utf8');
 const publicCopy = readFileSync(new URL('../frontend/src/app.ts', import.meta.url), 'utf8');
+const deploymentTests = [
+  '../scripts/deployment-contract.test.mjs',
+  '../scripts/release-verification.test.mjs',
+  '../scripts/live-topology-contract.test.mjs',
+].map(path => readFileSync(new URL(path, import.meta.url), 'utf8')).join('\n');
 
 test('the claims registry has one executable regression for every public promise', () => {
   const ids = claims.map(claim => claim.id);
@@ -35,6 +40,12 @@ test('the claims registry has one executable regression for every public promise
         rustTests.split(`fn ${testName}(`).length - 1,
         1,
         `${claim.id} must name exactly one Rust test`,
+      );
+    } else if (claim.test === 'npm run test:deploy') {
+      assert.equal(
+        deploymentTests.split(`@claim:${claim.id}`).length - 1,
+        1,
+        `${claim.id} must tag exactly one deployment test`,
       );
     } else {
       assert.equal(claim.test, 'npm run test:billing', `${claim.id} uses an unknown claim command`);

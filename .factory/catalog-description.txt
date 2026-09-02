@@ -1,1 +1,1 @@
-Request, approve, and confirm guest appointments without guest accounts.
+Confirm guest appointments after owner approval, without guest accounts.

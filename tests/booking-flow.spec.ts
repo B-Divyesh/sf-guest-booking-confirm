@@ -343,6 +343,41 @@ test('every route publishes its own title, canonical URL, and sharing metadata',
   }
 });
 
+test('private booking pages publish private metadata instead of 404 metadata', async ({ page }) => {
+  const token = 'review-token';
+  const canonical = `https://guest-booking-confirm.sociobot.in/b/${token}`;
+  await page.route(`**/api/guest/${token}`, route => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({
+      business_name: 'Northstar Barber',
+      service_name: 'Precision cut',
+      booking: {
+        id: 'review-booking',
+        reference: 'REVIEW-482',
+        guest_name: 'Maya Chen',
+        starts_at: '2026-09-04T14:00:00Z',
+        timezone: 'UTC',
+        duration_minutes: 45,
+        status: 'awaiting_confirmation',
+        updated_at: '2026-09-02T10:00:00Z',
+      },
+    }),
+  }));
+
+  await page.goto(`/b/${token}`);
+  await expect(page.getByRole('heading', { name: 'Ready to confirm' })).toBeVisible();
+  await expect(page).toHaveTitle('Private booking — Guest Booking Confirm');
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', 'View and manage one appointment through its private booking link.');
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', canonical);
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', 'Private booking — Guest Booking Confirm');
+  await expect(page.locator('meta[property="og:description"]')).toHaveAttribute('content', 'View and manage one appointment through its private booking link.');
+  await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content', canonical);
+  await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute('content', 'Private booking — Guest Booking Confirm');
+  await expect(page.locator('meta[name="twitter:description"]')).toHaveAttribute('content', 'View and manage one appointment through its private booking link.');
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex,nofollow');
+});
+
 test('@claim:demo-confirmation-trail demo starts approved and reaches guest confirmation', async ({ page }) => {
   await page.goto('/?demo=1');
   await expect(page.getByRole('complementary', { name: 'Demo controls' })).toContainText('Demo — sample data, nothing is saved');
@@ -544,7 +579,8 @@ test('unknown routes return the designed 404 and hashed assets are immutable', a
   const sitemap = await request.get('/sitemap.xml');
   expect(sitemap.status()).toBe(200);
   const sitemapXml = await sitemap.text();
-  for (const route of ['/', '/demo', '/privacy', '/terms', '/manage']) expect(sitemapXml).toContain(`https://guest-booking-confirm.sociobot.in${route}`);
+  for (const route of ['/', '/?demo=1', '/privacy', '/terms', '/manage']) expect(sitemapXml).toContain(`https://guest-booking-confirm.sociobot.in${route}`);
+  expect(sitemapXml).not.toContain('https://guest-booking-confirm.sociobot.in/demo');
   await expect(page.goto('/this-route-does-not-exist')).resolves.toBeTruthy();
   await expect(page.getByRole('heading', { name: 'That page is not on this desk' })).toBeVisible();
   await page.goto('/demo');
