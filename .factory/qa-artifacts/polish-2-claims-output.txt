@@ -1,0 +1,679 @@
+
+[1] npm run test:e2e -- --grep @claim:demo-confirmation-trail
+
+> guest-booking-confirm@1.0.0 test:e2e
+> playwright test --grep @claim:demo-confirmation-trail
+
+[WebServer] (node:8429) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer]    Compiling proc-macro2 v1.0.107
+[WebServer]    Compiling quote v1.0.47
+[WebServer]    Compiling unicode-ident v1.0.24
+[WebServer]    Compiling libc v0.2.189
+[WebServer]    Compiling syn v3.0.4
+[WebServer]    Compiling syn v2.0.119
+[WebServer]    Compiling cfg-if v1.0.4
+[WebServer]    Compiling pin-project-lite v0.2.17
+[WebServer]    Compiling futures-core v0.3.34
+[WebServer]    Compiling synstructure v0.13.2
+[WebServer]    Compiling find-msvc-tools v0.1.11
+[WebServer]    Compiling shlex v2.0.1
+[WebServer]    Compiling cc v1.4.4
+[WebServer]    Compiling zerofrom-derive v0.1.7
+[WebServer]    Compiling zerofrom v0.1.8
+[WebServer]    Compiling yoke-derive v0.8.2
+[WebServer]    Compiling scopeguard v1.2.0
+[WebServer]    Compiling stable_deref_trait v1.2.1
+[WebServer]    Compiling lock_api v0.4.14
+[WebServer]    Compiling parking_lot_core v0.9.12
+[WebServer]    Compiling zerovec-derive v0.11.6
+[WebServer]    Compiling yoke v0.8.3
+[WebServer]    Compiling itoa v1.0.18
+[WebServer]    Compiling once_cell v1.21.4
+[WebServer]    Compiling bytes v1.12.1
+[WebServer]    Compiling zerovec v0.11.8
+[WebServer]    Compiling displaydoc v0.2.7
+[WebServer]    Compiling smallvec v1.15.2
+[WebServer]    Compiling autocfg v1.5.1
+[WebServer]    Compiling memchr v2.8.3
+[WebServer]    Compiling serde v1.0.229
+[WebServer]    Compiling tinystr v0.8.4
+[WebServer]    Compiling serde_derive v1.0.229
+[WebServer]    Compiling socket2 v0.6.5
+[WebServer]    Compiling mio v1.2.2
+[WebServer]    Compiling litemap v0.8.3
+[WebServer]    Compiling writeable v0.6.4
+[WebServer]    Compiling icu_locale_core v2.3.0
+[WebServer]    Compiling zerotrie v0.2.5
+[WebServer]    Compiling potential_utf v0.1.6
+[WebServer]    Compiling icu_normalizer_data v2.3.0
+[WebServer]    Compiling utf8_iter v1.0.4
+[WebServer]    Compiling icu_provider v2.3.1
+[WebServer]    Compiling icu_collections v2.3.0
+[WebServer]    Compiling icu_properties_data v2.3.0
+[WebServer]    Compiling tracing-attributes v0.1.31
+[WebServer]    Compiling zeroize v1.9.0
+[WebServer]    Compiling untrusted v0.9.0
+[WebServer]    Compiling slab v0.4.12
+[WebServer]    Compiling serde_core v1.0.229
+[WebServer]    Compiling percent-encoding v2.3.2
+[WebServer]    Compiling futures-task v0.3.34
+[WebServer]    Compiling futures-io v0.3.34
+[WebServer]    Compiling rustls-pki-types v1.15.1
+[WebServer]    Compiling parking_lot v0.12.5
+[WebServer]    Compiling icu_properties v2.3.0
+[WebServer]    Compiling errno v0.3.14
+[WebServer]    Compiling futures-sink v0.3.34
+[WebServer]    Compiling zmij v1.0.23
+[WebServer]    Compiling signal-hook-registry v1.4.8
+[WebServer]    Compiling form_urlencoded v1.2.2
+[WebServer]    Compiling tracing-core v0.1.36
+[WebServer]    Compiling tokio-macros v2.7.2
+[WebServer]    Compiling serde_json v1.0.151
+[WebServer]    Compiling rustls v0.23.43
+[WebServer]    Compiling version_check v0.9.5
+[WebServer]    Compiling tokio v1.53.1
+[WebServer]    Compiling generic-array v0.14.7
+[WebServer]    Compiling getrandom v0.2.17
+[WebServer]    Compiling log v0.4.34
+[WebServer]    Compiling num-traits v0.2.19
+[WebServer]    Compiling ring v0.17.14
+[WebServer]    Compiling typenum v1.20.1
+[WebServer]    Compiling subtle v2.6.1
+[WebServer]    Compiling tracing v0.1.44
+[WebServer]    Compiling thiserror v2.0.20
+[WebServer]    Compiling futures-util v0.3.34
+[WebServer]    Compiling webpki-roots v1.0.9
+[WebServer]    Compiling thiserror-impl v2.0.20
+[WebServer]    Compiling crossbeam-utils v0.8.22
+[WebServer]    Compiling equivalent v1.0.2
+[WebServer]    Compiling iana-time-zone v0.1.65
+[WebServer]    Compiling block-buffer v0.10.4
+[WebServer]    Compiling crypto-common v0.1.7
+[WebServer]    Compiling http v1.5.0
+[WebServer]    Compiling allocator-api2 v0.2.21
+[WebServer]    Compiling ryu v1.0.23
+[WebServer]    Compiling base64 v0.22.1
+[WebServer]    Compiling foldhash v0.1.5
+[WebServer]    Compiling http-body v1.1.0
+[WebServer]    Compiling hashbrown v0.15.5
+[WebServer]    Compiling digest v0.10.7
+[WebServer]    Compiling icu_normalizer v2.3.0
+[WebServer]    Compiling hashbrown v0.17.1
+[WebServer]    Compiling parking v2.2.1
+[WebServer]    Compiling pkg-config v0.3.34
+[WebServer]    Compiling vcpkg v0.2.15
+[WebServer]    Compiling crc-catalog v2.5.0
+[WebServer]    Compiling cpufeatures v0.2.17
+[WebServer]    Compiling sha2 v0.10.9
+[WebServer]    Compiling crc v3.4.0
+[WebServer]    Compiling libsqlite3-sys v0.30.1
+[WebServer]    Compiling indexmap v2.14.0
+[WebServer]    Compiling event-listener v5.4.2
+[WebServer]    Compiling idna_adapter v1.2.2
+[WebServer]    Compiling crossbeam-queue v0.3.13
+[WebServer]    Compiling hashlink v0.10.0
+[WebServer]    Compiling rustls-webpki v0.103.15
+[WebServer]    Compiling webpki-roots v0.26.11
+[WebServer]    Compiling futures-channel v0.3.34
+[WebServer]    Compiling spin v0.9.9
+[WebServer]    Compiling tower-service v0.3.3
+[WebServer]    Compiling httparse v1.10.1
+[WebServer]    Compiling idna v1.1.0
+[WebServer]    Compiling try-lock v0.2.5
+[WebServer]    Compiling httpdate v1.0.3
+[WebServer]    Compiling want v0.3.1
+[WebServer]    Compiling tokio-stream v0.1.19
+[WebServer]    Compiling url v2.5.8
+[WebServer]    Compiling futures-intrusive v0.5.0
+[WebServer]    Compiling either v1.18.0
+[WebServer]    Compiling chrono v0.4.45
+[WebServer]    Compiling sync_wrapper v1.0.2
+[WebServer]    Compiling unicase v2.9.0
+[WebServer]    Compiling zerocopy v0.8.56
+[WebServer]    Compiling tower-layer v0.3.3
+[WebServer]    Compiling atomic-waker v1.1.2
+[WebServer]    Compiling mime v0.3.17
+[WebServer]    Compiling sqlx-core v0.8.6
+[WebServer]    Compiling hyper v1.11.0
+[WebServer]    Compiling mime_guess v2.0.5
+[WebServer]    Compiling futures-executor v0.3.34
+[WebServer]    Compiling flume v0.11.1
+[WebServer]    Compiling serde_urlencoded v0.7.1
+[WebServer]    Compiling atoi v2.0.0
+[WebServer]    Compiling http-body-util v0.1.5
+[WebServer]    Compiling ipnet v2.12.1
+[WebServer]    Compiling time-core v0.1.9
+[WebServer]    Compiling num-conv v0.2.2
+[WebServer]    Compiling time-macros v0.2.32
+[WebServer]    Compiling hyper-util v0.1.20
+[WebServer]    Compiling sqlx-sqlite v0.8.6
+[WebServer]    Compiling tower v0.5.3
+[WebServer]    Compiling num-integer v0.1.47
+[WebServer]    Compiling regex-syntax v0.8.11
+[WebServer]    Compiling dotenvy v0.15.7
+[WebServer]    Compiling heck v0.5.0
+[WebServer]    Compiling siphasher v1.0.3
+[WebServer]    Compiling hex v0.4.3
+[WebServer]    Compiling powerfmt v0.2.0
+[WebServer]    Compiling deranged v0.5.8
+[WebServer]    Compiling time v0.3.55
+[WebServer]    Compiling regex-automata v0.4.18
+[WebServer]    Compiling sqlx-macros-core v0.8.6
+[WebServer]    Compiling phf_shared v0.12.1
+[WebServer]    Compiling ppv-lite86 v0.2.21
+[WebServer]    Compiling num-bigint v0.4.8
+[WebServer]    Compiling tokio-rustls v0.26.4
+[WebServer]    Compiling tokio-util v0.7.19
+[WebServer]    Compiling rand_core v0.6.4
+[WebServer]    Compiling chrono-tz v0.10.4
+[WebServer]    Compiling http-range-header v0.4.2
+[WebServer]    Compiling bitflags v2.13.1
+[WebServer]    Compiling anyhow v1.0.104
+[WebServer]    Compiling lazy_static v1.5.0
+[WebServer]    Compiling sharded-slab v0.1.7
+[WebServer]    Compiling tower-http v0.6.11
+[WebServer]    Compiling rand_chacha v0.3.1
+[WebServer]    Compiling hyper-rustls v0.27.9
+[WebServer]    Compiling simple_asn1 v0.6.4
+[WebServer]    Compiling phf v0.12.1
+[WebServer]    Compiling sqlx-macros v0.8.6
+[WebServer]    Compiling matchers v0.2.0
+[WebServer]    Compiling axum-core v0.5.6
+[WebServer]    Compiling pem v3.0.6
+[WebServer]    Compiling tracing-serde v0.2.0
+[WebServer]    Compiling tracing-log v0.2.0
+[WebServer]    Compiling serde_path_to_error v0.1.20
+[WebServer]    Compiling axum-macros v0.5.1
+[WebServer]    Compiling thread_local v1.1.10
+[WebServer]    Compiling matchit v0.8.4
+[WebServer]    Compiling nu-ansi-term v0.50.3
+[WebServer]    Compiling tracing-subscriber v0.3.23
+[WebServer]    Compiling axum v0.8.9
+[WebServer]    Compiling jsonwebtoken v9.3.1
+[WebServer]    Compiling sqlx v0.8.6
+[WebServer]    Compiling reqwest v0.12.28
+[WebServer]    Compiling rand v0.8.8
+[WebServer]    Compiling guest-booking-confirm v0.1.0 (/tmp/gbc-polish-2-claims-aOENWo)
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 1m 25s
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+[WebServer]      Running `target/debug/guest-booking-confirm`
+
+Running 1 test using 1 worker
+(node:11896) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11896) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+·
+  1 passed (1.5m)
+
+[2] npm run test:e2e -- --grep @claim:appointment-status-preview
+
+> guest-booking-confirm@1.0.0 test:e2e
+> playwright test --grep @claim:appointment-status-preview
+
+[WebServer] (node:12024) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+[WebServer]      Running `target/debug/guest-booking-confirm`
+
+Running 1 test using 1 worker
+(node:12058) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12058) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+·
+  1 passed (7.5s)
+
+[3] npm run test:e2e -- --grep @claim:demo-local-only
+
+> guest-booking-confirm@1.0.0 test:e2e
+> playwright test --grep @claim:demo-local-only
+
+[WebServer] (node:12176) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+[WebServer]      Running `target/debug/guest-booking-confirm`
+
+Running 1 test using 1 worker
+(node:12211) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12211) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+·
+  1 passed (4.9s)
+
+[4] npm run test:e2e -- --grep @claim:offline-reload
+
+> guest-booking-confirm@1.0.0 test:e2e
+> playwright test --grep @claim:offline-reload
+
+[WebServer] (node:12346) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer]     Finished[WebServer]  `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+[WebServer]      Running `target/debug/guest-booking-confirm`
+
+Running 1 test using 1 worker
+(node:12381) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12381) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+·
+  1 passed (5.2s)
+
+[5] npm run test:e2e -- --grep @claim:no-tracking-cookies
+
+> guest-booking-confirm@1.0.0 test:e2e
+> playwright test --grep @claim:no-tracking-cookies
+
+[WebServer] (node:12497) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+[WebServer]      Running `target/debug/guest-booking-confirm`
+
+Running 1 test using 1 worker
+(node:12533) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12533) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+·
+  1 passed (4.8s)
+
+[6] cargo test --locked claim_anonymous_page_view_count
+   Compiling guest-booking-confirm v0.1.0 (/tmp/gbc-polish-2-claims-aOENWo)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.64s
+     Running unittests src/main.rs (target/debug/deps/guest_booking_confirm-baa3ea70b4d41a91)
+
+running 1 test
+test tests::claim_anonymous_page_view_count ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 20 filtered out; finished in 0.02s
+
+
+[7] cargo test --locked claim_service_storage_inventory
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running unittests src/main.rs (target/debug/deps/guest_booking_confirm-baa3ea70b4d41a91)
+
+running 1 test
+test tests::claim_service_storage_inventory ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 20 filtered out; finished in 0.07s
+
+
+[8] npm run test:e2e -- --grep @claim:guest-no-account
+
+> guest-booking-confirm@1.0.0 test:e2e
+> playwright test --grep @claim:guest-no-account
+
+[WebServer] (node:12949) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+[WebServer]      Running `target/debug/guest-booking-confirm`
+
+Running 1 test using 1 worker
+(node:12983) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12983) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+·
+  1 passed (8.1s)
+
+[9] npm run test:e2e -- --grep @claim:owner-approval-before-booking
+
+> guest-booking-confirm@1.0.0 test:e2e
+> playwright test --grep @claim:owner-approval-before-booking
+
+[WebServer] (node:13113) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+[WebServer]      Running `target/debug/guest-booking-confirm`
+
+Running 1 test using 1 worker
+(node:13148) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:13148) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+·
+  1 passed (7.9s)
+
+[10] npm run test:e2e -- --grep @claim:copy-private-booking-link
+
+> guest-booking-confirm@1.0.0 test:e2e
+> playwright test --grep @claim:copy-private-booking-link
+
+[WebServer] (node:13293) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+[WebServer]      Running `target/debug/guest-booking-confirm`
+
+Running 1 test using 1 worker
+(node:13328) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:13328) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+·
+  1 passed (9.9s)
+
+[11] npm run test:e2e -- --grep @claim:private-booking-link-security
+
+> guest-booking-confirm@1.0.0 test:e2e
+> playwright test --grep @claim:private-booking-link-security
+
+[WebServer] (node:13457) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+[WebServer]      Running `target/debug/guest-booking-confirm`
+
+Running 1 test using 1 worker
+(node:13492) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:13492) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+·
+  1 passed (9.8s)
+
+[12] npm run test:e2e -- --grep @claim:guest-rescheduling
+
+> guest-booking-confirm@1.0.0 test:e2e
+> playwright test --grep @claim:guest-rescheduling
+
+[WebServer] (node:13617) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+[WebServer]      Running `target/debug/guest-booking-confirm`
+
+Running 1 test using 1 worker
+(node:13652) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:13652) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+·
+  1 passed (4.9s)
+
+[13] npm run test:e2e -- --grep @claim:guest-cancellation
+
+> guest-booking-confirm@1.0.0 test:e2e
+> playwright test --grep @claim:guest-cancellation
+
+[WebServer] (node:13768) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+[WebServer]      Running `target/debug/guest-booking-confirm`
+
+Running 1 test using 1 worker
+(node:13802) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:13802) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+·
+  1 passed (4.8s)
+
+[14] npm run test:e2e -- --grep @claim:confirmed-calendar-ics
+
+> guest-booking-confirm@1.0.0 test:e2e
+> playwright test --grep @claim:confirmed-calendar-ics
+
+[WebServer] (node:13918) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.17s
+[WebServer]      Running `target/debug/guest-booking-confirm`
+
+Running 1 test using 1 worker
+(node:13953) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:13953) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+·
+  1 passed (3.8s)
+
+[15] npm run test:e2e -- --grep @claim:manual-reminder-checklist
+
+> guest-booking-confirm@1.0.0 test:e2e
+> playwright test --grep @claim:manual-reminder-checklist
+
+[WebServer] (node:14075) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.17s
+[WebServer]      Running `target/debug/guest-booking-confirm`
+
+Running 1 test using 1 worker
+(node:14127) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14127) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+·
+  1 passed (4.8s)
+
+[16] cargo test --locked claim_free_desk_capacity_and_retention
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running unittests src/main.rs (target/debug/deps/guest_booking_confirm-baa3ea70b4d41a91)
+
+running 1 test
+test tests::claim_free_desk_capacity_and_retention ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 20 filtered out; finished in 0.18s
+
+
+[17] cargo test --locked claim_panel_pro_capacity_and_retention
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running unittests src/main.rs (target/debug/deps/guest_booking_confirm-baa3ea70b4d41a91)
+
+running 1 test
+test tests::claim_panel_pro_capacity_and_retention ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 20 filtered out; finished in 0.17s
+
+
+[18] npm run test:billing
+
+> guest-booking-confirm@1.0.0 test:billing
+> node --test scripts/billing-live.test.mjs
+
+TAP version 13
+# Subtest: @claim:panel-pro-checkout Panel Pro has a live $29 hosted checkout
+ok 1 - @claim:panel-pro-checkout Panel Pro has a live $29 hosted checkout
+  ---
+  duration_ms: 1652.588394
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1767.273972
+
+[19] npm run test:e2e -- --grep @claim:browser-license-storage
+
+> guest-booking-confirm@1.0.0 test:e2e
+> playwright test --grep @claim:browser-license-storage
+
+[WebServer] (node:14309) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+[WebServer]      Running `target/debug/guest-booking-confirm`
+
+Running 1 test using 1 worker
+(node:14348) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14348) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+·
+  1 passed (4.9s)
+
+[20] cargo test --locked claim_revoked_license_returns_to_free_limits_and_keeps_export
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running unittests src/main.rs (target/debug/deps/guest_booking_confirm-baa3ea70b4d41a91)
+
+running 1 test
+test tests::claim_revoked_license_returns_to_free_limits_and_keeps_export ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 20 filtered out; finished in 0.07s
+
+
+[21] cargo test --locked claim_generated_artwork_provenance
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running unittests src/main.rs (target/debug/deps/guest_booking_confirm-baa3ea70b4d41a91)
+
+running 1 test
+test tests::claim_generated_artwork_provenance ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 20 filtered out; finished in 0.00s
+
+
+[22] npm run test:e2e -- --grep @claim:api-rate-limit
+
+> guest-booking-confirm@1.0.0 test:e2e
+> playwright test --grep @claim:api-rate-limit
+
+[WebServer] (node:14488) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+[WebServer]      Running `target/debug/guest-booking-confirm`
+
+Running 1 test using 1 worker
+(node:14523) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14523) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+·
+  1 passed (6.2s)
+
+[23] npm run test:e2e -- --grep @claim:health-build-identity
+
+> guest-booking-confirm@1.0.0 test:e2e
+> playwright test --grep @claim:health-build-identity
+
+[WebServer] (node:14642) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+[WebServer]      Running `target/debug/guest-booking-confirm`
+
+Running 1 test using 1 worker
+(node:14677) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14677) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+·
+  1 passed (6.1s)
+
+[24] npm run test:e2e -- --grep @claim:owner-entra-identity
+
+> guest-booking-confirm@1.0.0 test:e2e
+> playwright test --grep @claim:owner-entra-identity
+
+[WebServer] (node:14791) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+[WebServer]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+[WebServer]      Running `target/debug/guest-booking-confirm`
+
+Running 1 test using 1 worker
+(node:14825) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14825) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+·
+  1 passed (5.2s)
+
+[25] cargo test --locked claim_first_owner_setup_is_exclusive
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running unittests src/main.rs (target/debug/deps/guest_booking_confirm-baa3ea70b4d41a91)
+
+running 1 test
+test tests::claim_first_owner_setup_is_exclusive ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 20 filtered out; finished in 0.07s
+
+
+[26] npm run test:deploy
+
+> guest-booking-confirm@1.0.0 test:deploy
+> node --test scripts/deployment-contract.test.mjs scripts/release-verification.test.mjs scripts/live-topology-contract.test.mjs
+
+TAP version 13
+# Subtest: the repository deploy command uses the guarded fleet release wrapper
+ok 1 - the repository deploy command uses the guarded fleet release wrapper
+  ---
+  duration_ms: 7.07106
+  type: 'test'
+  ...
+# Subtest: @claim:fleet-managed-release release delegates the managed /data topology to the fleet and verifies it before and after rate checks
+ok 2 - @claim:fleet-managed-release release delegates the managed /data topology to the fleet and verifies it before and after rate checks
+  ---
+  duration_ms: 290.689979
+  type: 'test'
+  ...
+# Subtest: release refuses to publish when the fleet work order does not declare /data
+ok 3 - release refuses to publish when the fleet work order does not declare /data
+  ---
+  duration_ms: 22.785994
+  type: 'test'
+  ...
+# Subtest: serving topology gate accepts the mounted one-replica revision
+ok 4 - serving topology gate accepts the mounted one-replica revision
+  ---
+  duration_ms: 455.608485
+  type: 'test'
+  ...
+# Subtest: serving topology gate reproduces and rejects the verifier’s max=3 revision without /data
+ok 5 - serving topology gate reproduces and rejects the verifier’s max=3 revision without /data
+  ---
+  duration_ms: 324.632268
+  type: 'test'
+  ...
+# Subtest: serving topology gate rejects product-created additional storage
+ok 6 - serving topology gate rejects product-created additional storage
+  ---
+  duration_ms: 264.071452
+  type: 'test'
+  ...
+# Subtest: release verification proves all read and write boundaries repeatedly
+ok 7 - release verification proves all read and write boundaries repeatedly
+  ---
+  duration_ms: 502.401184
+  type: 'test'
+  ...
+# Subtest: release verification rejects the verifier’s three-replica multiplied allowance signature
+ok 8 - release verification rejects the verifier’s three-replica multiplied allowance signature
+  ---
+  duration_ms: 258.192802
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1128.714926
+
+[27] cargo test --locked claim_container_runtime_contract
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running unittests src/main.rs (target/debug/deps/guest_booking_confirm-baa3ea70b4d41a91)
+
+running 1 test
+test tests::claim_container_runtime_contract ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 20 filtered out; finished in 0.00s
+
